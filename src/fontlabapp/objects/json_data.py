@@ -603,7 +603,7 @@ def _parts(layer: Any) -> _Parts:
     """Return the shapes, anchors and guidelines of one decoded layer.
 
     ``flLayer.guidelines`` holds the layer's guidelines and its hints
-    (``flGuideLine.isHint()``); hints refer to nodes of the same decoded
+    (``flGuideLine.isHint``); hints refer to nodes of the same decoded
     shapes, so both are taken from one decoded layer together.
     """
     return _Parts(
