@@ -1,0 +1,82 @@
+# this_file: Scripts/Objects/Copy Selection As JSON Demo.py
+# SPDX-License-Identifier: Apache-2.0
+"""Copy Selection As JSON: put FontLab 9.1 object JSON on the clipboard.
+
+What: in a Glyph window with selected shapes, copies those shapes of the
+current layer; otherwise copies the glyphs selected in the Font window (or
+the current glyph). Uses ``fontlabapp.objects.json_data.export`` and
+``json_data.copy_to_clipboard`` (MIME ``application/json``, the type FontLab's
+own Copy uses, plus plain text, so a text editor can show and edit the JSON).
+Use: select glyphs or shapes and run; then run Paste JSON Glyphs Demo or Paste
+JSON Shapes Into Layer Demo, in this font or another one.
+Safety: changes no font and records nothing for Undo. Needs FontLab 9.1 or
+later; on 9.0 it says so and stops. Whether FontLab's own Edit > Paste reads
+this clipboard is not verified.
+"""
+
+TITLE = "Copy Selection As JSON"
+
+
+def notify(title: str, text: str, details: str = "") -> None:
+    """Show a modal report box."""
+    import fly
+    from fly.ap.qt.dialogs import create_message_box, run_message_box
+
+    qt = fly.qt
+    box = create_message_box(
+        qt.QtGui, title, text, "Information", (fly.fl.MainWindow(),), detail=details
+    )
+    box.setWindowTitle(title)
+    run_message_box(box, qt.QtGui.QMessageBox.Ok)
+
+
+def selection(fl, package) -> tuple[str, list]:
+    """Return ``(label, objects)``: selected shapes of the current layer, else glyphs."""
+    from fly.ap.core.scripting import names_selected_names
+
+    glyph = fl.CurrentGlyph()
+    layer = glyph.activeLayer() if glyph is not None else None
+    shapes = [
+        s
+        for s in (layer.shapes if layer is not None else ())
+        if getattr(s, "selected", False)
+    ]
+    if shapes:
+        return f"selected shapes of {glyph.name}/{layer.name}", shapes
+    glyphs = [
+        g
+        for g in (package.findName(n) for n in names_selected_names())
+        if g is not None
+    ]
+    return "selected glyphs", glyphs
+
+
+def main() -> None:
+    """Copy the selection as object JSON and report what was copied."""
+    import fly
+    from fly.ap.core.scripting import current_package
+    from fly.ap.objects import json_data
+
+    if not json_data.available():
+        notify(TITLE, json_data.NEEDS_91)
+        return
+    package = current_package()
+    if package is None:
+        notify(TITLE, "Open a font first. Nothing was copied.")
+        return
+    label, objects = selection(fly.fl, package)
+    if not objects:
+        notify(TITLE, "Select glyphs or shapes first. Nothing was copied.")
+        return
+    raw = json_data.export(package, objects)
+    json_data.copy_to_clipboard(raw)
+    lines = json_data.describe(json_data.Envelope.parse(raw))
+    notify(
+        TITLE,
+        f"Copied {len(objects)} {label} as object JSON ({len(raw)} bytes).",
+        "\n".join(lines),
+    )
+
+
+if __name__ == "__main__":
+    main()

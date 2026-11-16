@@ -1,0 +1,43 @@
+# this_file: pyproject.toml
+[build-system]
+requires = ["hatchling>=1.27", "hatch-vcs>=0.4"]
+build-backend = "hatchling.build"
+[project]
+name = "fontlab-fontlabapp"
+dynamic = ["version"]
+description = "FontLab application context and utilities"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0 AND MIT AND BSD-3-Clause AND LicenseRef-Proprietary"  # MIT/BSD: third-party notices in NOTICE; proprietary: examples/LICENSE-native-ui
+license-files = ["LICENSE", "NOTICE", "examples/LICENSE-native-ui"]
+dependencies = ["fontlab-python-pens>=1.0.0"]
+[project.urls]
+Repository = "https://github.com/fontlabcom/fontlab-fontlabapp"
+[project.optional-dependencies]
+fontport = ["fontlab-fontport>=1.2.2"]
+markdown = ["Markdown>=3.7", "pymdown-extensions>=10"]
+hotkeys = ["pyobjc-framework-Quartz>=10; sys_platform == 'darwin'"]
+unicode = ["unicodedata2>=15"]
+fontui = ["fontTools>=4.59"]
+fontui-shaping = ["fontTools>=4.59", "uharfbuzz>=0.39"]
+test = ["pytest>=8", "uharfbuzz>=0.39", "Markdown>=3.7", "pymdown-extensions>=10", "ufoLib2>=0.18", "fontParts>=1.1,<2", "fonttools>=4.59", "PySide6-Essentials>=6.7"]
+[tool.hatch.version]
+source = "vcs"
+[tool.hatch.version.raw-options]
+fallback_version = "0.1.0"
+[tool.uv]
+# Consumers install this checkout as a path dependency; rebuild it when sources or the commit change.
+cache-keys = [{ file = "pyproject.toml" }, { file = "src/**/*.py" }, { file = "src/**/*.pyi" }, { git = { commit = true } }]
+[tool.uv.sources]
+# fontlab-python-pens is not published; resolve it from the sibling checkout.
+fontlab-python-pens = { path = "../fontlab-python-pens", editable = true }
+[tool.hatch.build.targets.wheel]
+packages = ["src/fontlabapp"]
+[tool.hatch.build.targets.sdist]
+only-include = ["src", "tests", "tools", "examples", "Scripts", "generated/fontlabapp_shim", "pyproject.toml", "install.vfpy", "README.md", "LICENSE", "LICENSE-APACHE-2.0", "NOTICE", "MIGRATION.json", "src_docs", "tests_docs", ".github/workflows/docs.yml", "CHANGELOG.md", "DEPENDENCIES.md", "test.sh"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+[tool.fontlab-install]
+# install.vfpy: reverse-domain id; FontLab keeps Extensions/<id>/install.log.
+id = "com.fontlab.fontlabapp"

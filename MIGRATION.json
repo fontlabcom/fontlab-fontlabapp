@@ -1,0 +1,527 @@
+{
+  "source_repository": "fontlabcom/fontlabpy",
+  "source_revision": "907983777cc5ced9810696134bf9a3bf719208e8",
+  "files": [
+    {
+      "source": "extra/Lib/fontlabapp/__init__.py",
+      "destination": "src/fontlabapp/__init__.py",
+      "sha256": "de796055df4421b3e9b9f66f812a0d1acf49be42b2fc0933646ae96024509cb6",
+      "destination_sha256": "2b5dfc645e78683cbfd3b51caa5e1743a102e39b9dc6829c6f62e97b429fc660",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/__init__.py",
+        "note": "Root exports retained; other modules relocated per tools/fontlabapp-mapping.json. Historical hashes unchanged."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/application/__init__.py",
+      "destination": "src/fontlabapp/core/application/__init__.py",
+      "sha256": "6bc33cffaef660ca5164e2704e5552b92eb99580ec97da63a45e4e7dd139e643",
+      "destination_sha256": "12569f83370e9d1cf1e837a2964bd05896811971cf39770ed880222d00a8a6c0",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/application/__init__.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/application/application.py",
+      "destination": "src/fontlabapp/core/application/context.py",
+      "sha256": "1db1627a0b8aea56b9443270fbd265e451a943d6312fa409c14a3e5bf23a6eff",
+      "destination_sha256": "37af8780671457fcc7c5219201bc6e4e637801566bb71fe6e9edab88e7cf7ba7",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/application/application.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/application/paths.py",
+      "destination": "src/fontlabapp/core/application/paths.py",
+      "sha256": "7a837234006bb3bcd31dfcfe7c06996dfcadeb3b889ed8edfe39f783c519894b",
+      "destination_sha256": "04a4595aa62f4e6ef562e49c7031f0e12e5fe38390c7643351a34e9c19c962d7",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/application/paths.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/application/preflib.py",
+      "destination": "src/fontlabapp/core/application/preflib.py",
+      "sha256": "71b0fe9fe1a62f9c841897d8ecf258047ccb1fa6439a5a26a60ccd4f956c8c61",
+      "destination_sha256": "358ded8f2df4ace514637b7870c4631da4df924e9521159382a54e007c26b496",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/application/preflib.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/application/ui.py",
+      "destination": "src/fontlabapp/core/application/ui.py",
+      "sha256": "da2518ed877cac59da4a311464353b51a2ec4f91dbcd8daef3635ffb1af9e202",
+      "destination_sha256": "25b220644ecea32a6cfe16b60506159a9a15ce57c96ee63eb844a2e2ebf0eacf",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/application/ui.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/application/versions.py",
+      "destination": "src/fontlabapp/core/application/versions.py",
+      "sha256": "85801272c4efb83de7bd0a5e2f4f1e73663643cd9a06fa4f5dd0d73c24fa4991",
+      "destination_sha256": "fb45e608e32573140edafa8d5a111d3f76df530b1a4d51ba984a2077a5ea9de9",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/application/versions.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/hotkey/__init__.py",
+      "destination": "src/fontlabapp/core/hotkey/__init__.py",
+      "sha256": "a6359bc983ca2ec7ad27d675efcde427b5f554823b20f9a03c50fa6d31503205",
+      "destination_sha256": "838fcac48c11cd443852302529e4ca7c82737ba5a6210c6064af90bd4bf7257e",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/hotkey/__init__.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/hotkey/mac.py",
+      "destination": "src/fontlabapp/core/hotkey/mac.py",
+      "sha256": "eed3344cb969fe46db93d6dc011e68ed8841f4feb4e8f0aea6a99eb2a6023eca",
+      "destination_sha256": "0d7775f9a929292db619421a1e3c232369e6ec007e8265248c178ea1c92f17e5",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/hotkey/mac.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/hotkey/manager.py",
+      "destination": "src/fontlabapp/core/hotkey/manager.py",
+      "sha256": "b6bd10c991dad523ceae5620ddcc2a1d0d56f6a59f715591c313d19d1af70acb",
+      "destination_sha256": "450be0334db301f230944860b7728e66ced8303241fdbd84b91eefdf896f016a",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/hotkey/manager.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/hotkey/win.py",
+      "destination": "src/fontlabapp/core/hotkey/win.py",
+      "sha256": "6c570d339fe332a6308aeab0448a05d54bd09d2ffea7e98f94aebaa2e8c52954",
+      "destination_sha256": "a7e4ea082fb5916b6332af192e38914f277e0b739382ab2c6e1ee3329862cb57",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/hotkey/win.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/utils/__init__.py",
+      "destination": "src/fontlabapp/core/utils/__init__.py",
+      "sha256": "e79dfef2f3599161230aee96d82dc9a935ce7dc255625f4c024883009050bc6c",
+      "destination_sha256": "929b5f83ed11332ed48a39b42b83554106b90b6ab43853ef564d3878ee63fa13",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/utils/__init__.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/utils/collections.py",
+      "destination": "src/fontlabapp/core/utils/collections.py",
+      "sha256": "65bffd2bad4b03bd388257358dfcd2bbd80b6d94ac7111e94f13f218bff98b78",
+      "destination_sha256": "86037aa725cd50094c0c5f570e074e97904e8beafb5d219550c791df2b063564",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/utils/collections.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/utils/json.py",
+      "destination": "src/fontlabapp/core/utils/json.py",
+      "sha256": "5a0d92d5cc6a335b16a8c944d9bdf46df8faaf38ace9a93416df45fa048101a9",
+      "destination_sha256": "68d8a123fcff693fa53e3e65cbdef3f9ebb4b7a8f528fef30bf6b1224979f4db",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/utils/json.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/utils/merge.py",
+      "destination": "src/fontlabapp/core/utils/merge.py",
+      "sha256": "21d6d535f21f853ff4e1e38e30a74f38129d64418d7eb1ce1cd58c5e22d6f974",
+      "destination_sha256": "4b906aa9f84e8d9be27727c3c3eef14579ce85829ed9fd4ab6ba6751dbf182eb",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/utils/merge.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    },
+    {
+      "source": "extra/Lib/fontlabapp/utils/text.py",
+      "destination": "src/fontlabapp/core/utils/text.py",
+      "sha256": "9c78d249de3fea51723d772cd3f4301e409e1fdd7430e007c35dcc19174472ca",
+      "destination_sha256": "9c3d56ec8429258c2f5a5c9e307b863854de501bb2211a218f0a6ab4f8da43b8",
+      "issue_205_move": {
+        "previous_destination": "src/fontlabapp/utils/text.py",
+        "note": "Domain relocation; sha256 fields retain historical provenance."
+      }
+    }
+  ],
+  "source_preserved": false,
+  "recovery_archive": {
+    "path": "legacy/source.tar.gz",
+    "sha256": "00086cb3274527d76e8e34137c0c2dd750f4cb3c17dd397baa21de7c8268b67e",
+    "excluded_from_distributions": true
+  },
+  "source_cleanup": {
+    "status": "verified moved; verbatim originals retained in destination recovery",
+    "source_commits": {
+      "aidus-code": "63773030c1b82fda2f7cc6774b68c042359bb3c7",
+      "fontlabpy": "50933ff0f6329521caa300ba7c6c84c566a731bf",
+      "fontlab-python-docs": "4ff36702f0db26e3db0e0d672bce8ac29d685010"
+    },
+    "complete_shadow_archive_sha256": "0dc04c9677043f1345be97e9d2f9998b4988f60c25df2905343b60221d76e7a4",
+    "excluded_recovery_from_distributions": true
+  },
+  "spinbox_family": {
+    "source_repository": "fontlabcom/fontlab-python-examples",
+    "sources": [
+      {
+        "path": "rescued/part3/pyqt-official-ports/ports/widgets/pyqt-official/spinboxes-468179092748a72e.py",
+        "sha256": "e25b26cd135fd40ef1ed9316a402483d676ba7606da94007f00078993b5fa54b",
+        "resources": []
+      },
+      {
+        "path": "rescued/part2/ports/widgets/pyqt-official/spinboxes-468179092748a72e.py",
+        "sha256": "cbaed2d33a67865efa54c15f71701d7b62c6d2bda69a111e6351fac866f972db",
+        "resources": []
+      }
+    ],
+    "license": "Apache-2.0 (owner D22)",
+    "source_preserved": true,
+    "original_workflow_accepted": false,
+    "native_acceptance": "pending",
+    "destinations": {
+      "src/fontlabapp/numeric_proof.py": "a529a7adffb56239a5f68b9cfdf4cc726cad6c2981a75cd3fe267a1e21dcdb8d",
+      "src/fontlabapp/spinbox_controls.py": "ea06564c9ff340be4a5ee94f235ac616630335a4ed647d6095b7978827024345",
+      "src/fontlabapp/spinbox_panel.py": "3a77e830a219ab7b6cf3d33e8be09da6f5a7d3d67237afce23d4abbdb50b9e16",
+      "src/fontlabapp/spinbox_results.py": "e8f743843c536e7eba6c6c1a1c971cdb2307b2146df27bc3c99bd14275121c46",
+      "src/fontlabapp/glyph_numeric.py": "bc49fdfb711e97db36f603167aa528116ff05348b112f1fc07feb10e8bbc9d8f"
+    }
+  },
+  "sliders_family": {
+    "originals": [
+      {
+        "path": "fontlab-python-examples/rescued/part2/ports/widgets/pyqt-official/sliders-36805750b888fba6.py",
+        "sha256": "aa662a1158ce7f691d467ef90974895e39ef05ce33098ac7072b7cca5efbad56"
+      },
+      {
+        "path": "fontlab-python-examples/rescued/part3/pyqt-official-ports/ports/widgets/pyqt-official/sliders-36805750b888fba6.py",
+        "sha256": "24312666a881173fd0a203fd1217ea8d13be8edc0e70b08628e3c4addc49cc5d"
+      }
+    ],
+    "destinations": {
+      "src/fontlabapp/slider_capture.py": "e8de6e6f402cde96e2870987eb2e887d8be6799ee10b750005ec148afeb0ae10",
+      "src/fontlabapp/slider_controls.py": "819ef3b6ca292fd223b25f749143569096719a7aa7993608fc4a4ed674013c16",
+      "src/fontlabapp/slider_panel.py": "67be6f579b26f37c047f15cc0a7817d86bee69cadefbcec942cd419bc2fdea10",
+      "src/fontlabapp/slider_profiles.py": "e79ee4fedb81083cef5c74cc31713d997a4335db24437b2c13bca145c76b5421",
+      "src/fontlabapp/slider_spacing.py": "53da6cc90dd2afc115179b472ae11a09b4dc4e045a8c1255422449c28294b982"
+    },
+    "native_acceptance": "pending",
+    "font_writers": false,
+    "original_body_executed": false,
+    "intentional_change": "part2 initial controls Horizontal matching selected label"
+  },
+  "shared_deferred_batch": {
+    "source_repository": "fontlab-glyport",
+    "source_revision": "2c46c729f6780ad07fb1254296426189a0e4bb84",
+    "source_path": "src/fontlab_glyport/plugins/fontlab_host.py",
+    "source_sha256": "d22baabe2cf0f885db3294dec9ef5028eb76754ac7f16692a05a8e1da137ade1",
+    "original_source_sha256": "d22baabe2cf0f885db3294dec9ef5028eb76754ac7f16692a05a8e1da137ade1",
+    "destination": "src/fontlabapp/deferred_batch.py",
+    "foreign_policy": "remains in Glyport",
+    "native_acceptance": "pending",
+    "adapter_sha256": "d0f8227d4c8381cf1134a91dcfb027b30d7aeb31459caf0518cff086b81e6525"
+  },
+  "reza_master_point_counter": {
+    "title": "Point Counter (Master Layers)",
+    "key": "master-point-counter",
+    "destination": "Scripts/Reports/Point Counter (Master Layers).py",
+    "destination_sha256": "06aa01793ae146b8d35973288d985c17424029e0ee7fcf2b602d20aebea3a747",
+    "kind": "independent-original-workflow-implementation",
+    "counted_in_130_sample_migration": false,
+    "upstream_repository": "https://github.com/RezaBohloul/RezaBohloul",
+    "source_path": "Path/Point Counter.py",
+    "source_sha256": "d6eeb1c6ba156dc03208b2d82362295f0f376a389f1414477c8abb0539e6bb6c",
+    "source_license": "not declared in inspected source tree",
+    "source_body_redistributed": false,
+    "license": "Apache-2.0",
+    "scope": "Every selected occurrence, stored master layers only, empty masters/repeats, own paths/handles/nodes, normal fixed400x300 readonly report; quadratic endpoints included as explicit source correction.",
+    "app_minimum": "0.2.114.dev0",
+    "native_acceptance": "pending"
+  },
+  "slobzheninov_dangerous_offcurves": {
+    "title": "Dangerous Offcurves",
+    "key": "dangerous-offcurves",
+    "destination": "Scripts/Reports/Dangerous Offcurves.py",
+    "destination_sha256": "08945918db739592e7f0f267e6e46712eaffaee32ba9bdf3adc9f7de16f44d01",
+    "kind": "independent-original-workflow-implementation",
+    "counted_in_130_sample_migration": false,
+    "upstream_repository": "https://github.com/slobzheninov/Glyphs-Scripts",
+    "source_path": "Bug fixing/Dangerous Offcurves.py",
+    "source_sha256": "b4278e37d164357b16051cdec642b19554199e3561246b9016ad56792884816a",
+    "source_license": "Apache-2.0",
+    "source_body_redistributed": false,
+    "license": "Apache-2.0",
+    "scope": "All glyphs/all foreground layers/own paths; raw wrapped four-node windows, all four finite control-axis probes, strict0.05, distinct exact-layer new tab and every per-curve finding. Ascending analytic curve-t ordering is explicit adaptation, not proven Glyphs equivalence.",
+    "app_minimum": "0.2.117.dev0",
+    "native_acceptance": "pending"
+  },
+  "duplicate_unicodes": {
+    "title": "Duplicate Unicodes",
+    "key": "names_duplicate_unicodes",
+    "kind": "complete-original-writer-candidate",
+    "counted_in_130_sample_migration": false,
+    "source_path": "rescued/samples/names_duplicate_unicodes.py",
+    "source_sha256": "b42ab5f9a4bead19a4a0a042d9fe9fcffbfadfe650da6551b4f9ea3819ba865e",
+    "license": "Apache-2.0",
+    "source_body_redistributed": false,
+    "native_acceptance": "pending",
+    "app_minimum": "0.2.121.dev0",
+    "scope": "Whole font numeric duplicates, primary/fontorder keeper, expanded editable checkbox tree, Rescan/Remove ticked/Close, exact surviving Unicode order. Actual font-owned code setters with two-pass stale fences, Font-window/pending-update/auto-dependant/native-dedup preflight and one final history batch; explicit partial failures, no UpdateAll/fgGlyph getter. Full Undo/Redo/dirty/font/cache/reopen native qualification pending.",
+    "source_repository": "fontlabcom/fontlab-python-scriptmix",
+    "runtime": {
+      "src/fontlabapp/_duplicate_unicodes_panel.py": "fdbf00c9ff4724202bebb2c43766070cdda578b2265a840c7d43e81426128870",
+      "src/fontlabapp/_duplicate_unicodes_tree.py": "8c62ca25fc97fc9d25878d3836c711689280bc74a034fa27872c294f0e3578ae",
+      "src/fontlabapp/duplicate_unicodes.py": "8d8ca59861e3a21e889b0460c67b78625a3e4558e954627ecf10b89a07e9bb17",
+      "src/fontlabapp/duplicate_unicodes_capture.py": "e6e1673ffa8db9a29e05dce0f46647fd458aafdf523d04503be129e2c660aeda",
+      "src/fontlabapp/duplicate_unicodes_native.py": "acf20adf6b3e68e96aaadfd5b86fcc36a065882aced071e893fc108afe610e8b"
+    },
+    "open_editor_guard": "All open GlyphWindow classes, active or inactive, refused before history through App qt_list. Native qualification remains pending."
+  },
+  "paired_find_files": [
+    {
+      "source_menu": "Scripts/Archived UI A-I/dialogs - findfiles-63f2eeefd052f701.py",
+      "menu": "Scripts/Tools/Find Font Source Files.py",
+      "source": "rescued/part2/ports/dialogs/pyqt-official/findfiles-63f2eeefd052f701.py",
+      "source_sha256": "322658e86c233171b37cb1976ed9828afda860dcc5708ace099119f3e4e9cf83",
+      "destination_sha256": "5102826100c6bd60c0173df09381f3bbaae7e04341ca8abddea34a042cf4aa13",
+      "entry_point": "show",
+      "license": "Apache-2.0 (owner D22); original Qt notices retained",
+      "scope": "Decoded UTF8 replacement text; live filename glob; file symlinks included; progressively visible results and numeric KiB sizes; no Find-click history insertion. Complete Browse/Find/progress/Cancel/sizes/open-result/window lifecycle; actual user files, no sample fabrication.",
+      "native_acceptance": "pending",
+      "original_workflow_accepted": false,
+      "family": "find-files-text"
+    },
+    {
+      "source_menu": "Scripts/Archived Official/findfiles-63f2eeefd052f701 - f98c2bcd.py",
+      "menu": "Scripts/Tools/Find Font Source Files - Bytes.py",
+      "source": "rescued/part3/pyqt-official-ports/ports/dialogs/pyqt-official/findfiles-63f2eeefd052f701.py",
+      "source_sha256": "d53e4871dcd3e6e3a8c901b07ec99db769a65265e4e3539bc68ffb721bbe20d6",
+      "destination_sha256": "1e34726503ab31dea6a709817abdcba7359057f3ebf73d1f49f38a370209d8bc",
+      "entry_point": "show_bytes",
+      "license": "Apache-2.0 (owner D22); original Qt notices retained",
+      "scope": "Exact UTF8 byte matching; captured blank-or-glob; file symlinks excluded; final table only; unique Find-click histories; literal KB sizes. Complete Browse/Find/progress/Cancel/sizes/open-result/window lifecycle; actual user files, no sample fabrication.",
+      "native_acceptance": "pending",
+      "original_workflow_accepted": false,
+      "family": "find-files-bytes"
+    }
+  ],
+  "shared_qt_numeric": {
+    "source": "Glyport .37 Cocoa/Vanilla Slider and Progress controls",
+    "module": "src/fontlabapp/qt_numeric.py",
+    "sha256": "edc7642e05df00fbb4e64469f9c2d3899a70f28cb42c09839ecb009b666a6837",
+    "license": "MIT",
+    "foreign_policy_retained": true,
+    "native_acceptance": "pending",
+    "complete_issue120_taskset2": false
+  },
+  "crossfont_copy_anchors": {
+    "original": {
+      "path": "fontlab-python-examples/_reference/kateliev_TypeRig/Scripts/TypeRig Tools/TR-CopyAnchors.py",
+      "sha256": "60e2fd0c872276538d8d21a443a06e9a0282ada5b8a90b96c81da8e52bf19cdf",
+      "bytes": 14870
+    },
+    "source_body_redistributed": false,
+    "source_license": "MPL-2.0",
+    "source_license_sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+    "source_font_repair": "Selected mode requires verified active source Font window; All mode works for every chosen registered source.",
+    "destination_notification": "actual resolved destination layer/glyph owners",
+    "native_acceptance": "pending",
+    "destinations": {
+      "src/fontlabapp/crossfont_anchors_native.py": "b7217d9286b75a91488e472a4232b532b32cb5ec6815200ae6a3e4ad48aa868d",
+      "src/fontlabapp/crossfont_anchors_transaction.py": "5137e29048bb25bc7768745aa41d95bd9734a7238a9ed4037beae408c072e505",
+      "src/fontlabapp/crossfont_anchors_controls.py": "16d1175a8bda7f0df256f87e7087460301a98b7c86e3bc7efd31383d56022b34",
+      "src/fontlabapp/crossfont_anchors_capture.py": "9ab6bf06eb6ae49eb57ab8d6b485135856d0055c68d33333fe3ffb7ae6b0a39e",
+      "src/fontlabapp/crossfont_anchors_panel.py": "4122f60c4a43d252413dc532eaeacfbf359e901ed72c902742230477a6960b3c",
+      "src/fontlabapp/crossfont_anchors_names.py": "974bf1368543a9b9e6cb04ab23e76d71b1b95848ea7fd8372032e8f9ca50071b",
+      "src/fontlabapp/crossfont_anchors.py": "5cf279e8f6573b03f0cf69d901dbab1a4a566275a8fed0df11b5d7d6182f8bc7"
+    },
+    "repair_N208": {
+      "advance": "Raw captured floats retained; original pGlyph.getAdvance integer conversion applies only to geometry/fallback/write predicate.",
+      "derived_flags": "Stage exact cloud+mark after name changes on native clones; compare full expected metadata.",
+      "native_insertion": "Use detached name-only native addAnchor for complete Qt trim/numeric suffix semantics and later collisions; clearAnchors/release cleanup, native calibration gate explicit."
+    }
+  },
+  "anchor_pin_style_scalar": {
+    "module": "src/fontlabapp/anchor_duplicates_capture.py",
+    "source_boundary": "Native style getter returns its scalar label; no integer/string coercion or setter.",
+    "shared_consumers": [
+      "Anchor Duplicates",
+      "Copy Anchors Between Fonts"
+    ],
+    "sha256": "a2d71ae0b85544a53929dcd0876ac45de1404352917579a6b2c94ff3616e78ea",
+    "native_full_workflow_accepted": false
+  },
+  "paired_background_clear": {
+    "sources": [
+      {
+        "source_path": "Cleaning/Clear background in all layers.py",
+        "source_sha256": "efdddf6895ee001bb96e9a744a62b4cc31bb7d8f28045b367df7d6bc42d4c0d0",
+        "license": "Apache-2.0",
+        "scope": "Whole current font in original glyph/layer order; remove entire original background objects. Distinct all-layer and declared-master scope, deduplicated shared identities. Ambiguous/orphan mappings and auto dependants refuse before history. One final batch, explicit partial failure; complete native payload/history/reopen acceptance pending.",
+        "native_acceptance": "pending"
+      },
+      {
+        "source_path": "Cleaning/Clear background in all master layers.py",
+        "source_sha256": "f4664b72409bf7a0a198dc0cc3c708f179415021b42bcbbd974ca9d5c8bad73a",
+        "license": "Apache-2.0",
+        "scope": "Whole current font in original glyph/layer order; remove entire original background objects. Distinct all-layer and declared-master scope, deduplicated shared identities. Ambiguous/orphan mappings and auto dependants refuse before history. One final batch, explicit partial failure; complete native payload/history/reopen acceptance pending.",
+        "native_acceptance": "pending"
+      }
+    ],
+    "runtime": {
+      "src/fontlabapp/background_clear.py": "32bff5448a27a05e3e0eeb280a05bf2696582752ee8d3621b28ab9c25358cac1",
+      "src/fontlabapp/background_clear_capture.py": "abb0b097f985cc74c81b52426a229ff5f9eb04bb682fd83e0a80a69bfb9bc56d",
+      "src/fontlabapp/background_clear_controls.py": "8d30af3ceb856747a2e17e4a8162015b73f25e5abf1bed762d5437ccf1c6956b",
+      "src/fontlabapp/background_clear_native.py": "af55c0e12dd14181462e1094853ea5929e2afa5539ddacbdc36e4ffa12856ecc",
+      "src/fontlabapp/background_clear_panel.py": "96df58956cc71c294e72a134f940a4eb2d5b3a873eecd1fd852cf7cdc3dc8533"
+    },
+    "app_minimum": "0.2.151.dev0",
+    "original_workflow_accepted": false,
+    "repair": "N239F1 dates cannot skip attempted-batch notification; F2 nonassigning resolver/locked target refusal; F3 checked linear expected-survivor preparation before history. Active/locked domain remains unaccepted, no native proof."
+  },
+  "raise_ascender": {
+    "source": "simoncozens--GlyphsScripts/Raise Ascender.py",
+    "source_sha256": "a6bba363ea8c22660f3f3a02f67a2cd14748afc7a683303c9acffacd85d671f2",
+    "license": "MIT",
+    "native_acceptance": "pending",
+    "full_original_domain_accepted": false,
+    "destinations": {
+      "src/fontlabapp/_raise_ascender_capture.py": "ea364cf150b2052e00eb397859f80494214014fb15b9c886304736f30ca31032",
+      "src/fontlabapp/_raise_ascender_geometry.py": "992a7cdf73f051ef9a0e2b15f9bf32badc420781025c642d3ba602c363ad5ddb",
+      "src/fontlabapp/_raise_ascender_panel.py": "3938212d14b32c537f5826ebb6c9e0ffe0f533437d1cdc2656cd79f686645e89",
+      "src/fontlabapp/_raise_ascender_write.py": "83f3d5439ff0701e9116101dea8103699b162c92287971ff9709624c87de0753",
+      "src/fontlabapp/raise_ascender.py": "2939d8c5f6a5a3f9a21bf5596bd35b565c779247be1763cef8ae27af5686d8d7",
+      "src/fontlabapp/raise_ascender_native.py": "188f65a452786decb4bcd3c9ddb025d59140049fddb96dfe81974e114ba6b994"
+    },
+    "repair_N257": "Successful normal Close retires owned UI access; retained errors/callbacks inert after deletion. Failed live Close keeps diagnostic/retry. Shared Completion unchanged; complete native domains still pending.",
+    "repair_N263": "Re-arm owned completion after a close helper fails after stopping it; live diagnostics/retry and later parent destruction remain safe. Shared Completion unchanged. Native original domains remain pending."
+  },
+  "perpendicular_guides": {
+    "title": "Perpendicular Guides",
+    "key": "perpendicular-guides",
+    "destination": "Scripts/Guides/Perpendicular Guides.py",
+    "destination_sha256": "2eb8755d2e9d919fbb15bd0ea5bc2a2720af82e652699fa963f9bbf10d9b8778",
+    "kind": "independent-original-workflow-implementation",
+    "counted_in_130_sample_migration": false,
+    "upstream_repository": "https://github.com/Reset-Type-Studio/Glyphs-Scripts",
+    "source_path": "Guides/Perpendicular Guides.py",
+    "source_sha256": "4a634c17f65d75f7c79b5167d7cd575e59251874bd8a9995573f6c1cd3b931d3",
+    "source_license": "Apache-2.0",
+    "source_license_sha256": "b2277e28b737406bc33675768a216f2b2260c5f177e635d4874a10b46652863d",
+    "source_attribution": "Copyright 2025 Fernando D\u00edaz & Reset Type Studio",
+    "source_body_redistributed": false,
+    "license": "Apache-2.0",
+    "scope": "Complete first-layer selected-node mean/nearest-two-distinct stable rule and simultaneous transformed-component-centre horizontal/vertical branches. Controls included, stored order retained; one notification, existing metadata in place.",
+    "app_minimum": "0.2.154.dev0",
+    "native_acceptance": "pending",
+    "destinations": {
+      "src/fontlabapp/perpendicular_guides.py": "e3ba097045b3c856f7f45f0891735de27b0a00e5be0be89704abdaabd38e3b05",
+      "src/fontlabapp/perpendicular_guides_native.py": "3464c7fffa7108930e24e985e01c75227a289c3bff99ad14a670cfd60eb163ce",
+      "src/fontlabapp/perpendicular_guides_selection.py": "7c05c1ca5e7fc2f3ea22da8db01833cead632c8e68d84c4e4934ab3fecfe68e7"
+    },
+    "coordinate_mapping": "Own node layer coordinates compose contour.transform then shape.transform; both complete scalar transforms are captured for stale-source checks.",
+    "first_target_scope": "Short-circuit first native selected occurrence; irrelevant later selected layer/control failures do not expand original domain. Maintained document/carrier/occurrence boundaries retained.",
+    "carrier_retention": "Snapshot retains all selected document/carrier wrappers through validation/write; compare=False and repr=False."
+  },
+  "crossfont_reports": {
+    "version": "0.2.161.dev0",
+    "original_sources": {
+      "reference-glyphs-plugins/jenskutilek--Glyphs-Scripts/Components/Report Composite Differences.py": {
+        "sha256": "91b90cf5c6f9827dcdd2712c952a335e396be1fc7d3e74cd7212b6b2e7647100",
+        "bytes": 791
+      },
+      "reference-glyphs-plugins/jenskutilek--Glyphs-Scripts/Font/Report Glyph Set Differences.py": {
+        "sha256": "5d6df2609ebfa5df887833567151bb4f5bfc5290e3d494640ed11bdfe2795a87",
+        "bytes": 527
+      },
+      "reference-glyphs-plugins/jenskutilek--Glyphs-Scripts/LICENSE": {
+        "sha256": "a177820214b47d9f572bc4a95badbd8f1fdc54cb12012b768d32cb46642434fb",
+        "bytes": 1069
+      },
+      "reference-glyphs-plugins/jenskutilek--Glyphs-Scripts/README.md": {
+        "sha256": "3827d8782756090d7af5cada7b516ac6334890b913db3d88a1d38cb5a589b8d2",
+        "bytes": 40
+      }
+    },
+    "modules": [
+      "crossfont_reports.py",
+      "crossfont_reports_native.py",
+      "_crossfont_reports_dialog.py"
+    ],
+    "native_acceptance": "pending",
+    "source_bodies_redistributed": false,
+    "behavior": "Complete original first-other selected-master composite report plus all-other ordered glyph-set report; no font mutation."
+  },
+  "show_all_layers": {
+    "source": "reference-glyphs-plugins/slobzheninov--Glyphs-Scripts/Glyphs/Show All Layers.py",
+    "source_sha256": "45e501e6b106f4dea12bea30d85fd58fd61d76c03736112bb1ba846a4db9974a",
+    "license": "Apache-2.0",
+    "license_sha256": "bb28c48e3e078166e91cfc2b6db7ffebb8a0973b9e23b3df060561292d8d69ec",
+    "native_acceptance": "pending",
+    "modules": {
+      "src/fontlabapp/show_all_layers_native.py": "e7e38a2547fce81e26aa40b5cfb37204ff11b79bcbfe5edc56769bf929fe4249",
+      "src/fontlabapp/show_all_layers.py": "26cd6ba694223ea352626de79b9649d43f33e367d136681a1aa61b98333bc174"
+    }
+  },
+  "node_duplicator_family": {
+    "originals": [
+      {
+        "path": "reference-glyphs-plugins/Reset-Type-Studio--Glyphs-Scripts/Paths/Node Duplicator (current layer).py",
+        "sha256": "f6b7bc79856f85611abc485a8df959486afdb76c50e400b5e82f19f2b794c2c7",
+        "bytes": 897
+      },
+      {
+        "path": "reference-glyphs-plugins/Reset-Type-Studio--Glyphs-Scripts/Paths/Node Duplicator (all masters).py",
+        "sha256": "dff5c6f2d680956288f98c3492f0b617d8f92d1182bfea54d567256555b2bb77",
+        "bytes": 1863
+      },
+      {
+        "path": "reference-glyphs-plugins/Reset-Type-Studio--Glyphs-Scripts/Paths/Node Duplicator + 2 Handles (all masters).py",
+        "sha256": "eccf4cef027becf7fca14f29de6fde68bea8e0aaeca513c08ba75b717556cddc",
+        "bytes": 1052
+      }
+    ],
+    "destinations": {
+      "src/fontlabapp/_node_duplicator_dialog.py": "788b8a70efa62f3c2912eac7f2bf552bcb112a89c25152fc888f5be04675b51a",
+      "src/fontlabapp/node_duplicator.py": "2754997c4b68546d05f0b6709273455cd303649eb34b68991bd61471c499d103",
+      "src/fontlabapp/_node_duplicator_capture.py": "c62a7360ae2fe1d27cc1e77de5b5def16bd039cd74826f48257613cd30d9a510",
+      "src/fontlabapp/node_duplicator_native.py": "5dbb8b8f2855abf2b3f331ed6aeb26f5d6f4c1580f4ebe027059bd8621194e04",
+      "src/fontlabapp/_node_duplicator_write.py": "c7588df3f577cb1ffecedf90b6aab358c6935ece584418a5cb281325facf489d"
+    },
+    "source_body_redistributed": false,
+    "source_license": "not declared in inspected source tree",
+    "native_acceptance": "pending",
+    "original_workflow_accepted": false,
+    "hold": "All-layer indexed control forced to LINE: native segment mapping unproven. Full family remains in denominator."
+  },
+  "clean_classes": {
+    "source": "reference-glyphs-plugins/simoncozens--GlyphsScripts/Clean Classes.py",
+    "source_sha256": "a9044af7ce7697e5a9915d46682a346149eb28eb2b7f51075d05bc676a2f8271",
+    "license": "MIT",
+    "license_sha256": "6463ad87fde6016bb3bc48dc58fdf2c8fa82ba33fbefb995038eb90a5b0b93a5",
+    "native_acceptance": "pending",
+    "modules": {
+      "src/fontlabapp/clean_classes_panel.py": "70957e12e9ab6e5dff44fbb69f4d4fd1987ee0d6b68469dbe40e6e8838cfa190",
+      "src/fontlabapp/clean_classes_native.py": "66d79bbe9a1edca3763b2003007a145ccbccd901b05334d6debecd71daf47839",
+      "src/fontlabapp/clean_classes.py": "122e7262773c6eace1e879356d98cf73f7a923b3c32f32ed87eec1af496ce86a"
+    }
+  }
+}

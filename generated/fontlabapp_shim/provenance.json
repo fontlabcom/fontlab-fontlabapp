@@ -1,0 +1,14 @@
+{
+ "capture": "capture.json",
+ "capture_sha256": "68353ad1246706f7d552e1f07cfc1b26d0a43be55f9a97ba3a6b0c05e85dbec9",
+ "captured": "2026-10-15",
+ "command": "python -m fontlabapp.core.shimgen capture.json OUT",
+ "generator": "fontlabapp.core.shimgen",
+ "generator_version": "2",
+ "host": {
+  "app": "fontlab9",
+  "app_version": "9.0.9783",
+  "locale": "en_PL",
+  "qt_version": null
+ }
+}
