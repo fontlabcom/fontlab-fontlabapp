@@ -84,6 +84,19 @@ def test_manifest_when_entry_is_symlink_to_source_checkout_then_loads(tmp_path):
     assert set(bundles.discover(tmp_path / "ext", lambda *a: pytest.fail(str(a)), "1.0.0")) == {"demo"}
 
 
+def test_manifest_when_nested_entry_file_is_symlink_in_real_folder_then_loads(tmp_path):
+    """instamix place(): real bundle folders, every file a link into the checkout."""
+    path = bundle(tmp_path / "ext", entry="pkg.mod:Example")
+    source = tmp_path / "checkout" / "pkg"
+    source.mkdir(parents=True)
+    (source / "__init__.py").write_text("")
+    (source / "mod.py").write_bytes((path / "plugin.py").read_bytes())
+    (path / "pkg").mkdir()
+    for name in ("__init__.py", "mod.py"):
+        (path / "pkg" / name).symlink_to(source / name)
+    assert bundles.load_bundle(path, "1.0.0").name == "demo"
+
+
 def test_manifest_when_entry_escapes_through_symlinked_folder_then_rejected(tmp_path):
     path = bundle(tmp_path, entry="pkg:Example")
     outside = tmp_path / "outside"
