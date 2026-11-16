@@ -71,14 +71,40 @@ def test_discovery_when_import_or_json_fails_then_isolated(tmp_path):
     assert not any(str(broken) in str(getattr(m, "__path__", "")) for m in sys.modules.values())
 
 
-def test_manifest_when_entry_escapes_bundle_then_rejected(tmp_path):
-    path = bundle(tmp_path)
-    outside = tmp_path / "outside.py"
-    outside.write_text("Example = object")
-    (path / "plugin.py").unlink()
-    (path / "plugin.py").symlink_to(outside)
+def test_manifest_when_entry_is_symlink_to_source_checkout_then_loads(tmp_path):
+    """Plugmix installs per-file symlinks into Extensions (2026-11-16)."""
+    path = bundle(tmp_path / "ext")
+    source = tmp_path / "checkout" / path.name
+    source.mkdir(parents=True)
+    for name in ("plugin.py", "plugin.json"):
+        (source / name).write_bytes((path / name).read_bytes())
+        (path / name).unlink()
+        (path / name).symlink_to(source / name)
+    assert bundles.load_bundle(path, "1.0.0").name == "demo"
+    assert set(bundles.discover(tmp_path / "ext", lambda *a: pytest.fail(str(a)), "1.0.0")) == {"demo"}
+
+
+def test_manifest_when_entry_escapes_through_symlinked_folder_then_rejected(tmp_path):
+    path = bundle(tmp_path, entry="pkg:Example")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "__init__.py").write_text("Example = object")
+    (path / "pkg").symlink_to(outside, target_is_directory=True)
     with pytest.raises(ValueError, match="inside its bundle"):
         bundles.load_bundle(path, "1.0.0")
+
+
+def test_inside_when_dotdot_component_then_rejected(tmp_path):
+    path = bundle(tmp_path)
+    (tmp_path / "outside.py").write_text("Example = object")
+    assert bundles._inside(path / "plugin.py", path)
+    assert not bundles._inside(path / ".." / "outside.py", path)
+    assert not bundles._inside(path / "sub" / ".." / "plugin.py", path)
+
+
+def test_manifest_when_plugin_json_folder_escapes_then_rejected(tmp_path):
+    path = bundle(tmp_path)
+    assert not bundles._inside(tmp_path / "plugin.json", path)
 
 
 def test_manifest_when_app_too_old_then_message_names_bundle_versions_and_installer(tmp_path):

@@ -25,8 +25,21 @@ def app_version() -> str | None:
         return None
 
 
+def _inside(path: Path, bundle: Path) -> bool:
+    """True when ``path`` lies inside ``bundle`` by its location in the folder.
+
+    The file itself may be a symlink, as in the per-file links that plugmix
+    installs into ``Extensions`` pointing at an editable source checkout. A
+    ``..`` component or a parent folder that resolves outside the bundle is
+    rejected. Used by ``manifest`` for ``plugin.json`` and the entry module.
+    """
+    return ".." not in path.parts and path.parent.resolve().is_relative_to(bundle.resolve())
+
+
 def manifest(bundle: Path, version: str | None = None) -> dict[str, str]:
     """Parse required fields and reject incompatible bundles before imports."""
+    if not _inside(bundle / "plugin.json", bundle):
+        raise ValueError("plugin.json must be inside its bundle")
     data = json.loads((bundle / "plugin.json").read_text(encoding="utf-8"))
     if not isinstance(data, dict) or any(
         not isinstance(data.get(key), str) or not data[key].strip() for key in _FIELDS
@@ -52,7 +65,7 @@ def manifest(bundle: Path, version: str | None = None) -> dict[str, str]:
         )
     module_path = bundle.joinpath(*entry[0].split("."))
     paths = [module_path.with_suffix(".py"), module_path / "__init__.py"]
-    if not any(path.is_file() and path.resolve().is_relative_to(bundle.resolve()) for path in paths):
+    if not any(path.is_file() and _inside(path, bundle) for path in paths):
         raise ValueError("entry module must exist inside its bundle")
     return data
 
