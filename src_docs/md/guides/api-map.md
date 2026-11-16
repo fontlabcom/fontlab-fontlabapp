@@ -19,7 +19,7 @@ source inventory, not a native FontLab compatibility claim.
 | app | 11 |
 | internal | 77 |
 | menus/actions/shortcuts | 11 |
-| objects | 335 |
+| objects | 339 |
 | qt | 24 |
 | scripting | 8 |
 | signals | 10 |
@@ -30,7 +30,7 @@ source inventory, not a native FontLab compatibility claim.
 | ui.windows/views | 343 |
 | plugins | 31 |
 | plugmix | 1 |
-| **Total** | **1025** |
+| **Total** | **1029** |
 
 ## Modules
 
@@ -589,6 +589,10 @@ source inventory, not a native FontLab compatibility claim.
 | `fontlabapp.metrics.zones.write_plan` | objects | `MasterWrite`, `WritePlan`, `WriteRow`, `build`, `require_current` | Preflight a complete native Alignment Zones batch without native operations. |
 | `fontlabapp.objects` | objects | `FontLab`, `current_package`, `font_id`, `select_glyphs` | Phase 1 exposes only FontLab controls and current-font scripting helpers. |
 | `fontlabapp.objects.json_data` | objects | `DATA_TYPE`, `Envelope`, `GLYPHS_UNDO_TEXT`, `Item`, `KINDS`, `MIME_TYPE`, `NEEDS_91`, `PARTIAL_TEXT`, `Pasted`, `SHAPES_UNDO_TEXT`, `as_qbytearray`, `available`, `copy_objects`, `copy_to_clipboard`, `decode`, `describe`, `drop_unicodes`, `export`, `filter_layers`, `load_file`, `only_glyphs`, `paste_glyphs`, `paste_shapes`, `read_clipboard`, `rename_glyphs`, `require_available`, `save_file`, `set_advance_width`, `unicodes`, `unique_glyph_names`, `unique_name` | FontLab 9.1 object JSON: parse, edit, copy, save and paste glyphs, layers, elements and contours with Undo. |
+| `fontlabapp.vfjo` | objects | `GLYPHS_UNDO_TEXT`, `KNOWN_KEYS`, `NEEDS_91`, `Node`, `Objects`, `PARTIAL_TEXT`, `PartialWriteError`, `UnknownKeyError`, `add_key`, `add_suffix`, `anchors`, `available`, `contours`, `edit_nodes`, `elements`, `format_nodes`, `from_clipboard`, `from_glyphs`, `layers`, `load`, `loads`, `move`, `parse_nodes`, `paste`, `rename`, `scale`, `set_width` | Public face of VFJ Objects: FontLab object JSON cast onto python-box with safe keys, navigation, move/scale edits and paste with Undo. |
+| `fontlabapp.vfjo._data` | objects | `KNOWN_KEYS`, `Objects`, `UnknownKeyError`, `add_key`, `from_clipboard`, `from_glyphs`, `load`, `loads` | Guarded python-box tree (`KNOWN_KEYS`, `add_key`), `Objects` root and the loaders over `json_data`. |
+| `fontlabapp.vfjo._edit` | objects | `add_suffix`, `anchors`, `contours`, `edit_nodes`, `elements`, `layers`, `move`, `paste`, `rename`, `scale`, `set_width` | Navigation generators, node, move and scale edits that keep components, anchors, guidelines and hints consistent, and paste routing. |
+| `fontlabapp.vfjo.nodes` | objects | `Node`, `Number`, `Point`, `format_nodes`, `format_number`, `parse_nodes` | Parse and format FontLab JSON node strings (`Node`) byte-exactly. |
 | `fontlabapp.plugins` | plugins | `Filter`, `General`, `LayerEdit`, `Mark`, `Palette`, `Param`, `Plugin`, `Reporter`, `Tool`, `ToolEvent`, `install`, `registry`, `show_reporters` | Small lazy public API for native FontLab reporter plugins. |
 | `fontlabapp.plugins.backend` | plugins | `EditorBackend`, `NativeCanvasBackend`, `POLL_MS`, `REPAINT_MS`, `active_glyph_map`, `select_backend` | Native per-canvas painters with an EditorPainters fallback for old builds. |
 | `fontlabapp.plugins.boot` | plugins | `install`, `show_reporters`, `uninstall` | One-call FontLab startup and explicit teardown. |

@@ -304,6 +304,14 @@ def _facts(package: Any) -> Any:
     return scan_auto_facts(package)
 
 
+def _same_package(a: Any, b: Any) -> bool:
+    """True when ``a`` and ``b`` are the same font (identity or equal ``id``)."""
+    if a is b:
+        return True
+    ident = getattr(a, "id", None)
+    return ident is not None and ident == getattr(b, "id", None)
+
+
 def paste(
     objs: Objects, font: Any = None, *, on_conflict: str = "rename", **kw: Any
 ) -> json_data.Pasted:
@@ -313,9 +321,12 @@ def paste(
     is ``"rename"`` or ``"skip"`` and applies to glyph data only). FontLab may
     order the new glyph's layers differently from the JSON. Layer, element or
     contour data (one kind at a time) goes to ``json_data.paste_shapes`` on
-    the current glyph's active layer. Empty data, glyphs mixed with shapes or
-    more than one shape kind raise ``ValueError``; no font or no current glyph
-    raises ``RuntimeError``.
+    the current glyph's active layer, which must belong to ``font``: shape
+    data with a ``font`` other than the current font raises ``ValueError``.
+    Glyph paste records one Undo step per new glyph plus one for the
+    outlines (``json_data.GLYPHS_UNDO_TEXT``); shape paste records one.
+    Empty data, glyphs mixed with shapes or more than one shape kind raise
+    ``ValueError``; no font or no current glyph raises ``RuntimeError``.
     """
     kind = objs.kind
     if not kind:
@@ -334,6 +345,10 @@ def paste(
     if kind == "glyph":
         return json_data.paste_glyphs(
             package, envelope, facts=_facts(package), on_conflict=on_conflict, **kw
+        )
+    if font is not None and not _same_package(font, _current_package()):
+        raise ValueError(
+            "Shape data pastes into the current glyph; make that font current first."
         )
     glyph = _current_glyph()
     if glyph is None:

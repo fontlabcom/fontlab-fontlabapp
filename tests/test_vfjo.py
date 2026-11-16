@@ -427,7 +427,7 @@ def test_paste_when_glyph_data_then_paste_glyphs(fakes):
 
 
 def test_paste_when_shape_data_then_paste_shapes_on_active_layer(fakes):
-    vfjo.paste(fixture("element_o"), font="font")
+    vfjo.paste(fixture("element_o"), font="package")
     kind, args, kw = fakes[0]
     assert kind == "shapes" and args[0] == "layer" and args[2].kinds() == ("element",)
     assert kw == {"facts": "facts"}
@@ -551,3 +551,82 @@ def test_paste_when_several_shape_kinds_then_value_error(fakes):
     with pytest.raises(ValueError, match="more than one shape kind"):
         vfjo.paste(objs)
     assert fakes == []
+
+
+# --- final review: keys of added mappings, paste(font=), re-exports -------------
+
+
+@pytest.mark.parametrize(
+    "how", ["append", "extend", "iadd", "insert", "setitem", "slice", "assign"]
+)
+def test_added_mapping_when_key_misspelt_then_refused_and_not_stored(how):
+    layer = fixture("glyph_o").data.glyph.layers[0]
+    before = len(layer.anchors)
+    bad = {"nmae": "top", "point": "1 2"}
+    with pytest.raises(vfjo.UnknownKeyError, match="nmae"):
+        if how == "append":
+            layer.anchors.append(bad)
+        elif how == "extend":
+            layer.anchors.extend([bad])
+        elif how == "iadd":
+            layer.anchors += [bad]
+        elif how == "insert":
+            layer.anchors.insert(0, bad)
+        elif how == "setitem":
+            layer.anchors[0] = bad
+        elif how == "slice":
+            layer.anchors[0:1] = [bad]
+        else:
+            layer.anchors = [bad]
+    assert len(layer.anchors) == before, f"{how}: nothing may be stored"
+    assert all("nmae" not in a for a in layer.anchors), f"{how}: typo not kept"
+
+
+def test_added_mapping_when_nested_key_misspelt_then_refused():
+    layer = fixture("glyph_o").data.glyph.layers[0]
+    with pytest.raises(vfjo.UnknownKeyError, match="elementDatta"):
+        layer.elements = [{"elementDatta": {"contours": []}}]
+    with pytest.raises(vfjo.UnknownKeyError, match="nodez"):
+        layer.elements.append({"elementData": {"contours": [{"nodez": []}]}})
+    with pytest.raises(vfjo.UnknownKeyError, match="xOfset"):
+        layer.elements[0].transform = {"xOfset": 1}
+    assert "transform" not in layer.elements[0], "refused assignment is not stored"
+    layer.elements.append({"elementData": {"contours": [{"nodes": ["0 0"]}]}})
+    layer.hints.append({"anything": 1})  # free level stays permissive
+    layer.elements.append(layer.elements[0])  # boxes from the tree are trusted
+    assert len(layer.elements) == 3
+
+
+def test_loaded_data_when_unknown_keys_then_still_permissive():
+    data = raw("glyph_o")
+    data["glyph"]["layers"][0]["futureKey"] = 1
+    objs = vfjo.loads(data)
+    assert objs.data.glyph.layers[0].futureKey == 1, "FontLab's own keys load as is"
+
+
+def test_paste_when_shape_data_for_other_font_then_refused(fakes):
+    objs = fixture("element_o")
+    with pytest.raises(ValueError, match="current"):
+        vfjo.paste(objs, font="other")
+    assert fakes == []
+    vfjo.paste(objs, font="package")
+    assert fakes[0][0] == "shapes", "the current font is accepted"
+
+
+def test_same_package_when_ids_match_then_true():
+    class P:
+        def __init__(self, ident):
+            self.id = ident
+
+    assert _edit._same_package(P(1), P(1)) and not _edit._same_package(P(1), P(2))
+    assert not _edit._same_package(object(), object())
+
+
+def test_reexports_when_imported_then_match_json_data():
+    from fontlabapp.core.history.glyphs import PartialWriteError
+
+    assert vfjo.available is json_data.available
+    assert vfjo.NEEDS_91 == json_data.NEEDS_91
+    assert vfjo.PARTIAL_TEXT == json_data.PARTIAL_TEXT
+    assert vfjo.GLYPHS_UNDO_TEXT == json_data.GLYPHS_UNDO_TEXT
+    assert vfjo.PartialWriteError is PartialWriteError

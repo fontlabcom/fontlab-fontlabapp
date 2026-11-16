@@ -18,11 +18,15 @@ so a misspelt ``advanceWidht`` fails instead of being saved silently.
 comes from the key that holds it; levels not listed (``hints``, ``lib``)
 accept any key.
 
-Lists are guarded too: an item added by ``append``, ``extend``, ``insert``
-or ``lst[i] = ...`` becomes a ``_Data`` box locked at the level its list
-implies (a dict appended to ``glyph.layers`` is a layer). A dict assigned to
-an existing key is locked at that key's level the same way. ``update``,
-``|=`` and ``setdefault`` go through the same check as ``box[key] = value``.
+Lists are guarded too: an item added by ``append``, ``extend``, ``insert``,
+``+=`` or ``lst[i] = ...`` becomes a ``_Data`` box locked at the level its
+list implies (a dict appended to ``glyph.layers`` is a layer). A dict or list
+assigned to a key is locked at that key's level the same way. Every key of
+such an added mapping, at every depth, is checked against ``KNOWN_KEYS``
+first, so ``anchors += [{"nmae": "top", ...}]`` raises ``UnknownKeyError``
+and nothing is stored. Data loaded from FontLab and boxes moved within a
+guarded tree are not rechecked. ``update``, ``|=`` and ``setdefault`` go
+through the same check as ``box[key] = value``.
 
 Limits: Box and dict method names (``items``, ``keys``, ``values``,
 ``copy``, ``update``, ``get``, ``to_dict``, ...) shadow JSON keys of the
@@ -135,14 +139,11 @@ class _Data(Box):
 
     def __setitem__(self, key: Any, value: Any) -> None:
         own = self.__dict__
-        if own.get("_locked") and key not in self:
-            allowed = KNOWN_KEYS.get(own.get("_level") or "")
-            if allowed is not None and key not in allowed:
-                msg = (
-                    f"{key!r} is not a known {own['_level']} key "
-                    f"(known: {', '.join(sorted(allowed))}); use vfjo.add_key(box, {key!r}, value) to add it"
-                )
-                raise UnknownKeyError(msg)
+        if own.get("_locked"):
+            level = own.get("_level")
+            if key not in self:
+                _check_key(level, key)
+            _check(value, _child_level(level, key))
         super().__setitem__(key, value)
         if own.get("_locked"):
             _lock_key(self, key, _child_level(own.get("_level"), key))
@@ -171,8 +172,43 @@ _BOX_OPTIONS = {
 }
 
 
+def _check_key(level: str | None, key: Any) -> None:
+    allowed = KNOWN_KEYS.get(level or "")
+    if allowed is not None and key not in allowed:
+        msg = (
+            f"{key!r} is not a known {level} key "
+            f"(known: {', '.join(sorted(allowed))}); use vfjo.add_key(box, {key!r}, value) to add it"
+        )
+        raise UnknownKeyError(msg)
+
+
+def _check(value: Any, level: str | None) -> None:
+    """Refuse unknown keys anywhere in user-supplied ``value`` at ``level``.
+
+    Boxes already in a guarded tree (locked ``_Data``/``_List``) are trusted:
+    they came from FontLab's JSON or passed this check before.
+    """
+    if isinstance(value, (_Data, _List)) and value.__dict__.get("_locked"):
+        return
+    if isinstance(value, Mapping):
+        for key, child in value.items():
+            _check_key(level, key)
+            _check(child, _child_level(level, key))
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            _check(item, level)
+
+
 class _List(BoxList):
-    """A box list whose added items become ``_Data`` locked at the list's level."""
+    """A box list whose added items are checked, then locked at the list's level."""
+
+    def _guard(self, items: Any) -> Any:
+        own = self.__dict__
+        if own.get("_locked"):
+            items = list(items)
+            for item in items:
+                _check(item, own.get("_level"))
+        return items
 
     def _adopt(self, start: int = 0, stop: int | None = None) -> None:
         own = self.__dict__
@@ -181,15 +217,18 @@ class _List(BoxList):
                 _lock_item(self, index, own.get("_level"))
 
     def append(self, item: Any) -> None:
+        self._guard([item])
         super().append(item)
         self._adopt(len(self) - 1)
 
     def extend(self, items: Any) -> None:
+        items = self._guard(items)
         start = len(self)
         super().extend(items)
         self._adopt(start)
 
     def insert(self, index: Any, item: Any) -> None:
+        self._guard([item])
         before = len(self)
         super().insert(index, item)
         if len(self) > before:
@@ -197,9 +236,11 @@ class _List(BoxList):
 
     def __setitem__(self, index: Any, value: Any) -> None:
         if isinstance(index, slice):
+            value = self._guard(value)
             super().__setitem__(index, [_convert(v) for v in value])
             self._adopt()
             return
+        self._guard([value])
         super().__setitem__(index, _convert(value))
         self._adopt(index % len(self), index % len(self) + 1)
 
