@@ -41,13 +41,13 @@ GUIDE_BODY_HASHES = {'api-map': '311d6882114d4b5fbde14fbf5080ccfab54476d563d84d7
 # b2959925ec7f: reviewed addition of the public fontui.follow_history export.
 # cb1cdca: reviewed core.sharing row, writer element_shared re-export and fontui.native constants (Tasks 2-4).
 # TMetrics speed: reviewed internal fontui._font_reads row.
-# Object JSON: reviewed objects.json_data row.
-API_MAP_HISTORY_SERVICE_BODY_HASH = '6df5d2b74375d812890eb9253b7e5bcde5d8caacada996adb5f92f148e052889'
+# Object JSON: reviewed objects.json_data row (copy_objects added 2026-11-16).
+API_MAP_HISTORY_SERVICE_BODY_HASH = '4e4a979638bff1a39a5f81e88a5081b480e5eef9fa078a14ffeab95e42ead243'
 API_MAP_SHARING_ADDITIONS = (
     ('| objects | 335 |', '| objects | 333 |'),
     ('| internal | 77 |', '| internal | 76 |'),
     ('| **Total** | **1025** |', '| **Total** | **1022** |'),
-    ('| fontlabapp.objects.json_data | objects | DATA_TYPE, Envelope, GLYPHS_UNDO_TEXT, Item, KINDS, MIME_TYPE, NEEDS_91, PARTIAL_TEXT, Pasted, SHAPES_UNDO_TEXT, as_qbytearray, available, copy_to_clipboard, decode, describe, drop_unicodes, export, filter_layers, load_file, only_glyphs, paste_glyphs, paste_shapes, read_clipboard, rename_glyphs, require_available, save_file, set_advance_width, unicodes, unique_glyph_names, unique_name | FontLab 9.1 object JSON: parse, edit, copy, save and paste glyphs, layers, elements and contours with Undo. | ', ''),
+    ('| fontlabapp.objects.json_data | objects | DATA_TYPE, Envelope, GLYPHS_UNDO_TEXT, Item, KINDS, MIME_TYPE, NEEDS_91, PARTIAL_TEXT, Pasted, SHAPES_UNDO_TEXT, as_qbytearray, available, copy_objects, copy_to_clipboard, decode, describe, drop_unicodes, export, filter_layers, load_file, only_glyphs, paste_glyphs, paste_shapes, read_clipboard, rename_glyphs, require_available, save_file, set_advance_width, unicodes, unique_glyph_names, unique_name | FontLab 9.1 object JSON: parse, edit, copy, save and paste glyphs, layers, elements and contours with Undo. | ', ''),
     ('| fontlabapp.fontui._font_reads | internal | FontReads | Whole-font reads that TMetrics keeps while typing and drops on refresh, font change or master change. | ', ''),
     ('collect, element_shared, fmt,', 'collect, fmt,'),
     ('settle, sharing_operation, shown,', 'settle, shown,'),
