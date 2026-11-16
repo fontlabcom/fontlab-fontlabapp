@@ -450,3 +450,104 @@ def test_paste_when_empty_mixed_or_no_font_then_errors(fakes, monkeypatch):
     with pytest.raises(RuntimeError, match="current glyph"):
         vfjo.paste(fixture("element_o"))
     assert fakes == []
+
+
+# --- review fixes: update, lists, key conversion, shape kinds -------------------
+
+
+def test_update_when_unknown_key_then_refused():
+    glyph = fixture("glyph_o").data.glyph
+    with pytest.raises(vfjo.UnknownKeyError):
+        glyph.update({"bogus": 1})
+    with pytest.raises(vfjo.UnknownKeyError):
+        glyph.update(bogus=1)
+    with pytest.raises(vfjo.UnknownKeyError):
+        glyph |= {"bogus": 1}
+    with pytest.raises(vfjo.UnknownKeyError):
+        glyph.setdefault("bogus", 1)
+    assert "bogus" not in glyph, "a refused key must not be stored"
+    glyph.update({"name": "p"}, note="n")
+    assert glyph.name == "p" and glyph.note == "n", "known keys still update"
+
+
+def _layer_dict() -> dict:
+    return raw("glyph_o")["glyph"]["layers"][0]
+
+
+@pytest.mark.parametrize(
+    ("how", "index"),
+    [
+        ("append", -1),
+        ("extend", -1),
+        ("insert", 0),
+        ("setitem", 0),
+        ("iadd", -1),
+    ],
+)
+def test_list_when_item_added_then_locked_at_list_level(how, index):
+    objs = fixture("glyph_o")
+    layers = objs.data.glyph.layers
+    item = _layer_dict()
+    if how == "append":
+        layers.append(item)
+    elif how == "extend":
+        layers.extend([item])
+    elif how == "insert":
+        layers.insert(0, item)
+    elif how == "setitem":
+        layers[0] = item
+    else:
+        objs.data.glyph.layers += [item]
+    added = objs.data.glyph.layers[index]
+    assert isinstance(added, _data._Data), f"{how}: item must become a guarded box"
+    assert added.advanceWidth == 1162, f"{how}: attribute access works"
+    with pytest.raises(vfjo.UnknownKeyError):
+        added.advanceWidht = 1
+    with pytest.raises(vfjo.UnknownKeyError):
+        added.elements[0].elementData.contours[0].nodez = []
+    with pytest.raises(vfjo.UnknownKeyError):
+        added.anchors[0].pointt = "1 1"
+    assert json.loads(objs.to_bytes())["glyph"]["layers"][index]["advanceWidth"] == 1162
+
+
+def test_list_when_assigned_or_nested_append_then_locked():
+    glyph = fixture("glyph_o").data.glyph
+    glyph.layers = [_layer_dict()]
+    with pytest.raises(vfjo.UnknownKeyError):
+        glyph.layers[0].advanceWidht = 1
+    glyph.layers.append(_layer_dict())
+    with pytest.raises(vfjo.UnknownKeyError):
+        glyph.layers[-1].advanceWidht = 1  # a list assigned to a key stays guarded
+    anchors = glyph.layers[0].anchors
+    anchors.append({"name": "x", "point": "1 1"})
+    with pytest.raises(vfjo.UnknownKeyError):
+        anchors[-1].pointt = "2 2"
+    copy = vfjo.loads(fixture("glyph_o")).copy()
+    copy.data.glyph.layers.append(_layer_dict())
+    with pytest.raises(vfjo.UnknownKeyError):
+        copy.data.glyph.layers[-1].advanceWidht = 1
+
+
+def test_keys_when_dot_or_dash_then_not_converted():
+    glyph = fixture("glyph_o").data.glyph
+    glyph.lib = {"a-b": 1, "c.d": 2}
+    assert glyph.lib["a-b"] == 1 and glyph.lib["c.d"] == 2
+    with pytest.raises(AttributeError):
+        glyph.lib.a_b  # noqa: B018 - the read itself must raise
+    with pytest.raises(AttributeError):
+        glyph.lib.c  # noqa: B018
+    with pytest.raises(KeyError):
+        glyph.lib["c"]
+
+
+def test_paste_when_several_shape_kinds_then_value_error(fakes):
+    head = {"dataType": json_data.DATA_TYPE, "upm": 1000, "packageId": 1}
+    objs = vfjo.loads(
+        {
+            **head,
+            "objects": [{"element": {"elementData": {}}}, {"contour": {"nodes": []}}],
+        }
+    )
+    with pytest.raises(ValueError, match="more than one shape kind"):
+        vfjo.paste(objs)
+    assert fakes == []

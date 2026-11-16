@@ -272,7 +272,12 @@ def set_width(obj: Any, width: Number | Callable[[Number], Number]) -> Any:
 
 
 def add_suffix(obj: Objects, suffix: str, *, drop_unicodes: bool = True) -> Objects:
-    """Append ``suffix`` to every glyph name; by default also remove Unicode values."""
+    """Append ``suffix`` to every glyph name and return ``obj``.
+
+    By default the Unicode values (``unicode``, ``unicodes``) are removed too,
+    so pasted copies do not clash with the originals; pass
+    ``drop_unicodes=False`` to keep them.
+    """
     rename(obj, lambda name: name + suffix)
     if drop_unicodes:
         for glyph in obj.glyphs:
@@ -305,15 +310,23 @@ def paste(
     """Paste ``objs`` into ``font`` (default: the current font), with Undo.
 
     Glyph data goes to ``json_data.paste_glyphs`` (new glyphs; ``on_conflict``
-    is ``"rename"`` or ``"skip"``). Layer, element and contour data goes to
-    ``json_data.paste_shapes`` on the current glyph's active layer. Mixed or
-    empty data raises ``ValueError``; no font raises ``RuntimeError``.
+    is ``"rename"`` or ``"skip"`` and applies to glyph data only). FontLab may
+    order the new glyph's layers differently from the JSON. Layer, element or
+    contour data (one kind at a time) goes to ``json_data.paste_shapes`` on
+    the current glyph's active layer. Empty data, glyphs mixed with shapes or
+    more than one shape kind raise ``ValueError``; no font or no current glyph
+    raises ``RuntimeError``.
     """
     kind = objs.kind
     if not kind:
         raise ValueError("Nothing to paste: the object JSON is empty.")
     if kind == "mixed" and objs.glyphs:
         raise ValueError("Cannot paste glyphs and shapes together; split them first.")
+    if kind == "mixed":
+        kinds = sorted({k for k, _ in objs.items()})
+        raise ValueError(
+            f"Cannot paste more than one shape kind at once ({', '.join(kinds)}); split them first."
+        )
     package = font if font is not None else _current_package()
     if package is None:
         raise RuntimeError("No font is open.")

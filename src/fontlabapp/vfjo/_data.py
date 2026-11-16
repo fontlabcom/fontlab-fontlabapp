@@ -18,10 +18,17 @@ so a misspelt ``advanceWidht`` fails instead of being saved silently.
 comes from the key that holds it; levels not listed (``hints``, ``lib``)
 accept any key.
 
-Limits: a dict assigned to an existing key, or appended to a list, becomes
-an unguarded box until ``add_key`` or ``Objects.copy`` re-locks the tree.
-Box methods (``keys``, ``items``, ``copy``, ``to_dict``, ...) shadow JSON
-keys of the same name in attribute access; use ``box["key"]`` for those.
+Lists are guarded too: an item added by ``append``, ``extend``, ``insert``
+or ``lst[i] = ...`` becomes a ``_Data`` box locked at the level its list
+implies (a dict appended to ``glyph.layers`` is a layer). A dict assigned to
+an existing key is locked at that key's level the same way. ``update``,
+``|=`` and ``setdefault`` go through the same check as ``box[key] = value``.
+
+Limits: Box and dict method names (``items``, ``keys``, ``values``,
+``copy``, ``update``, ``get``, ``to_dict``, ...) shadow JSON keys of the
+same name in attribute access; use ``x["items"]`` for those. Keys are used
+exactly as FontLab writes them: no dotted paths and no converted names
+(``lib["a-b"]`` is not reachable as ``lib.a_b``).
 """
 
 from __future__ import annotations
@@ -29,7 +36,7 @@ from __future__ import annotations
 import copy as _copy
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 from box import Box, BoxList
 
@@ -138,7 +145,73 @@ class _Data(Box):
                 raise UnknownKeyError(msg)
         super().__setitem__(key, value)
         if own.get("_locked"):
-            _lock(self[key], _child_level(own.get("_level"), key))
+            _lock_key(self, key, _child_level(own.get("_level"), key))
+
+    def update(self, *args: Any, **kwargs: Any) -> None:
+        """Set each key through ``__setitem__``, so unknown new keys are refused."""
+        for key, value in dict(*args, **kwargs).items():
+            self[key] = value
+
+    def __ior__(self, other: Mapping[str, Any]) -> Self:  # type: ignore[override]
+        self.update(other)
+        return self
+
+    def setdefault(self, key: Any, default: Any = None) -> Any:
+        """Like ``dict.setdefault``, with the new-key check of ``__setitem__``."""
+        if key not in self:
+            self[key] = default
+        return self[key]
+
+
+_BOX_OPTIONS = {
+    "box_class": _Data,
+    "default_box": False,
+    "conversion_box": False,
+    "box_dots": False,
+}
+
+
+class _List(BoxList):
+    """A box list whose added items become ``_Data`` locked at the list's level."""
+
+    def _adopt(self, start: int = 0, stop: int | None = None) -> None:
+        own = self.__dict__
+        if own.get("_locked"):
+            for index in range(start, len(self) if stop is None else stop):
+                _lock_item(self, index, own.get("_level"))
+
+    def append(self, item: Any) -> None:
+        super().append(item)
+        self._adopt(len(self) - 1)
+
+    def extend(self, items: Any) -> None:
+        start = len(self)
+        super().extend(items)
+        self._adopt(start)
+
+    def insert(self, index: Any, item: Any) -> None:
+        before = len(self)
+        super().insert(index, item)
+        if len(self) > before:
+            self._adopt()
+
+    def __setitem__(self, index: Any, value: Any) -> None:
+        if isinstance(index, slice):
+            super().__setitem__(index, [_convert(v) for v in value])
+            self._adopt()
+            return
+        super().__setitem__(index, _convert(value))
+        self._adopt(index % len(self), index % len(self) + 1)
+
+    def __iadd__(self, items: Any) -> Self:
+        self.extend(items)
+        return self
+
+
+def _convert(value: Any) -> Any:
+    if isinstance(value, Mapping) and not isinstance(value, _Data):
+        return _Data(dict(value), **_BOX_OPTIONS)
+    return value
 
 
 def _child_level(level: str | None, key: Any) -> str | None:
@@ -151,14 +224,36 @@ def _lock(value: Any, level: str | None) -> None:
         value.__dict__["_level"] = level
         value.__dict__["_locked"] = True
         for key in list(value.keys()):
-            _lock(value[key], _child_level(level, key))
-    elif isinstance(value, BoxList):
-        for item in value:
-            _lock(item, level)
+            _lock_key(value, key, _child_level(level, key))
+    elif isinstance(value, _List):
+        value.__dict__["_level"] = level
+        value.__dict__["_locked"] = True
+        for index in range(len(value)):
+            _lock_item(value, index, level)
+
+
+def _lock_key(box: _Data, key: Any, level: str | None) -> None:
+    """Lock ``box[key]``, first turning a plain box list into a guarded ``_List``."""
+    value = box[key]
+    if isinstance(value, list) and not isinstance(value, _List):
+        value = _List(value, **_BOX_OPTIONS)
+        dict.__setitem__(box, key, value)
+    _lock(value, level)
+
+
+def _lock_item(items: _List, index: int, level: str | None) -> None:
+    value = list.__getitem__(items, index)
+    if isinstance(value, Mapping) and not isinstance(value, _Data):
+        value = _Data(dict(value), **_BOX_OPTIONS)
+        list.__setitem__(items, index, value)
+    elif isinstance(value, list) and not isinstance(value, _List):
+        value = _List(value, **_BOX_OPTIONS)
+        list.__setitem__(items, index, value)
+    _lock(value, level)
 
 
 def _box(data: Mapping[str, Any]) -> _Data:
-    root = _Data(_copy.deepcopy(dict(data)), box_class=_Data, default_box=False)
+    root = _Data(_copy.deepcopy(dict(data)), **_BOX_OPTIONS)
     _lock(root, "root")
     return root
 
@@ -174,7 +269,7 @@ def add_key(box: Box, key: str, value: Any) -> Box:
         finally:
             own["_locked"] = locked
         if locked:
-            _lock(box[key], _child_level(own.get("_level"), key))
+            _lock_key(box, key, _child_level(own.get("_level"), key))
     else:
         box[key] = value
     return box
