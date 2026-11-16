@@ -40,8 +40,9 @@ def main() -> None:
         notify(TITLE, json_data.NEEDS_91)
         return
     package = current_package()
-    glyph = fly.fl.CurrentGlyph() if package is not None else None
-    layer = glyph.activeLayer() if glyph is not None else None
+    glyph, layer = (
+        json_data.current_layer(fly.fl) if package is not None else (None, None)
+    )
     if layer is None:
         notify(TITLE, "Open a glyph first. Nothing was changed.")
         return

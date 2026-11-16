@@ -1,5 +1,5 @@
 # this_file: tests/test_demo_scripts_objects.py
-"""Offline runs of the seven Scripts/Objects demos (FontLab 9.1 object JSON).
+"""Offline runs of the eight Scripts/Objects demos (FontLab 9.1 object JSON).
 
 Each demo runs through runpy as ``__main__``. ``PythonQt`` and ``fontlab`` are
 stubbed: on a FontLab 9.0 stand-in (no object JSON API) every demo must show
@@ -24,6 +24,7 @@ TITLES = [
     "Export Glyphs To JSON File Demo",
     "Import Glyphs From JSON File Demo",
     "Edit JSON Before Paste Demo",
+    "Edit JSON Nodes With vfjo Demo",
 ]
 ENVELOPE = {"dataType": json_data.DATA_TYPE, "upm": 1000, "packageId": 3}
 
@@ -63,15 +64,27 @@ class Producer:
 class Package:
     def __init__(self, names=("o",)):
         self.isNull, self.id, self.upm, self.fgId = False, 3, 1000, 77
-        self.glyphs = {
-            n: SimpleNamespace(name=n, activeLayer=lambda: None) for n in names
-        }
+        self.glyphs = {n: SimpleNamespace(name=n, activeLayer=None) for n in names}
 
     def findName(self, name):  # noqa: N802
         return self.glyphs.get(name)
 
     def addGlyph(self, *_):  # noqa: N802
         raise AssertionError("addGlyph must never be called")
+
+
+FG_LAYER = object()  # live fgGlyph.activeLayer: FontGate data, not callable
+
+
+def fg_glyph(layer, name="o"):
+    """Live ``CurrentGlyph()`` result: an fgGlyph; ``fl_glyph`` yields ``layer``."""
+    return SimpleNamespace(name=name, activeLayer=FG_LAYER, live_layer=layer)
+
+
+def fl_glyph(fg):
+    """Live ``fontlab.flGlyph(fg)``: ``activeLayer`` is the flLayer, no call."""
+    assert fg.activeLayer is FG_LAYER, "flGlyph must wrap the CurrentGlyph fgGlyph"
+    return SimpleNamespace(name=fg.name, activeLayer=fg.live_layer, fg=fg)
 
 
 def install_host(monkeypatch, producer, package=None, current=None):
@@ -85,6 +98,7 @@ def install_host(monkeypatch, producer, package=None, current=None):
             instance=lambda: SimpleNamespace(currentPackage=package)
         ),
         CurrentGlyph=lambda: current,
+        flGlyph=fl_glyph,
         CurrentFont=lambda: None,
     )
     from _demo_support import stub_module
@@ -167,6 +181,7 @@ PASTERS = [
     ("Paste JSON Glyphs Demo", "paste_glyphs"),
     ("Import Glyphs From JSON File Demo", "paste_glyphs"),
     ("Edit JSON Before Paste Demo", "paste_glyphs"),
+    ("Edit JSON Nodes With vfjo Demo", "paste_glyphs"),
     ("Paste JSON Shapes Into Layer Demo", "paste_shapes"),
 ]
 
@@ -193,7 +208,7 @@ def test_paste_demo_when_partial_write_then_partial_message_with_undo_hint(
     monkeypatch.setattr(history, "scan_auto_facts", lambda package: "facts")
     monkeypatch.setattr(scripting, "names_selected_names", lambda: ["o"])
     layer = SimpleNamespace(name="Regular")
-    current = SimpleNamespace(name="o", activeLayer=lambda: layer)
+    current = fg_glyph(layer)
     gui = install_host(monkeypatch, Producer(), package=Package(), current=current)
     gui.QFileDialog.getOpenFileName.return_value = str(source)
     run_script(script_path("Objects", title))
@@ -243,7 +258,7 @@ def test_copy_demo_when_shapes_selected_then_copies_only_selected_shapes(
     )
     picked = SimpleNamespace(name="s1", selected=True)
     layer = SimpleNamespace(name="Bold", shapes=[picked, SimpleNamespace(name="s2")])
-    current = SimpleNamespace(name="o", activeLayer=lambda: layer)
+    current = fg_glyph(layer)
     gui = install_host(monkeypatch, Producer(), package=Package(), current=current)
     run_script(script_path("Objects", "Copy Selection As JSON Demo"))
     (text,) = texts(gui)
@@ -257,7 +272,7 @@ def test_copy_demo_when_glyph_has_no_selected_shape_then_falls_back_to_glyphs(
     sel_names(monkeypatch, ["o"])
     monkeypatch.setattr(json_data, "copy_to_clipboard", lambda raw, **_: None)
     layer = SimpleNamespace(name="Bold", shapes=[SimpleNamespace(selected=False)])
-    current = SimpleNamespace(name="o", activeLayer=lambda: layer)
+    current = fg_glyph(layer)
     gui = install_host(monkeypatch, Producer(), package=Package(), current=current)
     run_script(script_path("Objects", "Copy Selection As JSON Demo"))
     assert texts(gui)[0].startswith("Copied 1 selected glyphs")
@@ -286,7 +301,7 @@ def test_object_json_demo_when_glyph_open_then_layer_shape_contour_toured(
     contour = SimpleNamespace(name="c")
     shape = SimpleNamespace(name="s", contours=[contour])
     layer = SimpleNamespace(name="Regular", shapes=[shape])
-    current = SimpleNamespace(name="o", activeLayer=lambda: layer)
+    current = fg_glyph(layer)
     gui = install_host(monkeypatch, Shrinking(), package=Package(), current=current)
     run_script(script_path("Objects", "Object JSON Demo"))
     details = details_of(gui)
@@ -301,7 +316,7 @@ def test_object_json_demo_when_layer_has_shape_without_contours_then_no_contour_
     sel_names(monkeypatch, ["o"])
     layer = SimpleNamespace(name="Regular", shapes=[SimpleNamespace(contours=[])])
     package = Package()
-    package.glyphs["o"].activeLayer = lambda: layer
+    package.glyphs["o"].activeLayer = layer
     gui = install_host(monkeypatch, Producer(), package=package, current=None)
     run_script(script_path("Objects", "Object JSON Demo"))
     details = details_of(gui)
@@ -314,7 +329,7 @@ def test_object_json_demo_when_empty_layer_then_only_glyph_and_layer(
     sel_names(monkeypatch, ["o"])
     layer = SimpleNamespace(name="Regular", shapes=[])
     package = Package()
-    package.glyphs["o"].activeLayer = lambda: layer
+    package.glyphs["o"].activeLayer = layer
     gui = install_host(monkeypatch, Producer(), package=package, current=None)
     run_script(script_path("Objects", "Object JSON Demo"))
     details = details_of(gui)
@@ -484,7 +499,7 @@ def shapes_host(monkeypatch, clipboard=RAW):
     monkeypatch.setattr(
         fontlab,
         "CurrentGlyph",
-        lambda: SimpleNamespace(name="o", activeLayer=lambda: layer),
+        lambda: fg_glyph(layer),
         raising=False,
     )
     return gui, layer
@@ -558,3 +573,60 @@ def test_export_demo_when_dialog_cancelled_then_nothing_saved(
     gui.QFileDialog.getSaveFileName.return_value = ""
     run_script(script_path("Objects", "Export Glyphs To JSON File Demo"))
     assert texts(gui) == []
+
+
+# --- Edit JSON Nodes With vfjo
+
+
+class NodeProducer(Producer):
+    """Exports ``o`` with one master and one two-node contour."""
+
+    def getClipboardDataJson(self, package_id, upm, objects):  # noqa: N802
+        glyph = {
+            "name": "o",
+            "unicodes": "006F",
+            "layers": [
+                {
+                    "name": "Regular",
+                    "advanceWidth": 500,
+                    "elements": [
+                        {"elementData": {"contours": [{"nodes": ["10 0", "10 100"]}]}}
+                    ],
+                }
+            ],
+        }
+        return QBA(json.dumps({**ENVELOPE, "glyph": glyph}).encode())
+
+
+def test_vfjo_nodes_demo_when_nothing_selected_then_asks_for_glyphs(
+    monkeypatch,
+) -> None:
+    sel_names(monkeypatch, ["missing"])
+    gui = paste_host(monkeypatch)
+    run_script(script_path("Objects", "Edit JSON Nodes With vfjo Demo"))
+    assert texts(gui) == ["Select glyphs first. Nothing was changed."]
+
+
+def test_vfjo_nodes_demo_when_pasted_then_raised_copy_created(monkeypatch) -> None:
+    import fontlabapp.core.history.glyphs as history
+
+    seen = {}
+
+    def paste(package, envelope, *, facts, on_conflict, title):
+        seen.update(envelope=envelope, facts=facts, title=title)
+        return json_data.Pasted(("o.raised",), (), ())
+
+    sel_names(monkeypatch, ["o"])
+    monkeypatch.setattr(json_data, "paste_glyphs", paste)
+    monkeypatch.setattr(history, "scan_auto_facts", lambda package: "facts")
+    gui = install_host(monkeypatch, NodeProducer(), package=Package())
+    run_script(script_path("Objects", "Edit JSON Nodes With vfjo Demo"))
+    assert texts(gui) == [f"Created 1 raised glyphs. {json_data.GLYPHS_UNDO_TEXT}"]
+    ((kind, glyph),) = seen["envelope"].items
+    assert kind == "glyph"
+    assert glyph["name"] == "o.raised" and "unicodes" not in glyph
+    contour = glyph["layers"][0]["elements"][0]["elementData"]["contours"][0]
+    assert contour["nodes"] == ["10 20", "10 120"]
+    assert seen["facts"] == "facts"
+    assert seen["title"] == "Edit JSON Nodes With vfjo Demo"
+    assert "Created: o.raised" in details_of(gui)

@@ -30,6 +30,7 @@ def notify(title: str, text: str, details: str = "") -> None:
 def samples(fl, package) -> list[tuple[str, list]]:
     """Return ``(label, objects)`` pairs to export: glyphs, layer, shape, contour."""
     from fly.ap.core.scripting import names_selected_names
+    from fly.ap.objects import json_data
 
     glyphs = [
         g
@@ -37,8 +38,10 @@ def samples(fl, package) -> list[tuple[str, list]]:
         if g is not None
     ]
     found = [("Selected glyphs", glyphs)] if glyphs else []
-    glyph = fl.CurrentGlyph() or (glyphs[0] if glyphs else None)
-    layer = glyph.activeLayer() if glyph is not None else None
+    glyph, layer = json_data.current_layer(fl)
+    if glyph is None and glyphs:
+        glyph = glyphs[0]
+        layer = glyph.activeLayer  # flGlyph property, not a method
     if layer is not None:
         found.append((f"Layer {glyph.name}/{layer.name}", [layer]))
         shapes = list(layer.shapes)

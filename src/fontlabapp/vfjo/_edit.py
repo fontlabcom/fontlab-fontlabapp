@@ -292,10 +292,8 @@ def _current_package() -> Any:
     return current_package()
 
 
-def _current_glyph() -> Any:
-    from fontlabapp import _native
-
-    return _native("fontlab").CurrentGlyph()
+def _current_layer() -> tuple[Any, Any]:
+    return json_data.current_layer()
 
 
 def _facts(package: Any) -> Any:
@@ -350,12 +348,10 @@ def paste(
         raise ValueError(
             "Shape data pastes into the current glyph; make that font current first."
         )
-    glyph = _current_glyph()
-    if glyph is None:
+    glyph, layer = _current_layer()
+    if glyph is None or layer is None:
         raise RuntimeError("No current glyph to paste shapes into.")
-    return json_data.paste_shapes(
-        glyph.activeLayer(), glyph, envelope, facts=_facts(package), **kw
-    )
+    return json_data.paste_shapes(layer, glyph, envelope, facts=_facts(package), **kw)
 
 
 __all__ = [

@@ -419,6 +419,23 @@ def available(fl: Any = None) -> bool:
     )
 
 
+def current_layer(fl: Any = None) -> tuple[Any, Any]:
+    """Return ``(flGlyph, flLayer)`` of the current glyph, or ``(None, None)``.
+
+    ``fontlab.CurrentGlyph()`` returns an ``fgGlyph`` whose ``activeLayer``
+    is FontGate data. This wraps it as ``fontlab.flGlyph`` and reads that
+    glyph's ``activeLayer`` property (not a method), the live layer that
+    ``paste_shapes`` and the selection code need. Used by ``vfjo.paste`` and
+    the Scripts/Objects demos.
+    """
+    fl = _native("fontlab") if fl is None else fl
+    current = fl.CurrentGlyph()
+    if current is None:
+        return None, None
+    glyph = fl.flGlyph(current)
+    return glyph, glyph.activeLayer
+
+
 def require_available(fl: Any = None) -> None:
     """Raise ``RuntimeError(NEEDS_91)`` on FontLab 9.0 or outside FontLab."""
     if not available(fl):

@@ -393,17 +393,47 @@ def test_rename_set_width_and_add_suffix():
 # --- paste routing -------------------------------------------------------------------
 
 
+class FgGlyph:
+    """Like live ``fontlab.CurrentGlyph()``: ``activeLayer`` is FontGate data."""
+
+    name = "o"
+    activeLayer = "fgLayer, not callable"
+
+
+class FlGlyph:
+    """Like live ``fontlab.flGlyph(fg)``: ``activeLayer`` is a property."""
+
+    def __init__(self, fg):
+        assert isinstance(fg, FgGlyph), "flGlyph must wrap the fgGlyph"
+        self.name = fg.name
+
+    @property
+    def activeLayer(self):
+        return "layer"
+
+
+def live_fontlab(current=True):
+    """Stand-in ``fontlab`` module with the live 9.1 glyph and layer types."""
+    from types import SimpleNamespace
+
+    return SimpleNamespace(
+        CurrentGlyph=lambda: FgGlyph() if current else None, flGlyph=FlGlyph
+    )
+
+
+def test_current_layer_when_live_types_then_flglyph_and_property_layer() -> None:
+    glyph, layer = json_data.current_layer(live_fontlab())
+    assert isinstance(glyph, FlGlyph) and layer == "layer"
+    assert json_data.current_layer(live_fontlab(current=False)) == (None, None)
+
+
 @pytest.fixture
 def fakes(monkeypatch):
     calls = []
     monkeypatch.setattr(_edit, "_facts", lambda package: "facts")
     monkeypatch.setattr(_edit, "_current_package", lambda: "package")
 
-    class Glyph:
-        def activeLayer(self):
-            return "layer"
-
-    monkeypatch.setattr(_edit, "_current_glyph", Glyph)
+    monkeypatch.setattr(json_data, "_native", lambda name: live_fontlab())
     monkeypatch.setattr(
         json_data,
         "paste_glyphs",
@@ -430,6 +460,7 @@ def test_paste_when_shape_data_then_paste_shapes_on_active_layer(fakes):
     vfjo.paste(fixture("element_o"), font="package")
     kind, args, kw = fakes[0]
     assert kind == "shapes" and args[0] == "layer" and args[2].kinds() == ("element",)
+    assert isinstance(args[1], FlGlyph)
     assert kw == {"facts": "facts"}
 
 
@@ -446,7 +477,7 @@ def test_paste_when_empty_mixed_or_no_font_then_errors(fakes, monkeypatch):
     with pytest.raises(RuntimeError, match="No font"):
         vfjo.paste(fixture("glyph_o"))
     monkeypatch.setattr(_edit, "_current_package", lambda: "package")
-    monkeypatch.setattr(_edit, "_current_glyph", lambda: None)
+    monkeypatch.setattr(json_data, "_native", lambda name: live_fontlab(current=False))
     with pytest.raises(RuntimeError, match="current glyph"):
         vfjo.paste(fixture("element_o"))
     assert fakes == []

@@ -41,15 +41,15 @@ GUIDE_BODY_HASHES = {'api-map': '311d6882114d4b5fbde14fbf5080ccfab54476d563d84d7
 # b2959925ec7f: reviewed addition of the public fontui.follow_history export.
 # cb1cdca: reviewed core.sharing row, writer element_shared re-export and fontui.native constants (Tasks 2-4).
 # TMetrics speed: reviewed internal fontui._font_reads row.
-# Object JSON: reviewed objects.json_data row (copy_objects added 2026-11-16).
+# Object JSON: reviewed objects.json_data row (copy_objects and current_layer added 2026-11-16).
 # vfjo: reviewed fontlabapp.vfjo, vfjo._data, vfjo._edit and vfjo.nodes rows (2026-11-16).
-API_MAP_HISTORY_SERVICE_BODY_HASH = '499263186f6bf968d1694d9a924e58f3d5ae0dafafb30376273de1c5f1695284'
+API_MAP_HISTORY_SERVICE_BODY_HASH = '049c5e6ec2d78965fa6f63892a272f9e4ea9fa614ce52263c55fbef4a6c0a6aa'
 API_MAP_SHARING_ADDITIONS = (
     ('| fontlabapp.vfjo | objects | GLYPHS_UNDO_TEXT, KNOWN_KEYS, NEEDS_91, Node, Objects, PARTIAL_TEXT, PartialWriteError, UnknownKeyError, add_key, add_suffix, anchors, available, contours, edit_nodes, elements, format_nodes, from_clipboard, from_glyphs, layers, load, loads, move, parse_nodes, paste, rename, scale, set_width | Public face of VFJ Objects: FontLab object JSON cast onto python-box with safe keys, navigation, move/scale edits and paste with Undo. | | fontlabapp.vfjo._data | objects | KNOWN_KEYS, Objects, UnknownKeyError, add_key, from_clipboard, from_glyphs, load, loads | Guarded python-box tree (KNOWN_KEYS, add_key), Objects root and the loaders over json_data. | | fontlabapp.vfjo._edit | objects | add_suffix, anchors, contours, edit_nodes, elements, layers, move, paste, rename, scale, set_width | Navigation generators, node, move and scale edits that keep components, anchors, guidelines and hints consistent, and paste routing. | | fontlabapp.vfjo.nodes | objects | Node, Number, Point, format_nodes, format_number, parse_nodes | Parse and format FontLab JSON node strings (Node) byte-exactly. | ', ''),
     ('| objects | 339 |', '| objects | 333 |'),
     ('| internal | 77 |', '| internal | 76 |'),
     ('| **Total** | **1029** |', '| **Total** | **1022** |'),
-    ('| fontlabapp.objects.json_data | objects | DATA_TYPE, Envelope, GLYPHS_UNDO_TEXT, Item, KINDS, MIME_TYPE, NEEDS_91, PARTIAL_TEXT, Pasted, SHAPES_UNDO_TEXT, as_qbytearray, available, copy_objects, copy_to_clipboard, decode, describe, drop_unicodes, export, filter_layers, load_file, only_glyphs, paste_glyphs, paste_shapes, read_clipboard, rename_glyphs, require_available, save_file, set_advance_width, unicodes, unique_glyph_names, unique_name | FontLab 9.1 object JSON: parse, edit, copy, save and paste glyphs, layers, elements and contours with Undo. | ', ''),
+    ('| fontlabapp.objects.json_data | objects | DATA_TYPE, Envelope, GLYPHS_UNDO_TEXT, Item, KINDS, MIME_TYPE, NEEDS_91, PARTIAL_TEXT, Pasted, SHAPES_UNDO_TEXT, as_qbytearray, available, copy_objects, copy_to_clipboard, current_layer, decode, describe, drop_unicodes, export, filter_layers, load_file, only_glyphs, paste_glyphs, paste_shapes, read_clipboard, rename_glyphs, require_available, save_file, set_advance_width, unicodes, unique_glyph_names, unique_name | FontLab 9.1 object JSON: parse, edit, copy, save and paste glyphs, layers, elements and contours with Undo. | ', ''),
     ('| fontlabapp.fontui._font_reads | internal | FontReads | Whole-font reads that TMetrics keeps while typing and drops on refresh, font change or master change. | ', ''),
     ('collect, element_shared, fmt,', 'collect, fmt,'),
     ('settle, sharing_operation, shown,', 'settle, shown,'),

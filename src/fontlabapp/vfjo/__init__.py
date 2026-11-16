@@ -44,39 +44,8 @@ How to use::
     objs.paste()                                   # new glyph o.shift, with Undo
 """
 
-from __future__ import annotations
-
-from fontlabapp.core.history.glyphs import PartialWriteError
-from fontlabapp.objects.json_data import (
-    GLYPHS_UNDO_TEXT,
-    NEEDS_91,
-    PARTIAL_TEXT,
-    available,
-)
-from fontlabapp.vfjo._data import (
-    KNOWN_KEYS,
-    Objects,
-    UnknownKeyError,
-    add_key,
-    from_clipboard,
-    from_glyphs,
-    load,
-    loads,
-)
-from fontlabapp.vfjo._edit import (
-    add_suffix,
-    anchors,
-    contours,
-    edit_nodes,
-    elements,
-    layers,
-    move,
-    paste,
-    rename,
-    scale,
-    set_width,
-)
-from fontlabapp.vfjo.nodes import Node, format_nodes, parse_nodes
+from importlib import import_module
+from typing import Any
 
 __all__ = [
     "GLYPHS_UNDO_TEXT",
@@ -107,3 +76,49 @@ __all__ = [
     "scale",
     "set_width",
 ]
+
+_EXPORTS = {
+    "GLYPHS_UNDO_TEXT": "fontlabapp.objects.json_data",
+    "KNOWN_KEYS": "fontlabapp.vfjo._data",
+    "NEEDS_91": "fontlabapp.objects.json_data",
+    "Node": "fontlabapp.vfjo.nodes",
+    "Objects": "fontlabapp.vfjo._data",
+    "PARTIAL_TEXT": "fontlabapp.objects.json_data",
+    "PartialWriteError": "fontlabapp.core.history.glyphs",
+    "UnknownKeyError": "fontlabapp.vfjo._data",
+    "add_key": "fontlabapp.vfjo._data",
+    "add_suffix": "fontlabapp.vfjo._edit",
+    "anchors": "fontlabapp.vfjo._edit",
+    "available": "fontlabapp.objects.json_data",
+    "contours": "fontlabapp.vfjo._edit",
+    "edit_nodes": "fontlabapp.vfjo._edit",
+    "elements": "fontlabapp.vfjo._edit",
+    "format_nodes": "fontlabapp.vfjo.nodes",
+    "from_clipboard": "fontlabapp.vfjo._data",
+    "from_glyphs": "fontlabapp.vfjo._data",
+    "layers": "fontlabapp.vfjo._edit",
+    "load": "fontlabapp.vfjo._data",
+    "loads": "fontlabapp.vfjo._data",
+    "move": "fontlabapp.vfjo._edit",
+    "parse_nodes": "fontlabapp.vfjo.nodes",
+    "paste": "fontlabapp.vfjo._edit",
+    "rename": "fontlabapp.vfjo._edit",
+    "scale": "fontlabapp.vfjo._edit",
+    "set_width": "fontlabapp.vfjo._edit",
+}
+
+
+def __getattr__(name: str) -> Any:
+    """Resolve one public name only when it is requested."""
+    try:
+        source = _EXPORTS[name]
+    except KeyError as error:
+        raise AttributeError(name) from error
+    value = getattr(import_module(source), name)
+    globals()[name] = value
+    return value
+
+
+def __dir__() -> list[str]:
+    """List only the names published by this package."""
+    return sorted(__all__)

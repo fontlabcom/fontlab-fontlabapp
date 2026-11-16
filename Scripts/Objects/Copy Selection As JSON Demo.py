@@ -36,9 +36,9 @@ def notify(title: str, text: str, details: str = "") -> None:
 def selection(fl, package) -> tuple[str, list]:
     """Return ``(label, objects)``: selected shapes of the current layer, else glyphs."""
     from fly.ap.core.scripting import names_selected_names
+    from fly.ap.objects import json_data
 
-    glyph = fl.CurrentGlyph()
-    layer = glyph.activeLayer() if glyph is not None else None
+    glyph, layer = json_data.current_layer(fl)
     shapes = [
         s
         for s in (layer.shapes if layer is not None else ())
