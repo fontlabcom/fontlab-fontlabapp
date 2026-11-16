@@ -2,7 +2,7 @@
 this_file: TODO.md
 ---
 
-- [ ] Live-check `fontlabapp.vfjo.scale` in FontLab 9.1 on the Lato Desktop VFJ: `scale` with `widths=True` and an `origin`, including scaled components such as `dcaron`; nodes, anchors, guidelines, hints and widths correct in every master.
+- [ ] Live-check `fontlabapp.vfjo.scale` in FontLab 9.1 with a non-zero `origin`, and on a glyph with guidelines and hints; the default origin with `widths=True` on `o` and `dcaron` is checked.
 - [ ] Live-check vfjo Undo in FontLab 9.1: after `vfjo.paste` of glyphs, Edit > Undo removes each pasted glyph (one step per glyph plus one for the outlines).
 - [ ] Live-check vfjo shape paste in FontLab 9.1: `vfjo.paste` of element or contour data lands on the current glyph's active layer as one Undo step; `font=` another font is refused.
 - [ ] Live-check the scriptmix vfjo demo scripts in FontLab 9.1 (Task 3).
