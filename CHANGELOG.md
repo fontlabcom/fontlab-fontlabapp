@@ -2,6 +2,14 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-16 — vfjo: Box-based object JSON (Task 2)
+
+- New `fontlabapp.vfjo` casts FontLab 9.1 object JSON onto python-box: `loads`, `load`, `from_glyphs`, `from_clipboard` return `Objects`, whose `data` is the box tree, with `kind`, `glyphs`, `glyph_names`, `to_dict`, `to_bytes`, `envelope`, `describe`, `save`, `copy_to_clipboard`, `paste` and `copy`. Data is validated through `json_data.Envelope.parse` in and out.
+- Safety: reading a missing key raises; a misspelt new key on a known level (root, glyph, layer, element, elementData, contour, transform, anchor, guideline, component) raises `UnknownKeyError`; `add_key` adds a key on purpose. Copies stay locked.
+- Navigation: `layers`, `elements` (including nested elements), `contours`, `anchors`. Edits: `edit_nodes` (refuses point-count changes), `move`, `scale` (components and transformed elements change their transform, other elements their nodes; anchors, guidelines, hint points and thickness follow; optional widths), `rename`, `set_width`, `add_suffix`. `paste` routes glyph data to `json_data.paste_glyphs` and layer/element/contour data to `json_data.paste_shapes` on the current glyph's active layer.
+- New dependency `python-box>=7.1,<9`. `uv lock` could not resolve (unpublished sibling `fontlab-fontport`); no lock file is tracked.
+- Tests: `tests/test_vfjo.py` with four live-exported fixtures (dict round trip, exact move/scale values for `o`, `Aogonek` and the scaled `dcaron` component, paste routing with fakes); with `test_vfjo_nodes.py` and `test_objects_json_data.py` 135 passed, vfjo coverage 97%. Not yet checked in FontLab.
+
 ## 2026-11-16 — Pasted JSON glyphs keep anchors, guidelines and hints
 
 - `json_data.paste_glyphs` now adds each JSON layer's anchors (`flLayer.addAnchor`) and its guidelines and hints (one `flLayer.appendGuidelines` call) to the new master layer, as well as its outlines and width. Before, anchors, guidelines and hints were dropped.

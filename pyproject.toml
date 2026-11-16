@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0 AND MIT AND BSD-3-Clause AND LicenseRef-Proprietary"  # MIT/BSD: third-party notices in NOTICE; proprietary: examples/LICENSE-native-ui
 license-files = ["LICENSE", "NOTICE", "examples/LICENSE-native-ui"]
-dependencies = ["fontlab-python-pens>=1.0.0"]
+dependencies = ["fontlab-python-pens>=1.0.0", "python-box>=7.1,<9"]
 [project.urls]
 Repository = "https://github.com/fontlabcom/fontlab-fontlabapp"
 [project.optional-dependencies]

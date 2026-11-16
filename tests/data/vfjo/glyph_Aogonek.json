@@ -1,0 +1,102 @@
+{
+  "dataType":"com.fontlab.objects",
+  "upm":2000,
+  "packageId":525736014080,
+  "glyph":{
+    "name":"Aogonek",
+    "unicode":"0104",
+    "lastModified":"2020-08-29 15:12:43",
+    "layers":[
+      {
+        "name":"Black",
+        "flags":0,
+        "advanceWidth":1419,
+        "advanceHeight":0,
+        "elements":[
+          {
+            "component":{
+              "glyphName":"A"
+            },
+            "elementDataID":525467713024,
+            "transform":{
+              "xOffset":-2
+            },
+            "active":true
+          },
+          {
+            "component":{
+              "glyphName":"ogonek"
+            },
+            "elementDataID":525467712512,
+            "transform":{
+              "xOffset":856
+            },
+            "nonSpacing":true
+          }
+        ],
+        "anchors":[
+          {
+            "name":"Top",
+            "point":"709 1525",
+            "appearance":5
+          },
+          {
+            "name":"top",
+            "point":"709 1525",
+            "appearance":5
+          },
+          {
+            "name":"bottom",
+            "point":"709 -421",
+            "appearance":6
+          }
+        ],
+        "color":"#bac000"
+      },
+      {
+        "name":"Hairline",
+        "flags":0,
+        "advanceWidth":1274,
+        "advanceHeight":0,
+        "elements":[
+          {
+            "component":{
+              "glyphName":"A"
+            },
+            "elementDataID":525467712000,
+            "active":true
+          },
+          {
+            "component":{
+              "glyphName":"ogonek"
+            },
+            "elementDataID":525467710464,
+            "transform":{
+              "xOffset":801
+            },
+            "nonSpacing":true
+          }
+        ],
+        "anchors":[
+          {
+            "name":"Top",
+            "point":"637 1496",
+            "appearance":5
+          },
+          {
+            "name":"top",
+            "point":"637 1496",
+            "appearance":5
+          },
+          {
+            "name":"bottom",
+            "point":"637 -421",
+            "appearance":6
+          }
+        ],
+        "color":"#ff34ff",
+        "active":true
+      }
+    ]
+  }
+}

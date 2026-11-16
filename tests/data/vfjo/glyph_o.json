@@ -1,0 +1,293 @@
+{
+  "dataType":"com.fontlab.objects",
+  "upm":2000,
+  "packageId":525736014080,
+  "glyph":{
+    "name":"o",
+    "unicode":"006f",
+    "lastModified":"2020-08-29 16:45:05",
+    "openTypeGlyphClass":1,
+    "colorFlag":181,
+    "layers":[
+      {
+        "name":"Black",
+        "colorFlag":181,
+        "flags":0,
+        "advanceWidth":1162,
+        "advanceHeight":0,
+        "elements":[
+          {
+            "id":"element",
+            "elementData":{
+              "contours":[
+                {
+                  "id":"contour",
+                  "nodes":[
+                    "583 1056 s {n:'av01'}",
+                    "267 1056  51 852  51 522 s {n:'sh01'}",
+                    "51 190  267 -16  583 -16 s {n:'ab01'}",
+                    "897 -16  1111 190  1111 522 s {n:'sh02'}",
+                    "1111 852  897 1056 c"
+                  ]
+                },
+                {
+                  "id":"contour.1",
+                  "nodes":[
+                    "583 224 s {n:'sv01'}",
+                    "437 224  371 320  371 520 s {n:'sh03'}",
+                    "371 720  437 816  583 816 s {n:'sv02'}",
+                    "725 816  791 720  791 520 s {n:'ah01'}",
+                    "791 320  725 224 c"
+                  ]
+                }
+              ]
+            },
+            "elementDataID":525500046336,
+            "active":true
+          }
+        ],
+        "guidelines":[
+          {
+            "vertical":true,
+            "position":592
+          }
+        ],
+        "hints":[
+          {
+            "vertical":true,
+            "node0":{
+              "nodeNode":{
+                "point":"51 522",
+                "contour":"contour",
+                "index":3,
+                "element":"element"
+              }
+            },
+            "thickness":320,
+            "nodeThickness":{
+              "nodeNode":{
+                "point":"371 520",
+                "contour":"contour.1",
+                "index":3,
+                "element":"element"
+              }
+            }
+          },
+          {
+            "vertical":true,
+            "node0":{
+              "nodeNode":{
+                "point":"791 520",
+                "contour":"contour.1",
+                "index":9,
+                "element":"element"
+              }
+            },
+            "thickness":320,
+            "nodeThickness":{
+              "nodeNode":{
+                "point":"1111 522",
+                "contour":"contour",
+                "index":9,
+                "element":"element"
+              }
+            }
+          },
+          {
+            "horizontal":true,
+            "node0":{
+              "nodeNode":{
+                "point":"583 -16",
+                "contour":"contour",
+                "index":6,
+                "element":"element"
+              }
+            },
+            "thickness":240,
+            "nodeThickness":{
+              "nodeNode":{
+                "point":"583 224",
+                "contour":"contour.1",
+                "index":0,
+                "element":"element"
+              }
+            }
+          },
+          {
+            "horizontal":true,
+            "node0":{
+              "nodeNode":{
+                "point":"583 816",
+                "contour":"contour.1",
+                "index":6,
+                "element":"element"
+              }
+            },
+            "thickness":240,
+            "nodeThickness":{
+              "nodeNode":{
+                "point":"583 1056",
+                "contour":"contour",
+                "index":0,
+                "element":"element"
+              }
+            }
+          }
+        ],
+        "anchors":[
+          {
+            "name":"top",
+            "point":"583 1120",
+            "appearance":5
+          },
+          {
+            "name":"bottom",
+            "point":"583 -70",
+            "appearance":6
+          }
+        ],
+        "color":"#bac000"
+      },
+      {
+        "name":"Hairline",
+        "colorFlag":181,
+        "flags":0,
+        "advanceWidth":1101,
+        "advanceHeight":0,
+        "elements":[
+          {
+            "id":"element.1",
+            "elementData":{
+              "contours":[
+                {
+                  "id":"contour.2",
+                  "nodes":[
+                    "550 996 s {n:'at01'}",
+                    "274 996  122 794  122 490 s {n:'sh01'}",
+                    "122 186  274 -12  550 -12 s {n:'ab01'}",
+                    "826 -12  978 186  978 490 s {n:'sh02'}",
+                    "978 794  826 996 c"
+                  ]
+                },
+                {
+                  "id":"contour.3",
+                  "nodes":[
+                    "550 8 s {n:'sv01'}",
+                    "282 8  146 202  146 490 s {n:'sh03'}",
+                    "146 778  282 976  550 976 s {n:'sv02'}",
+                    "818 976  954 778  954 490 s {n:'ah01'}",
+                    "954 202  818 8 c"
+                  ]
+                }
+              ]
+            },
+            "elementDataID":525500046848,
+            "active":true
+          }
+        ],
+        "guidelines":[
+          {
+            "vertical":true,
+            "position":530
+          }
+        ],
+        "hints":[
+          {
+            "vertical":true,
+            "node0":{
+              "nodeNode":{
+                "point":"122 490",
+                "contour":"contour.2",
+                "index":3,
+                "element":"element.1"
+              }
+            },
+            "thickness":24,
+            "nodeThickness":{
+              "nodeNode":{
+                "point":"146 490",
+                "contour":"contour.3",
+                "index":3,
+                "element":"element.1"
+              }
+            }
+          },
+          {
+            "vertical":true,
+            "node0":{
+              "nodeNode":{
+                "point":"954 490",
+                "contour":"contour.3",
+                "index":9,
+                "element":"element.1"
+              }
+            },
+            "thickness":24,
+            "nodeThickness":{
+              "nodeNode":{
+                "point":"978 490",
+                "contour":"contour.2",
+                "index":9,
+                "element":"element.1"
+              }
+            }
+          },
+          {
+            "horizontal":true,
+            "node0":{
+              "nodeNode":{
+                "point":"550 -12",
+                "contour":"contour.2",
+                "index":6,
+                "element":"element.1"
+              }
+            },
+            "thickness":20,
+            "nodeThickness":{
+              "nodeNode":{
+                "point":"550 8",
+                "contour":"contour.3",
+                "index":0,
+                "element":"element.1"
+              }
+            }
+          },
+          {
+            "horizontal":true,
+            "node0":{
+              "nodeNode":{
+                "point":"550 976",
+                "contour":"contour.3",
+                "index":6,
+                "element":"element.1"
+              }
+            },
+            "thickness":20,
+            "nodeThickness":{
+              "nodeNode":{
+                "point":"550 996",
+                "contour":"contour.2",
+                "index":0,
+                "element":"element.1"
+              }
+            }
+          }
+        ],
+        "anchors":[
+          {
+            "name":"top",
+            "point":"552 1120",
+            "appearance":5
+          },
+          {
+            "name":"bottom",
+            "point":"552 -70",
+            "appearance":6
+          }
+        ],
+        "color":"#ff34ff",
+        "active":true
+      }
+    ]
+  }
+}

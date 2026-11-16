@@ -2,6 +2,10 @@
 this_file: DEPENDENCIES.md
 ---
 
+## 2026-11-16 — python-box (vfjo)
+
+`python-box>=7.1,<9` casts FontLab 9.1 object JSON onto attribute-access trees for `fontlabapp.vfjo`, so scripts write `objs.data.glyph.layers[0].advanceWidth` instead of nested dict lookups. A small `Box` subclass refuses misspelt new keys on known levels and reading a missing key raises. Box is imported only inside `fontlabapp.vfjo`. Pydantic models may replace or complement it later. Canonical docs: [python-box wiki](https://github.com/cdgriffith/Box/wiki). FontLab's Python needs the package installed; that install is not yet checked live.
+
 ## 2026-11-15 — Transient installer marker parser
 
 Conditional requirements in `install.vfpy` use `packaging==26.3` through `uv run --no-project --with` in an external Python matching final uv resolution. This is a transient parser dependency, not a package runtime requirement or FontLab-host import. Bare requirements avoid the helper. uv's cache or normal package access must provide the parser; failure stops sibling staging with an explicit error. The host installer still imports only the standard library.
