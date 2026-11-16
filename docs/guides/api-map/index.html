@@ -742,7 +742,7 @@ source inventory, not a native FontLab compatibility claim.</p>
 </tr>
 <tr>
 <td>objects</td>
-<td style="text-align: right;">335</td>
+<td style="text-align: right;">339</td>
 </tr>
 <tr>
 <td>qt</td>
@@ -786,7 +786,7 @@ source inventory, not a native FontLab compatibility claim.</p>
 </tr>
 <tr>
 <td><strong>Total</strong></td>
-<td style="text-align: right;"><strong>1025</strong></td>
+<td style="text-align: right;"><strong>1029</strong></td>
 </tr>
 </tbody>
 </table>
@@ -4116,8 +4116,32 @@ source inventory, not a native FontLab compatibility claim.</p>
 <tr>
 <td><code>fontlabapp.objects.json_data</code></td>
 <td>objects</td>
-<td><code>DATA_TYPE</code>, <code>Envelope</code>, <code>GLYPHS_UNDO_TEXT</code>, <code>Item</code>, <code>KINDS</code>, <code>MIME_TYPE</code>, <code>NEEDS_91</code>, <code>PARTIAL_TEXT</code>, <code>Pasted</code>, <code>SHAPES_UNDO_TEXT</code>, <code>as_qbytearray</code>, <code>available</code>, <code>copy_objects</code>, <code>copy_to_clipboard</code>, <code>decode</code>, <code>describe</code>, <code>drop_unicodes</code>, <code>export</code>, <code>filter_layers</code>, <code>load_file</code>, <code>only_glyphs</code>, <code>paste_glyphs</code>, <code>paste_shapes</code>, <code>read_clipboard</code>, <code>rename_glyphs</code>, <code>require_available</code>, <code>save_file</code>, <code>set_advance_width</code>, <code>unicodes</code>, <code>unique_glyph_names</code>, <code>unique_name</code></td>
+<td><code>DATA_TYPE</code>, <code>Envelope</code>, <code>GLYPHS_UNDO_TEXT</code>, <code>Item</code>, <code>KINDS</code>, <code>MIME_TYPE</code>, <code>NEEDS_91</code>, <code>PARTIAL_TEXT</code>, <code>Pasted</code>, <code>SHAPES_UNDO_TEXT</code>, <code>as_qbytearray</code>, <code>available</code>, <code>copy_objects</code>, <code>copy_to_clipboard</code>, <code>current_layer</code>, <code>decode</code>, <code>describe</code>, <code>drop_unicodes</code>, <code>export</code>, <code>filter_layers</code>, <code>load_file</code>, <code>only_glyphs</code>, <code>paste_glyphs</code>, <code>paste_shapes</code>, <code>read_clipboard</code>, <code>rename_glyphs</code>, <code>require_available</code>, <code>save_file</code>, <code>set_advance_width</code>, <code>unicodes</code>, <code>unique_glyph_names</code>, <code>unique_name</code></td>
 <td>FontLab 9.1 object JSON: parse, edit, copy, save and paste glyphs, layers, elements and contours with Undo.</td>
+</tr>
+<tr>
+<td><code>fontlabapp.vfjo</code></td>
+<td>objects</td>
+<td><code>GLYPHS_UNDO_TEXT</code>, <code>KNOWN_KEYS</code>, <code>NEEDS_91</code>, <code>Node</code>, <code>Objects</code>, <code>PARTIAL_TEXT</code>, <code>PartialWriteError</code>, <code>UnknownKeyError</code>, <code>add_key</code>, <code>add_suffix</code>, <code>anchors</code>, <code>available</code>, <code>contours</code>, <code>edit_nodes</code>, <code>elements</code>, <code>format_nodes</code>, <code>from_clipboard</code>, <code>from_glyphs</code>, <code>layers</code>, <code>load</code>, <code>loads</code>, <code>move</code>, <code>parse_nodes</code>, <code>paste</code>, <code>rename</code>, <code>scale</code>, <code>set_width</code></td>
+<td>Public face of VFJ Objects: FontLab object JSON cast onto python-box with safe keys, navigation, move/scale edits and paste with Undo.</td>
+</tr>
+<tr>
+<td><code>fontlabapp.vfjo._data</code></td>
+<td>objects</td>
+<td><code>KNOWN_KEYS</code>, <code>Objects</code>, <code>UnknownKeyError</code>, <code>add_key</code>, <code>from_clipboard</code>, <code>from_glyphs</code>, <code>load</code>, <code>loads</code></td>
+<td>Guarded python-box tree (<code>KNOWN_KEYS</code>, <code>add_key</code>), <code>Objects</code> root and the loaders over <code>json_data</code>.</td>
+</tr>
+<tr>
+<td><code>fontlabapp.vfjo._edit</code></td>
+<td>objects</td>
+<td><code>add_suffix</code>, <code>anchors</code>, <code>contours</code>, <code>edit_nodes</code>, <code>elements</code>, <code>layers</code>, <code>move</code>, <code>paste</code>, <code>rename</code>, <code>scale</code>, <code>set_width</code></td>
+<td>Navigation generators, node, move and scale edits that keep components, anchors, guidelines and hints consistent, and paste routing.</td>
+</tr>
+<tr>
+<td><code>fontlabapp.vfjo.nodes</code></td>
+<td>objects</td>
+<td><code>Node</code>, <code>Number</code>, <code>Point</code>, <code>format_nodes</code>, <code>format_number</code>, <code>parse_nodes</code></td>
+<td>Parse and format FontLab JSON node strings (<code>Node</code>) byte-exactly.</td>
 </tr>
 <tr>
 <td><code>fontlabapp.plugins</code></td>
