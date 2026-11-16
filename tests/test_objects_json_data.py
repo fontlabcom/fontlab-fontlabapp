@@ -125,11 +125,19 @@ def fake_fl(producer):
 
 
 class Layer:
-    def __init__(self, name="Regular", shapes=()):
+    def __init__(self, name="Regular", shapes=(), anchors=(), guidelines=()):
         self.name, self.shapes, self.added = name, list(shapes), []
+        self.anchors, self.guidelines = list(anchors), list(guidelines)
+        self.added_anchors, self.appended_guidelines = [], []
 
     def addShape(self, shape):  # noqa: N802
         self.added.append(shape)
+
+    def addAnchor(self, anchor):  # noqa: N802
+        self.added_anchors.append(anchor)
+
+    def appendGuidelines(self, guidelines):  # noqa: N802
+        self.appended_guidelines.append(list(guidelines))
 
 
 class Glyph:
@@ -499,6 +507,34 @@ def test_paste_glyphs_when_name_taken_then_renamed_unicode_dropped_and_filled(
     assert [d["glyph"]["name"] for d in producer.decoded] == ["o", "p"], (
         "each glyph decodes once, as its own one-glyph envelope"
     )
+
+
+def test_paste_glyphs_when_layer_has_anchors_and_guides_then_both_carried(
+    monkeypatch,
+) -> None:
+    def decoder(raw):
+        out = decoded_glyphs(raw)
+        layer = out[0].layers[0]
+        layer.anchors = ["top/Regular", "bottom/Regular"]
+        layer.guidelines = ["guide/Regular", "hint/Regular"]
+        return out
+
+    monkeypatch.setattr(jd, "decode", lambda data, **_: decoder(jd._raw(data)))
+    pasted, _, _ = run_paste(monkeypatch, Package(), envelope(glyph=glyph("o")))
+    target = pasted.result[1]["o"].findLayer("Regular")
+    assert [s.label for s in target.added] == ["o/Regular"]
+    assert target.added_anchors == ["top/Regular", "bottom/Regular"]
+    assert target.appended_guidelines == [["guide/Regular", "hint/Regular"]], (
+        "guidelines and hints go in as one appendGuidelines call"
+    )
+
+
+def test_paste_glyphs_when_layer_has_no_anchors_or_guides_then_none_added(
+    monkeypatch,
+) -> None:
+    pasted, _, _ = run_paste(monkeypatch, Package(), envelope(glyph=glyph("o")))
+    target = pasted.result[1]["o"].findLayer("Regular")
+    assert target.added_anchors == [] and target.appended_guidelines == []
 
 
 def test_paste_glyphs_when_skip_then_taken_names_skipped(monkeypatch) -> None:

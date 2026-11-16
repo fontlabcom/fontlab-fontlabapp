@@ -591,17 +591,39 @@ def _layer_width(payload: Mapping[str, Any], layer_name: str) -> int | None:
     return None
 
 
+class _Parts(NamedTuple):
+    """What one decoded JSON layer gives a new master layer."""
+
+    shapes: list[Any]
+    anchors: list[Any]
+    guidelines: list[Any]
+
+
+def _parts(layer: Any) -> _Parts:
+    """Return the shapes, anchors and guidelines of one decoded layer.
+
+    ``flLayer.guidelines`` holds the layer's guidelines and its hints
+    (``flGuideLine.isHint()``); hints refer to nodes of the same decoded
+    shapes, so both are taken from one decoded layer together.
+    """
+    return _Parts(
+        list(layer.shapes),
+        list(getattr(layer, "anchors", ())),
+        list(getattr(layer, "guidelines", ())),
+    )
+
+
 def _decoded_layers(
     data: Envelope, matched: Mapping[str, str], fl: Any, qt: Any
-) -> dict[str, list[Any]]:
-    """Return ``{master: shapes}`` for one glyph, decoded before any write.
+) -> dict[str, _Parts]:
+    """Return ``{master: parts}`` for one glyph, decoded before any write.
 
     One decode serves every distinct JSON layer. A JSON layer used for more
     than one master (the one-layer fallback) needs its own shapes per master,
     because one detached shape cannot be added to two layers; those extra
     masters get one more decode each, still before any glyph is created.
     """
-    out: dict[str, list[Any]] = {}
+    out: dict[str, _Parts] = {}
     used: set[str] = set()
     glyph = None
     for master, layer_name in matched.items():
@@ -610,7 +632,8 @@ def _decoded_layers(
             used = set()
         used.add(layer_name)
         out[master] = next(
-            (list(x.shapes) for x in glyph.layers if str(x.name) == layer_name), []
+            (_parts(x) for x in glyph.layers if str(x.name) == layer_name),
+            _Parts([], [], []),
         )
     return out
 
@@ -665,8 +688,8 @@ def paste_glyphs(
     """Create new glyphs from the glyph items of object JSON, with Undo.
 
     Names are made unique against the font (``on_conflict="rename"``) or
-    taken glyphs are skipped (``"skip"``). Each master gets the width and
-    outlines of the JSON layer of the same name; with no name match and one
+    taken glyphs are skipped (``"skip"``). Each master gets the width,
+    outlines, anchors, guidelines and hints of the JSON layer of the same name; with no name match and one
     JSON layer, that layer is used for every master. Unmatched JSON layers
     and non-glyph items are listed in ``skipped``. Renamed glyphs lose their
     Unicode values; a kept value that is already in the font or earlier in
@@ -743,8 +766,12 @@ def paste_glyphs(
         for name, per_master in shapes.items():
             for master, decoded in per_master.items():
                 target = named[name].findLayer(master)
-                for shape in decoded:
+                for shape in decoded.shapes:
                     target.addShape(shape)
+                for anchor in decoded.anchors:
+                    target.addAnchor(anchor)
+                if decoded.guidelines:
+                    target.appendGuidelines(decoded.guidelines)
 
     result = creation.create_glyphs(
         package, specs, title, facts, fill=fill, allow_rebuild=allow_rebuild

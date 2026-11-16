@@ -2,6 +2,12 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-16 — Pasted JSON glyphs keep anchors, guidelines and hints
+
+- `json_data.paste_glyphs` now adds each JSON layer's anchors (`flLayer.addAnchor`) and its guidelines and hints (one `flLayer.appendGuidelines` call) to the new master layer, as well as its outlines and width. Before, anchors, guidelines and hints were dropped.
+- Live on 9.1.9812, Lato Desktop VFJ, Font window: glyph `o` was exported with `export`, edited as a plain Python dict (renamed `o.roundtrip2`, Unicode removed, width +100, every node, anchor and vertical guideline x+50) and created with `paste_glyphs`. Read back through the native layer API and through `export`, both masters had the edited width, 24 nodes all at x+50 and y unchanged, the `top` and `bottom` anchors at x+50, and the guideline and four hints (vertical hints at x+50); per layer the JSON had 2 anchors, 1 guideline and 4 hints, the same as `o`. Other glyph and layer properties (colour flag, OpenType class, `lastModified`) are still not carried.
+- Tests: `tests/test_objects_json_data.py`, `tests/test_demo_scripts_objects.py` and `tests/test_api_facades.py` 159 passed.
+
 ## 2026-11-16 — Copy Selection As JSON pastes in FontLab
 
 - New `json_data.copy_objects(package, objects)`: on FontLab 9.1 it calls `flModelProducer.copyToClipboard`, which writes FontLab's `vic/objects` types plus `application/json` and plain text; without that method it falls back to `copy_to_clipboard` (JSON and text only). It returns the copied object JSON.
