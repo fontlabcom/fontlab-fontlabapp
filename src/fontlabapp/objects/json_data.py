@@ -486,6 +486,29 @@ def copy_to_clipboard(data: Any, *, qt: Any = None) -> None:
     qt.QtGui.QApplication.clipboard().setMimeData(mime)
 
 
+def copy_objects(
+    package: Any, objects: Sequence[Any], *, fl: Any = None, qt: Any = None
+) -> bytes:
+    """Copy ``objects`` to the clipboard so FontLab's Edit > Paste accepts them.
+
+    Uses ``flModelProducer.copyToClipboard`` when FontLab has it. It writes
+    FontLab's own ``vic/objects`` formats plus ``application/json``, the same
+    as FontLab's Copy. Live on 9.1.9812, Edit > Paste then added a copied glyph
+    in both masters, in the Font window and in a Glyph window. Without it, the
+    JSON goes on the clipboard through ``copy_to_clipboard``, which FontLab's
+    Paste may not accept. Returns the copied JSON. Reads only: the font does
+    not change and nothing is recorded for Undo.
+    """
+    fl = _native("fontlab") if fl is None else fl
+    raw = export(package, objects, fl=fl)
+    native_copy = getattr(fl.flModelProducer, "copyToClipboard", None)
+    if native_copy is None:
+        copy_to_clipboard(raw, qt=qt)
+        return raw
+    native_copy(int(package.id), list(objects))
+    return read_clipboard(qt=qt) or raw
+
+
 def read_clipboard(*, qt: Any = None) -> bytes | None:
     """Return object JSON from the clipboard, or ``None`` when it holds none.
 

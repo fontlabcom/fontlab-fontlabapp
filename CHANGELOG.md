@@ -2,6 +2,13 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-16 — Copy Selection As JSON pastes in FontLab
+
+- New `json_data.copy_objects(package, objects)`: on FontLab 9.1 it calls `flModelProducer.copyToClipboard`, which writes FontLab's `vic/objects` types plus `application/json` and plain text; without that method it falls back to `copy_to_clipboard` (JSON and text only). It returns the copied object JSON.
+- Copy Selection As JSON Demo uses it. Live on 9.1.9812 (owner hand test): a glyph copied this way pasted with Edit > Paste in the Font window and in a Glyph window, in both masters. Paste of copied shapes is not checked.
+- Never call `flModelProducer.getObjectsFromClipboard()` or `getObjectsFromData()` on 9.1.9812: the binding crashes (Fontlab/fl#8655). `read_clipboard` does not use them.
+- Tests: `tests/test_objects_json_data.py`, `tests/test_demo_scripts_objects.py` and `tests/test_api_facades.py` 157 passed.
+
 ## 1.2.28 (2026-11-16) — install.vfpy is the fontlab-instamix stub
 
 - `install.vfpy` is now the short fontlab-instamix stub. It installs

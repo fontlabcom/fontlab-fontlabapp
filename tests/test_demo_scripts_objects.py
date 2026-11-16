@@ -222,7 +222,9 @@ def test_copy_demo_when_nothing_selected_then_asks_for_selection(monkeypatch) ->
 def test_copy_demo_when_glyphs_selected_then_clipboard_written(monkeypatch) -> None:
     sel_names(monkeypatch, ["o", "missing"])
     copied = []
-    monkeypatch.setattr(json_data, "copy_to_clipboard", copied.append)
+    monkeypatch.setattr(
+        json_data, "copy_to_clipboard", lambda raw, **_: copied.append(raw)
+    )
     gui = install_host(monkeypatch, Producer(), package=Package(), current=None)
     run_script(script_path("Objects", "Copy Selection As JSON Demo"))
     (text,) = texts(gui)
@@ -236,7 +238,9 @@ def test_copy_demo_when_shapes_selected_then_copies_only_selected_shapes(
 ) -> None:
     sel_names(monkeypatch, ["o"])
     copied = []
-    monkeypatch.setattr(json_data, "copy_to_clipboard", copied.append)
+    monkeypatch.setattr(
+        json_data, "copy_to_clipboard", lambda raw, **_: copied.append(raw)
+    )
     picked = SimpleNamespace(name="s1", selected=True)
     layer = SimpleNamespace(name="Bold", shapes=[picked, SimpleNamespace(name="s2")])
     current = SimpleNamespace(name="o", activeLayer=lambda: layer)
@@ -251,7 +255,7 @@ def test_copy_demo_when_glyph_has_no_selected_shape_then_falls_back_to_glyphs(
     monkeypatch,
 ) -> None:
     sel_names(monkeypatch, ["o"])
-    monkeypatch.setattr(json_data, "copy_to_clipboard", lambda raw: None)
+    monkeypatch.setattr(json_data, "copy_to_clipboard", lambda raw, **_: None)
     layer = SimpleNamespace(name="Bold", shapes=[SimpleNamespace(selected=False)])
     current = SimpleNamespace(name="o", activeLayer=lambda: layer)
     gui = install_host(monkeypatch, Producer(), package=Package(), current=current)

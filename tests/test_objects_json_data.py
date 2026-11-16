@@ -801,3 +801,37 @@ def test_paste_glyphs_when_second_decode_fails_then_nothing_created(
 def test_shape_from_contours_when_called_then_one_shape_with_all_contours() -> None:
     shape = jd._shape_from_contours(fake_fl(Producer()), ["c1", "c2"])
     assert shape.contours == ["c1", "c2"]
+
+
+def test_copy_objects_when_native_copy_then_fontlab_clipboard_used() -> None:
+    raw = json.dumps(envelope(glyph=glyph())).encode()
+    qt = fake_qt()
+    calls = []
+
+    class NativeProducer(Producer):
+        def copyToClipboard(self, package_id, objects):  # noqa: N802 - native name
+            calls.append((package_id, objects))
+            mime = Mime({"vic/objects": QBA(b"bin"), jd.MIME_TYPE: QBA(raw)}, text="")
+            qt.board.setMimeData(mime)
+
+    producer = NativeProducer()
+    got = jd.copy_objects(Package(), ["a"], fl=fake_fl(producer), qt=qt)
+    assert calls == [(7, ["a"])]
+    assert got == raw
+    assert "vic/objects" in qt.board.mime.formats
+
+
+def test_copy_objects_when_no_native_copy_then_json_clipboard() -> None:
+    qt = fake_qt()
+    producer = Producer()
+    got = jd.copy_objects(Package(), ["a"], fl=fake_fl(producer), qt=qt)
+    assert producer.exported == [(7, 1000, ["a"])]
+    assert json.loads(got) == envelope(glyph=glyph())
+    assert jd.read_clipboard(qt=qt) == got
+    assert set(qt.board.mime.formats) == {jd.MIME_TYPE}
+
+
+def test_copy_objects_when_fontlab_90_then_runtime_error() -> None:
+    fl90 = SimpleNamespace(flModelProducer=SimpleNamespace())
+    with pytest.raises(RuntimeError, match=re.escape(jd.NEEDS_91)):
+        jd.copy_objects(Package(), [], fl=fl90, qt=fake_qt())

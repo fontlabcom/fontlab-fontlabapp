@@ -4,14 +4,17 @@
 
 What: in a Glyph window with selected shapes, copies those shapes of the
 current layer; otherwise copies the glyphs selected in the Font window (or
-the current glyph). Uses ``fontlabapp.objects.json_data.export`` and
-``json_data.copy_to_clipboard`` (MIME ``application/json``, the type FontLab's
-own Copy uses, plus plain text, so a text editor can show and edit the JSON).
-Use: select glyphs or shapes and run; then run Paste JSON Glyphs Demo or Paste
-JSON Shapes Into Layer Demo, in this font or another one.
+the current glyph). Uses ``fontlabapp.objects.json_data.copy_objects``: it
+puts the objects on the clipboard the way FontLab's own Copy does
+(``flModelProducer.copyToClipboard``, FontLab's ``vic/objects`` formats
+plus ``application/json``), so FontLab's Edit > Paste accepts them. A text
+editor can still read the JSON.
+Use: select glyphs or shapes and run. Then use Edit > Paste, or run Paste JSON
+Glyphs Demo or Paste JSON Shapes Into Layer Demo, in this font or another one.
 Safety: changes no font and records nothing for Undo. Needs FontLab 9.1 or
-later; on 9.0 it says so and stops. Whether FontLab's own Edit > Paste reads
-this clipboard is not verified.
+later; on 9.0 it says so and stops. Edit > Paste of copied glyphs was checked
+live on 9.1.9812 (both masters, Font window and Glyph window); Paste of copied
+shapes was not.
 """
 
 TITLE = "Copy Selection As JSON"
@@ -68,12 +71,11 @@ def main() -> None:
     if not objects:
         notify(TITLE, "Select glyphs or shapes first. Nothing was copied.")
         return
-    raw = json_data.export(package, objects)
-    json_data.copy_to_clipboard(raw)
+    raw = json_data.copy_objects(package, objects)
     lines = json_data.describe(json_data.Envelope.parse(raw))
     notify(
         TITLE,
-        f"Copied {len(objects)} {label} as object JSON ({len(raw)} bytes).",
+        f"Copied {len(objects)} {label} as object JSON ({len(raw)} bytes). Use Edit > Paste to paste them.",
         "\n".join(lines),
     )
 
