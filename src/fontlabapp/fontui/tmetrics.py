@@ -297,6 +297,12 @@ class TMetrics(Owned):
                     if cell.present and cell.name not in self.outlines:
                         self.outlines[cell.name] = _outline(self.model, cell.name)
             status = self.model.status
+            unresolved = getattr(self._reads, "unresolved_master", None) if self.layer is None else None
+            if unresolved:
+                status += (
+                    f"; FontLab's current master {unresolved} has no layer of that name, "
+                    f"so the default master ({getattr(self._reads, 'defaultLayerName', None)}) is shown."
+                )
             if not self._current_master():
                 status += (
                     f"; kerning is unavailable for {self._target_layer()}; FontLab keeps font kerning "
@@ -366,8 +372,9 @@ class TMetrics(Owned):
         """The layer read and written: the chosen one, else FontLab's current master.
 
         None means the default master (``defaultLayerName``). FontLab's current
-        master can differ from it after ``setMaster()``; reads come from FontReads,
-        so this costs nothing per keystroke.
+        master can differ from it after ``setMaster()``. The name is memoised in
+        FontReads until its next reset; ``master_changed()`` rechecks it once per
+        refresh with one native lookup.
         """
         if self.layer is not None:
             return self.layer

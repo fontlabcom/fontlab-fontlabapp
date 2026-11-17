@@ -630,12 +630,32 @@ def test_typing_when_font_has_summaries_then_summaries_used_not_glyphs(
     assert set(asked) <= {"A", "V"}, "Only the typed glyphs are read one by one"
 
 
-class _Package:
-    """Live FontLab package double: ``master`` is the current master, ``defaultMaster`` stays put."""
+class _Layer:
+    isNull = False
 
-    def __init__(self, master):
+
+class _Glyph:
+    def __init__(self, layers):
+        self.layers = layers
+
+    def findLayer(self, name):  # noqa: N802 - FontLab method name
+        return _Layer() if name in self.layers else None
+
+
+class _Package:
+    """Live FontLab package double: ``master`` is the current master, ``defaultMaster`` stays put.
+
+    Every glyph has the layers ``layers``; FontLab's renameMaster() renames the
+    master but not the glyph layers, so ``master`` may name no layer.
+    """
+
+    def __init__(self, master, layers=("public.default", "Bold")):
         self.master = master
         self.defaultMaster = "public.default"
+        self.layers = layers
+
+    def findName(self, name):  # noqa: N802 - FontLab method name
+        return _Glyph(self.layers)
 
 
 def _cell_widths(window, name):
@@ -678,3 +698,51 @@ def test_current_master_when_no_live_package_then_default_layer_used(tm_mod):
     assert window._reads.current_master == font.defaultLayerName
     assert window._target_layer() is None
     assert window._current_master()
+
+
+def test_follow_when_current_master_names_no_layer_then_default_shown_and_status_says_so(tm_mod, monkeypatch):
+    reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
+    package = _Package("Bold Renamed")  # renameMaster("Bold", "Bold Renamed"): glyph layers stay "Bold"
+    monkeypatch.setattr(reads_mod, "package_of", lambda font: package)
+    window, _, _ = make(tm_mod)
+    window.set_text("AV")
+    assert window._target_layer() is None, "An unresolved master falls back to the default master"
+    assert _cell_widths(window, "A") != [700]
+    assert "Bold Renamed" in window.diagnostic.text and "no layer" in window.diagnostic.text, window.diagnostic.text
+    assert window._current_master()
+
+
+@pytest.mark.parametrize("master", ["", None])
+def test_current_master_when_package_master_empty_then_default_layer_used(tm_mod, monkeypatch, master):
+    reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
+    monkeypatch.setattr(reads_mod, "package_of", lambda font: _Package(master))
+    window, _, font = make(tm_mod)
+    window.set_text("A")
+    assert window._reads.current_master == font.defaultLayerName
+    assert window._target_layer() is None
+    assert "no layer" not in window.diagnostic.text
+
+
+def test_current_master_when_package_master_not_str_then_its_text_used(tm_mod, monkeypatch):
+    class _Name:
+        def __str__(self):
+            return "Bold"
+
+    reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
+    monkeypatch.setattr(reads_mod, "package_of", lambda font: _Package(_Name()))
+    window, _, _ = make(tm_mod)
+    window.set_text("A")
+    assert window._target_layer() == "Bold"
+    assert _cell_widths(window, "A") == [700]
+
+
+def test_kerning_commit_when_current_master_not_default_then_refused_in_status(tm_mod, monkeypatch):
+    reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
+    monkeypatch.setattr(reads_mod, "package_of", lambda font: _Package("Bold"))
+    window, _, font = make(tm_mod)
+    window.set_text("AV")
+    window.model.select(1)
+    before = dict(font.kerning.items())
+    assert window.commit("kerning", "-50") is False
+    assert "Bold cannot be targeted" in window.diagnostic.text, window.diagnostic.text
+    assert dict(font.kerning.items()) == before, "No kerning written to the default master"
