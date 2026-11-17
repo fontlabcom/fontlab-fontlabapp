@@ -330,6 +330,61 @@ def test_scale_when_outline_then_nodes_and_hint_thickness():
     assert layer.advanceWidth == 1162, "widths=False keeps widths"
 
 
+def _ghost_glyph() -> vfjo.Objects:
+    """glyph_o plus a top (-20) and bottom (21) ghost as FontLab 9.1 exports them."""
+    data = raw("glyph_o")
+    data["glyph"]["layers"][0]["hints"] += [
+        {
+            "horizontal": True,
+            "flags": 6,
+            "thickness": -20,
+            "node0": {
+                "nodeNode": {
+                    "point": "583 1460",
+                    "contour": "contour",
+                    "index": 0,
+                    "element": "element",
+                }
+            },
+        },
+        {
+            "horizontal": True,
+            "flags": 6,
+            "thickness": 21,
+            "node0": {
+                "nodeNode": {
+                    "point": "583 0",
+                    "contour": "contour",
+                    "index": 6,
+                    "element": "element",
+                }
+            },
+        },
+    ]
+    return vfjo.loads(json.dumps(data))
+
+
+def test_scale_when_ghost_hints_then_thickness_kept_and_point_mapped():
+    objs = vfjo.scale(_ghost_glyph(), 2, 0.5, origin=(100, 200))
+    *stems, top, bottom = objs.data.glyph.layers[0].hints
+    assert (top.thickness, bottom.thickness) == (-20, 21), "ghost widths are not scaled"
+    assert (
+        top.node0.nodeNode.point == "1066 830"
+        and bottom.node0.nodeNode.point == "1066 100"
+    )
+    assert [h.thickness for h in stems] == [640, 640, 120, 120], (
+        "stem hints still scale"
+    )
+
+
+def test_move_when_ghost_hints_then_thickness_unchanged():
+    objs = vfjo.move(_ghost_glyph(), 10, -5)
+    *stems, top, bottom = objs.data.glyph.layers[0].hints
+    assert (top.thickness, bottom.thickness) == (-20, 21)
+    assert top.node0.nodeNode.point == "593 1455"
+    assert [h.thickness for h in stems] == [320, 320, 240, 240]
+
+
 def test_scale_when_element_contour_or_center_guide_then_mapped():
     head = {"dataType": json_data.DATA_TYPE, "upm": 1000, "packageId": 1}
     contour = vfjo.scale(vfjo.loads({**head, "contour": {"nodes": ["10 10"]}}), 3)

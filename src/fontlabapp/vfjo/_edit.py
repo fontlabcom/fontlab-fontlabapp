@@ -134,6 +134,10 @@ def _num(value: float) -> Number:
     return int(value) if value == int(value) else value
 
 
+_GHOST_THICKNESS = (-20, 21)
+"""FontLab JSON ``thickness`` of a top (-20) and bottom (21) ghost hint."""
+
+
 class _Affine:
     def __init__(self, sx: Number, sy: Number, tx: Number, ty: Number) -> None:
         self.sx, self.sy, self.tx, self.ty = sx, sy, tx, ty
@@ -206,13 +210,21 @@ class _Affine:
             guide["center"] = self.point(guide["center"])
 
     def hint(self, hint: _Data) -> None:
+        """Map the hint's node points and scale its ``thickness``.
+
+        Ghost hints keep their thickness: FontLab JSON writes a top ghost as
+        ``thickness: -20`` and a bottom ghost as ``21`` (the PostScript ghost
+        widths), and a scaled value turns them into real stem hints. A real
+        stem hint of exactly -20 or 21 units is therefore also left unscaled.
+        """
         for value in hint.values():
             node = value.get("nodeNode") if isinstance(value, Mapping) else None
             if isinstance(node, Mapping) and "point" in node:
                 node["point"] = self.point(node["point"])
-        if "thickness" in hint:
+        thickness = hint.get("thickness")
+        if thickness is not None and thickness not in _GHOST_THICKNESS:
             factor = self.sx if hint.get("vertical") else self.sy
-            hint["thickness"] = _num(factor * hint["thickness"])
+            hint["thickness"] = _num(factor * thickness)
 
     def apply(self, obj: Any, *, anchors: bool, widths: bool) -> Any:
         for kind, box in _items(obj):
@@ -242,7 +254,11 @@ def scale(
     anchors: bool = True,
     widths: bool = False,
 ) -> Any:
-    """Scale by ``sx`` (and ``sy``, default ``sx``) around ``origin``; ``widths`` scales ``advanceWidth``."""
+    """Scale by ``sx`` (and ``sy``, default ``sx``) around ``origin``; ``widths`` scales ``advanceWidth``.
+
+    Hint thickness scales except for ghost hints (thickness -20 or 21), which
+    keep their value; a real stem hint of exactly -20 or 21 units stays too.
+    """
     sy = sx if sy is None else sy
     ox, oy = origin
     return _Affine(sx, sy, ox * (1 - sx), oy * (1 - sy)).apply(
