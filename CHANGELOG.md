@@ -2,6 +2,13 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — v1.2.35: TMetrics falls back to the default master when the current master names no layer
+
+- FontLab's `renameMaster()` renames the master but leaves every glyph layer under the old name. On a copy of i2-lato, renaming Black to "Black Renamed" left glyph A with the layers Black and Hairline. On i2-lato (3,055 glyphs) and KinneyMM (3,171 glyphs) the master names match the master layer names; KinneyMM's `space.superior` has no master layers at all. `FontReads.current_master` now checks the master name against the first glyph that has the default layer. If no layer has that name, TMetrics shows the default master, and the status says "FontLab's current master Black Renamed has no layer of that name, so the default master (Hairline) is shown." (commit `227efb7`).
+- Cost: in FontLab 9.1.9813, `package_of()` takes about 0.0012 ms and `master_changed()` about 0.006 ms per call (`live_default_layer` alone 0.004 ms), with a typing median of 0.013 s on i2-lato. The docstrings now state this cost instead of "costs nothing per keystroke"; no per-refresh cache was needed.
+- New tests: a master that names no layer, empty and `None` masters, a non-`str` master, and the kerning refusal when the current master is not the default.
+- Native checks with the dev wheel and then the v1.2.35 release wheel (both installed with `fontlab_instamix pkg install`): the rename fallback (`p11/rename_fix.json`, renamed back afterwards, copy not saved), and Black's widths after `setMaster("Black")` (`p11/master_dev.json`, `p11/master_release.json`). Evidence: `/Volumes/Falstaff4T/fontlab-scripting-data/issue258/native/p11/`. PyPI publishing still fails; the GitHub release has the wheel.
+
 ## 2026-11-17 — v1.2.34: TMetrics "Current master" follows FontLab's current master
 
 - FontLab's `setMaster()` moves `flPackage.master` and leaves `flPackage.defaultMaster`, which Fontport reports as `defaultLayerName`. TMetrics read "Current master" through `defaultLayerName`, so after a switch it kept showing (and would have written) the old master's widths. `FontReads.current_master` now reads `flPackage.master` (falling back to `defaultLayerName` for a detached or host-free font), `master_changed()` compares it too, and TMetrics passes the resolved layer explicitly to the model, metric writes, nudges, hint checks and kerning (commit `64f06f8`, tests in `tests/test_tmetrics_font_reads.py`).
