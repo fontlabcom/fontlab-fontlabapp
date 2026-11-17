@@ -746,7 +746,7 @@ source inventory, not a native FontLab compatibility claim.</p>
 </tr>
 <tr>
 <td>qt</td>
-<td style="text-align: right;">24</td>
+<td style="text-align: right;">25</td>
 </tr>
 <tr>
 <td>scripting</td>
@@ -786,7 +786,7 @@ source inventory, not a native FontLab compatibility claim.</p>
 </tr>
 <tr>
 <td><strong>Total</strong></td>
-<td style="text-align: right;"><strong>1029</strong></td>
+<td style="text-align: right;"><strong>1030</strong></td>
 </tr>
 </tbody>
 </table>
@@ -4666,6 +4666,12 @@ source inventory, not a native FontLab compatibility claim.</p>
 <td>Injected Qt color presentation; foreign color/callback policy stays local.</td>
 </tr>
 <tr>
+<td><code>fontlabapp.qt.compact</code></td>
+<td>qt</td>
+<td><code>MARGIN</code>, <code>SIDES</code>, <code>SPACING</code>, <code>compact</code>, <code>compact_dialog</code>, <code>compact_layout</code>, <code>controls_box</code>, <code>frameless</code>, <code>split_view</code></td>
+<td>Native-like 6 px margins and 4 px spacing; frameless glyph view in the top or right half.</td>
+</tr>
+<tr>
 <td><code>fontlabapp.qt.completion</code></td>
 <td>qt</td>
 <td>—</td>
@@ -4830,7 +4836,7 @@ source inventory, not a native FontLab compatibility claim.</p>
 <tr>
 <td><code>fontlabapp.qt.literal_text</code></td>
 <td>qt</td>
-<td><code>line_edit_type</code>, <code>read_text</code>, <code>set_mime_text</code>, <code>text_fragment</code></td>
+<td><code>document_raw_text</code>, <code>line_edit_type</code>, <code>read_text</code>, <code>set_mime_text</code>, <code>text_fragment</code></td>
 <td>Lossless Qt text values without PythonQt's no-length QString ingress.</td>
 </tr>
 <tr>
@@ -6276,8 +6282,8 @@ source inventory, not a native FontLab compatibility claim.</p>
 <tr>
 <td><code>fontlabapp.ui</code></td>
 <td>ui.widgets</td>
-<td><code>OwnedWidget</code>, <code>create_dialog</code>, <code>create_panel</code>, <code>create_widget</code></td>
-<td>Owned UI factories for FontLab windows and widgets.</td>
+<td><code>OwnedWidget</code>, <code>compact</code>, <code>compact_dialog</code>, <code>compact_layout</code>, <code>controls_box</code>, <code>create_dialog</code>, <code>create_panel</code>, <code>create_widget</code>, <code>frameless</code>, <code>split_view</code></td>
+<td>Owned UI factories and compact native-like layout helpers.</td>
 </tr>
 <tr>
 <td><code>fontlabapp.ui.actions</code></td>
