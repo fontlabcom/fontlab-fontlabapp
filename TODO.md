@@ -3,7 +3,7 @@ this_file: TODO.md
 ---
 ## Next steps (functional first)
 
-1. Native queue: Redo/save-reopen of the five filters from an installed release, object JSON demo scripts (dialogs, by hand), installed-release TMetrics typing speed.
+1. Native queue: Redo/save-reopen of the five filters from an installed release, object JSON demo scripts (dialogs, by hand).
 2. TMetrics typing: remove the remaining ~1.1 s `follow()` cost per external edit (kerning read).
 3. Deliver the reviewed items (Node Table action row, TMetrics prepared-path reuse, Spacing Studio, Kerning Studio, Master Text) through main, then qualify installed.
 4. Issue 254: move grablab, python-examples and aidus-agentus to the current installer.
@@ -16,7 +16,7 @@ this_file: TODO.md
 - [ ] Object JSON `paste_glyphs`: run the auto-rebuild skip before reserving names and Unicode values, so a skipped glyph does not rename or strip later items (review round 1 Minor).
 - [ ] Live-check the object JSON demo scripts in FontLab 9.1: Paste JSON Glyphs and Import Glyphs From JSON File dialogs, Paste JSON Shapes Into Layer (detached layer shapes added directly or copied), Edit > Paste of shapes from Copy Selection As JSON (by hand: never drive Paste from code), `glyph.activeLayer()` and `shape.selected` as the Copy demo expects, the 9.0 message on 9.0. The API path passed on 2026-11-17.
 - [ ] Live-check TMetrics typing timing on the Desktop i2-lato.vfj with the old fontport (630edf1, no `glyph_summaries`): keys after the first should not grow with glyph count; time the first key after a font edit and one external width edit while TMetrics is open (offline `follow()` costs about N whole-font scans, 3007 at N=3000). Done with current fontport 8ffb9af on 2026-11-16: 0.056–0.172 s per key, open 1.13 s, refresh about 0.75 s, follow 1.13 s.
-- [ ] Live-check TMetrics typing speed with the released fontlabapp and fontport installed (target about 0.13 s per key on Lato); confirm kerning/outline updates appear after a master switch and after editing a glyph while TMetrics is open.
+- [ ] Live-check that TMetrics kerning/outline updates appear after a master switch while TMetrics is open (typing speed and the width-edit follow passed on installed App 1.2.32, 2026-11-17).
 - [ ] TMetrics: while a `/name` is being typed, each new prefix (`/s`, `/sp`, …) costs one native glyph-name read (measured 0.05–0.07 s per key live, within target); probe only completed tokens or add a cheap has-glyph path if it shows.
 - [ ] Live-check the 2026-11-16 fixes in FontLab 9 on the Lato Desktop VFJ: Reporters panel opens at 3 columns on the Qt 5 host (layout timing of `_fit`); Glyph Browser and Node Counts open and scroll without a hang (PythonQt `visualItemRect`/`verticalScrollBar`); all five filters edit `a`; Outline Doctor and Transform Studio edit `a`/`o` with `aacute` following and Undo restoring; probe `referenceCount` on a component base with two or more separate elements (none exist in Lato).
 

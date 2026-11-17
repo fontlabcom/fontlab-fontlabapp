@@ -2,6 +2,14 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — v1.2.32 installed and checked in FontLab
+
+Evidence: `/Volumes/Falstaff4T/fontlab-scripting-data/issue258/native/p8/` (`result.json`, `install-command.txt`). FontLab 9.1.9813, `i2-lato.vfj`, App 1.2.32 installed from the GitHub release wheel into the FontLab 9 site-packages with `fontlab_instamix pkg install`, fontport 1.2.13. uharfbuzz is not installed on this host.
+
+- TMetrics follows a width change made through the FontLab API (`flLayer.advanceWidth`, outside fontport): `A`/Hairline 1274 to 1284 was shown after `follow()` (0.22 s), and 1274 again after the restore.
+- TMetrics typing speed: 21 keys of "HAVAW Hamburgefonstiv" typed into the text field, median 0.019 s per key, slowest 0.032 s (the first key). The target was 0.13 s.
+- Not checked: updates after a master switch, an edit made by hand in the FontLab UI, or a large font. PyPI publishing of v1.2.32 failed (trusted-publisher configuration), so the GitHub release is the install source.
+
 ## 2026-11-17 — TMetrics: follow survives a refused Fontport refresh
 
 - `FontReads.reset()` (`src/fontlabapp/fontui/_font_reads.py`) catches Fontport's `UnsupportedCapability`, which `RFont.refresh()` raises while a glyph has unfinished point edits. The memo is still cleared, the refresh is skipped with a debug log line, and other `NotImplementedError`s still raise. The class is matched by name because App code outside the Fontport editors must not import Fontport. Commit `49ee592`, merged as `bd9deb7`; test `test_reset_when_refresh_refused_for_pending_edits_then_memo_cleared_without_error`. Offline tests only; not run in FontLab.
