@@ -2,6 +2,10 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — TMetrics: follow survives a refused Fontport refresh
+
+- `FontReads.reset()` (`src/fontlabapp/fontui/_font_reads.py`) catches Fontport's `UnsupportedCapability`, which `RFont.refresh()` raises while a glyph has unfinished point edits. The memo is still cleared, the refresh is skipped with a debug log line, and other `NotImplementedError`s still raise. The class is matched by name because App code outside the Fontport editors must not import Fontport. Commit `49ee592`, merged as `bd9deb7`; test `test_reset_when_refresh_refused_for_pending_edits_then_memo_cleared_without_error`. Offline tests only; not run in FontLab.
+
 ## 2026-11-17 — Issue 258 task cleanup, round 4 (native Round 3 evidence)
 
 Evidence: `WORK/issue258/tasks/n1-report.md` "Round 3"; native files under `/Volumes/Falstaff4T/fontlab-scripting-data/issue258/native/`. FontLab 9.1.9813, Lato `i2-lato.vfj`, installed App 1.2.30 and fontport 1.2.13. Every probe restored its edits.
