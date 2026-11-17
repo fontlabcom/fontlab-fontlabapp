@@ -3,7 +3,7 @@ this_file: TODO.md
 ---
 ## Next steps (functional first)
 
-1. Native queue: Node Editing Lab table after Undo/Redo, native "Skipped: a", three Examples R failures under the installed App, live rechecks of vfjo.scale/paste and object JSON.
+1. Native queue: live Apply/Undo of all five filters, live rechecks of vfjo.scale/paste and object JSON, TMetrics `follow()` cost.
 2. TMetrics typing: remove the remaining ~1.1 s `follow()` cost per external edit (kerning read).
 3. Deliver the reviewed items (Node Table action row, TMetrics prepared-path reuse, Spacing Studio, Kerning Studio, Master Text) through main, then qualify installed.
 4. Issue 254: move grablab, python-examples and aidus-agentus to the current installer.
@@ -59,7 +59,6 @@ this_file: TODO.md
 
 - [ ] TMetrics: review the raw text-field observer compatibility limit after delivered source integration; qualify matched release/install and real typing/visible-frame latency in both input routes without weakening font/history/Undo/Redo/reopen gates.
 
-- [ ] Diagnose the actual native `Skipped: a` with admitted loaded filter code; distinguish legitimate automatic-layer/base refusal from wrapper ownership/transform or stale/history refusal.
 - [ ] Qualify released Filter reason text and all five filters live, including Apply/Undo/Redo/save-reopen and complete font preservation.
 
 - [ ] Issue 253 Reporters/inspectors: independently review and integrate the compact grid and shared right-hand preview; then qualify released/installed/cached origins, all toggles and rescans, long names, actual glyph/master values, resize, native light/dark appearance and repeated/failed Close with complete font/history preservation. Keep the original full-script scope open.
@@ -80,7 +79,6 @@ this_file: TODO.md
 
 - [ ] WP02: run canonical G-App with writable controller evidence/cache directories and resolved dependencies; require 80% lines and branches separately for every changed production module.
 - [ ] F47-1 live recheck (livetester): with Light current, a kerning edit targeting Light in a Kerning Studio window shows "Kerning is written to the default master (<name>) only; Light cannot be targeted." and changes nothing; pinned by `tests/test_fontui_tmetrics_embed.py` and `tests/test_fontui_tmetrics_layers.py`.
-- [ ] Node Editing Lab "Node table" tab keeps stale coordinates after a native Undo/Redo until Refresh (livetester proposal: `issue250/live-tests/patches/r46-node-table-follows-history.patch`). Next check: follow the host history notification (ImportError/AttributeError guard, no signals means no timer), refresh unless cell edits are staged and then show a status line instead, with fakes and mutants; proposal only until livetester proves it live. The Examples copy cannot change: `Scripts/Contours/Node Table.py` is a pinned consolidation source (85dda66).
 - [ ] Issue 253-B: independently review renderer colors/layout and current API-map pin; run the qualified full sibling-cohort gate, then verify released actual glyph canvases, native policy, signed kerning and owned cleanup in FontLab.
 - [ ] Issue 253: qualify native PythonQt sizing, content minima, equal preview halves, frame clamp and retained resize under both themes.
 - [ ] Issue 253: run every requested script/palette, capture screenshots, compare native FontLab controls and fix remaining local wasted space; retain the full issue denominator.
@@ -303,4 +301,6 @@ this_file: TODO.md
 - [ ] Text Editors Lab header shows "unshaped: uharfbuzz not available" in FontLab 9 (A2 report 21): the FontLab Python environment has no uharfbuzz, so the shaped preview falls back. Decide whether to document it or ship the dependency; not a defect in the lab.
 - [ ] Native: verify the stale-class-member kerning fix in a real subset font, then save and reopen it.
 - [ ] Native: verify in FontLab PythonQt that the QPoint/QEvent wrapper reads now routed through `value()` (drag-distance `x`/`y` in six drag profiles; `type`/`key`/`pos().x()`/`rect.left`/`width` in Glyph Review Priorities) return numbers, not bound methods, and that drag start and star click/Delete/Backspace work.
-- [ ] Examples R gate: `tests/test_issue122_E10.py::test_entry_uses_existing_host_application` fails under the installed App for Font Name Encoding Audit, Localized Font Names and Font Info Snapshot (passes in the core run). Repro: from the Examples checkout run `PYTHONPATH=../fontlab-fly/src:$PWD/tests QT_QPA_PLATFORM=offscreen <venv>/bin/python -B -m pytest -q -p no:cacheprovider tests/test_issue122_E10.py -k test_entry_uses_existing_host_application` with the installed App wheel; find why the installed-path entry no longer resolves to the host application.
+
+- [ ] T44 follow-up: live-check Apply and Undo of all five selected-layer Filters with the `d3962ed` reason rows installed (source fix landed; native check covered only the skip message). Low priority: needs a released App and an install.
+- [ ] Low priority: intermittent segfault in the `lab` fixture teardown at `tests/_text_lab.py:72` (`QApplication.topL...`) during the full gate suite (seen once, gate run `fontlab-fontlabapp.ZbqEl6`); find the Qt object lifetime cause.

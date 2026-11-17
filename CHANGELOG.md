@@ -2,6 +2,13 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — Issue 258 task cleanup, round 2
+
+- T44 "Skipped: a" (Issue 253): the Filters now name why a coordinate edit was skipped (shared, scaled and rotated elements) in a reason row. Commit `d3962ed`. Live Apply/Undo of all five filters is not yet tested; a follow-up row stays in TODO.
+- Node Editing Lab node table follows native Undo/Redo and outside outline edits. Commit `0450641`. Native check: node 0 went 43 to 53 to 43 to 53 across Apply, Undo, Redo (`WORK/issue258/tasks/n1-report.md`).
+- Closed the Examples R gate row (`tests/test_issue122_E10.py`): Examples commit `e8f7809` deleted that test, and all three entries (Font Name Encoding Audit, Localized Font Names, Font Info Snapshot) open cleanly in native FontLab (`native/p4/result.json`).
+- `fontlabapp.vfjo.scale` ghost-hint fix `92f35ba` ("vfjo: keep ghost hints unscaled in scale") is on origin/main. Its live recheck, the vfjo paste and object JSON live checks and the TMetrics `follow()` cost stay open in TODO because none is natively verified.
+
 ## 2026-11-17 — Issue 258 task cleanup
 
 - TODO: removed a duplicated "Advance compact forms, selected-layer Filters and TMetrics typing fixes" row.
