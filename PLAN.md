@@ -1,6 +1,10 @@
 ---
 this_file: PLAN.md
 ---
+## Issue 256 remaining qualification — 2026-11-17
+
+Deliver the reviewed lowercase bundle contract with App 1.2.31 before the renamed Plugmix pack. Qualify Instamix refusal of modified/unowned legacy bundle conflicts and shared bootstrap readiness before deployment; native and Windows migration remain open.
+
 
 ## Object JSON: remaining qualification — 2026-11-16
 

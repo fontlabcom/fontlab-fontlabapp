@@ -451,7 +451,7 @@ def test_reference_bundle_dispatch_preserves_non_outline_state(
 
     root = Path(__file__).resolve().parents[3] / "fontlab-python-plugmix"
     plugin = bundles.load_bundle(
-        root / "Extensions" / "filters" / (bundle + ".fontlabFilter")
+        root / "Extensions" / "filters" / (bundle + ".fontlabfilter")
     )()
     component = NS(isComponent=True, id=90, contours=())
     native.layer.shapes.append(component)
@@ -491,7 +491,7 @@ def test_move_bundle_accepts_coordinate_collision_with_another_original(native):
 
     root = Path(__file__).resolve().parents[3] / "fontlab-python-plugmix"
     plugin = bundles.load_bundle(
-        root / "Extensions" / "filters" / "MoveOutlines.fontlabFilter"
+        root / "Extensions" / "filters" / "MoveOutlines.fontlabfilter"
     )()
     first = native.glyph.contours[0]
     second = [
@@ -784,7 +784,7 @@ def test_reference_filters_write_translated_shapes_in_local_coordinates(
 
     root = Path(__file__).resolve().parents[3] / "fontlab-python-plugmix"
     plugin = bundles.load_bundle(
-        root / "Extensions" / "filters" / (bundle + ".fontlabFilter")
+        root / "Extensions" / "filters" / (bundle + ".fontlabfilter")
     )()
     translate(native.shape, 13, -7)
     flags = tuple(n.nodeState for n in native.nodes)

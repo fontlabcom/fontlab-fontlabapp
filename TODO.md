@@ -1,6 +1,8 @@
 ---
 this_file: TODO.md
 ---
+- [ ] Issue 256: independently review and deliver App lowercase compatibility before renamed Plugmix; qualify Instamix managed legacy conflict refusal, bootstrap readiness, released App 1.2.31 and native/Windows migration before deployment.
+
 
 - [ ] Re-check `fontlabapp.vfjo.scale` ghost hints live in FontLab 9.1: `scale(2, 0.5, origin=(100, 200))` on Lato `W` and `A` must keep top/bottom ghosts as ghosts (thickness -20/21). The non-zero-origin live check on `W` (guideline + hints) and `A` (hints) passed for nodes, widths, guides and stem hints; the ghost fix is offline-tested only.
 - [ ] Live-check vfjo shape paste in FontLab 9.1: `vfjo.paste` of element or contour data lands on the current glyph's active layer as one Undo step; `font=` another font is refused.

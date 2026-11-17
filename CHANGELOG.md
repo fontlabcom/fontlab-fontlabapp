@@ -2,6 +2,15 @@
 this_file: CHANGELOG.md
 ---
 
+## Issue 256 source qualification completed — 2026-11-17
+
+The corrected owned-peer environment passes 17,011 tests with 47 existing skips (229.35 s). The earlier 30 failures reproduce on baseline and are retained below: missing Lessons and Fly context, resolved without source/test changes. Bundle-module combined coverage is 97.44%; all five Instamix-generated plugin kinds load offline from source and scratch installation. Independent review, normal-hook integration, release and native acceptance remain separate gates.
+
+## Issue 256 lowercase bundles — 2026-11-17
+
+App accepts canonical lowercase and established title-case bundle suffixes for all five kinds. Metadata, parent, import, inheritance, duplicate and symlink constraints remain. Focused bundle/filter/route checks: 139 passed; F821 lint passed. Actual Instamix draft output loads for all five kinds before and after scratch copy installation, preserving source bytes. Full prepared arm64 suite: 16,981 passed, 47 skipped, 30 failed in table embedding/Fly routing; delivery remains unqualified pending triage. Native, installed and release checks remain open.
+
+
 ## 2026-11-16 — vfjo: Box-based object JSON (Task 2)
 
 - Fix: `vfjo.scale` scaled ghost hints. FontLab 9.1 JSON writes a top ghost as `thickness: -20` and a bottom ghost as `21`; after `scale(2, 0.5, origin=(100, 200))` on Lato `W` and `A` they became -10 and 10.5, which FontLab read as real stem hints. Ghost thickness now stays as it is while the hint point still maps; a real stem hint of exactly -20 or 21 units is also left unscaled. `move` never touched thickness. Offline tests in `tests/test_vfjo.py`; live re-check is in TODO.

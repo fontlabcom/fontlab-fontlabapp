@@ -36,9 +36,34 @@ def test_discovery_when_rescanned_then_classes_and_import_effects_are_stable(tmp
 
 
 @pytest.mark.parametrize("kind", bundles.KINDS)
-def test_discovery_when_each_kind_then_loads_contract(tmp_path, kind):
+@pytest.mark.parametrize("canonical", [False, True])
+def test_discovery_when_each_kind_then_loads_contract(tmp_path, kind, canonical):
     path = bundle(tmp_path, kind.title(), kind)
+    if canonical:
+        renamed = path.with_name(kind.title() + ".fontlab" + kind)
+        intermediate = path.with_name(path.name + ".rename")
+        path.rename(intermediate)
+        intermediate.rename(renamed)
+        path = renamed
     assert bundles.load_bundle(path, "1.0.0").kind == kind
+
+
+@pytest.mark.parametrize("suffix", [".FONTLABREPORTER", ".fontlabREPORTER", ".fontlabtool"])
+def test_manifest_when_unaccepted_suffix_then_rejected(tmp_path, suffix):
+    path = bundle(tmp_path)
+    renamed = path.with_name("Demo" + suffix)
+    path.rename(renamed)
+    with pytest.raises(ValueError, match="kind does not match"):
+        bundles.load_bundle(renamed, "1.0.0")
+
+
+def test_manifest_when_wrong_parent_then_rejected(tmp_path):
+    path = bundle(tmp_path)
+    moved = tmp_path / "tools" / path.name
+    moved.parent.mkdir()
+    path.rename(moved)
+    with pytest.raises(ValueError, match="kind does not match"):
+        bundles.load_bundle(moved, "1.0.0")
 
 
 @pytest.mark.parametrize("change", [

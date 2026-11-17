@@ -46,7 +46,7 @@ def manifest(bundle: Path, version: str | None = None) -> dict[str, str]:
     ):
         raise ValueError("plugin.json requires nonempty string fields: " + ", ".join(sorted(_FIELDS)))
     kind = data["kind"]
-    if kind not in KINDS or bundle.parent.name != KINDS[kind] or not bundle.name.endswith(".fontlab" + kind.title()):
+    if kind not in KINDS or bundle.parent.name != KINDS[kind] or not bundle.name.endswith((".fontlab" + kind, ".fontlab" + kind.title())):
         raise ValueError("plugin kind does not match the bundle folder and suffix")
     if not _IDENTIFIER.fullmatch(data["id"]):
         raise ValueError("plugin id must be a stable identifier")
