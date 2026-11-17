@@ -43,18 +43,22 @@ GUIDE_BODY_HASHES = {'api-map': '311d6882114d4b5fbde14fbf5080ccfab54476d563d84d7
 # TMetrics speed: reviewed internal fontui._font_reads row.
 # Object JSON: reviewed objects.json_data row (copy_objects and current_layer added 2026-11-16).
 # vfjo: reviewed fontlabapp.vfjo, vfjo._data, vfjo._edit and vfjo.nodes rows (2026-11-16).
-API_MAP_HISTORY_SERVICE_BODY_HASH = '049c5e6ec2d78965fa6f63892a272f9e4ea9fa614ce52263c55fbef4a6c0a6aa'
+API_MAP_HISTORY_SERVICE_BODY_HASH = '0940ce9ecf62ef62a1f9fe258a139522cfa2da6357a997e8798e8b8a6de33d9e'
 API_MAP_SHARING_ADDITIONS = (
     ('| fontlabapp.vfjo | objects | GLYPHS_UNDO_TEXT, KNOWN_KEYS, NEEDS_91, Node, Objects, PARTIAL_TEXT, PartialWriteError, UnknownKeyError, add_key, add_suffix, anchors, available, contours, edit_nodes, elements, format_nodes, from_clipboard, from_glyphs, layers, load, loads, move, parse_nodes, paste, rename, scale, set_width | Public face of VFJ Objects: FontLab object JSON cast onto python-box with safe keys, navigation, move/scale edits and paste with Undo. | | fontlabapp.vfjo._data | objects | KNOWN_KEYS, Objects, UnknownKeyError, add_key, from_clipboard, from_glyphs, load, loads | Guarded python-box tree (KNOWN_KEYS, add_key), Objects root and the loaders over json_data. | | fontlabapp.vfjo._edit | objects | add_suffix, anchors, contours, edit_nodes, elements, layers, move, paste, rename, scale, set_width | Navigation generators, node, move and scale edits that keep components, anchors, guidelines and hints consistent, and paste routing. | | fontlabapp.vfjo.nodes | objects | Node, Number, Point, format_nodes, format_number, parse_nodes | Parse and format FontLab JSON node strings (Node) byte-exactly. | ', ''),
     ('| objects | 339 |', '| objects | 333 |'),
     ('| internal | 77 |', '| internal | 76 |'),
-    ('| **Total** | **1029** |', '| **Total** | **1022** |'),
+    ('| **Total** | **1030** |', '| **Total** | **1022** |'),
     ('| fontlabapp.objects.json_data | objects | DATA_TYPE, Envelope, GLYPHS_UNDO_TEXT, Item, KINDS, MIME_TYPE, NEEDS_91, PARTIAL_TEXT, Pasted, SHAPES_UNDO_TEXT, as_qbytearray, available, copy_objects, copy_to_clipboard, current_layer, decode, describe, drop_unicodes, export, filter_layers, load_file, only_glyphs, paste_glyphs, paste_shapes, read_clipboard, rename_glyphs, require_available, save_file, set_advance_width, unicodes, unique_glyph_names, unique_name | FontLab 9.1 object JSON: parse, edit, copy, save and paste glyphs, layers, elements and contours with Undo. | ', ''),
     ('| fontlabapp.fontui._font_reads | internal | FontReads | Whole-font reads that TMetrics keeps while typing and drops on refresh, font change or master change. | ', ''),
     ('collect, element_shared, fmt,', 'collect, fmt,'),
     ('settle, sharing_operation, shown,', 'settle, shown,'),
     ('| fontlabapp.core.sharing | objects | element_shared, sharing_operation | Whether a contour edit would change another glyph: component users of a base glyph do not count as shared outline. | ', ''),
     ('| fontlabapp.fontui.native | objects | Browser, GEOMETRY_ERRORS, ICON_BATCH, ICON_BLIND_ROWS, ICON_FALLBACK_ROWS, ICON_MARGIN, LOG |', '| fontlabapp.fontui.native | objects | Browser |'),
+    ('| qt | 25 |', '| qt | 24 |'),
+    ('| fontlabapp.qt.compact | qt | MARGIN, SIDES, SPACING, compact, compact_dialog, compact_layout, controls_box, frameless, split_view | Native-like 6 px margins and 4 px spacing; frameless glyph view in the top or right half. | ', ''),
+    ('document_raw_text, line_edit_type', 'line_edit_type'),
+    ('OwnedWidget, compact, compact_dialog, compact_layout, controls_box, create_dialog, create_panel, create_widget, frameless, split_view | Owned UI factories and compact native-like layout helpers.', 'OwnedWidget, create_dialog, create_panel, create_widget | Owned UI factories for FontLab windows and widgets.'),
 )
 
 
