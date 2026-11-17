@@ -183,6 +183,15 @@ def _targets_safe(layer: Any, removed: tuple[int, ...], outlines: Any) -> bool:
     )
 
 
+def _unsafe_rows(layer: Any, outlines: Any) -> list[Any]:
+    """Say why coordinate edits were refused, so the status is never a bare name."""
+    notes = outlines.outline_shapes(layer)[1]
+    reasons = dict.fromkeys(
+        note.removesuffix(", kept") for note in notes
+    ) or {"shared or transformed outline": None}
+    return [outlines.Change("coordinates", "", f"{why}, skipped") for why in reasons]
+
+
 def _selected_layers(selected: Any) -> tuple:
     """Fence every retained native owner before computing any selected layer."""
     rows = {}
@@ -245,7 +254,7 @@ def plan_filter(
                 return []
             if not _coordinate_safe(layer, outlines):
                 unsafe.append(str(glyph.name))
-                return []
+                return _unsafe_rows(layer, outlines)
             state = _native_state(layer)
             if tuple((s, c) for s, c, _, _, _ in state) != identities:
                 raise ValueError("Filter native contour identities changed")

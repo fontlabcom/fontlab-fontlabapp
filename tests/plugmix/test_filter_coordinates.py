@@ -170,6 +170,8 @@ def test_unsafe_owner_is_refused_without_history(native, kind):
         )
     plan, result = run(native)
     assert plan.refused == ["a"] and result is None and native.commits == []
+    reason = "shared outline" if kind == "shared" else "scaled or rotated shape"
+    assert [change.new for _, change in plan.rows] == [f"{reason}, skipped"]
 
 
 @pytest.mark.parametrize(
