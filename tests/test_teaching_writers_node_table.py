@@ -641,3 +641,96 @@ def test_panel_read_selection_when_each_guard_trips_then_refused(nt, panel_env, 
     panel.read_selection()
     assert panel.status_line.text() == "Node geometry changed; Refresh before reading selection."
     panel.close()
+
+
+class FakeSignal:
+    def __init__(self):
+        self.calls = []
+
+    def connect(self, call):
+        self.calls.append(call)
+
+    def disconnect(self, call):
+        self.calls.remove(call)
+
+    def emit(self, *args):
+        for call in list(self.calls):
+            call(*args)
+
+
+@pytest.fixture
+def history_items(monkeypatch):
+    items = NS(historyIndexChanged=FakeSignal(), historyChanged=FakeSignal(), glyphUpdated=FakeSignal())
+    native = NS(flItems=NS(instance=lambda: NS(qobject=items)))
+    monkeypatch.setitem(sys.modules, "fontlab", native)
+    return items
+
+
+def test_panel_when_undo_redo_changes_outline_then_table_follows(nt, panel_env, history_items):
+    env = panel_env
+    panel = nt.show(env.qt, None, embedded=True)
+    try:
+        assert all(len(signal.calls) == 1 for signal in vars(history_items).values())
+        history_items.historyIndexChanged.emit()
+        assert panel.history_timer.isActive() and panel.history_timer.isSingleShot()
+        panel.history_timer.stop()
+        moved = nt.NodeRow((0, 0, 0), 50.0, 2.0, "line", "", False, object())
+        env.snapshot = NS(rows=(moved, env.snapshot.rows[1]), context=(1, 2, 3, 4), facts="f")
+        panel.follow_change()
+        assert panel.snapshot_data is env.snapshot
+        assert float(panel.node_table.item(0, 3).text()) == 50.0
+        assert "2 rows" in panel.status_line.text()
+    finally:
+        panel.close()
+    assert all(signal.calls == [] for signal in vars(history_items).values())
+
+
+def test_panel_when_outline_changes_with_staged_cells_then_cells_kept_and_status_says_so(
+    nt, panel_env, history_items
+):
+    env = panel_env
+    panel = nt.show(env.qt, None, embedded=False)
+    panel.node_table.item(0, 3).setText("7")
+    moved = nt.NodeRow((0, 0, 0), 50.0, 2.0, "line", "", False, object())
+    shown = panel.snapshot_data
+    env.snapshot = NS(rows=(moved, shown.rows[1]), context=(1, 2, 3, 4), facts="f")
+    panel.follow_change()
+    assert panel.snapshot_data is shown and panel.node_table.item(0, 3).text() == "7"
+    assert "Refresh discards your cell edits" in panel.status_line.text()
+    panel.close()
+
+
+def test_panel_when_geometry_same_or_glyph_changed_or_unreadable_then_table_kept(
+    nt, panel_env, history_items
+):
+    env = panel_env
+    panel = nt.show(env.qt, None, embedded=False)
+    env.apply_result = NS(changed=1, kept={(0, 0, 1): "locked shape"}, facts="f", pending_note="")
+    panel.write_cells()
+    applied = panel.status_line.text()
+    shown = panel.snapshot_data
+    env.snapshot = NS(rows=shown.rows, context=(1, 2, 3, 4), facts="f")  # Apply's own signal
+    panel.follow_change()
+    assert panel.snapshot_data is shown and panel.status_line.text() == applied
+    assert panel.node_table.item(1, 6).text() == "Kept: locked shape"
+    env.snapshot = NS(rows=shown.rows[:1], context=(9, 9, 9, 9), facts="f")  # another glyph
+    panel.follow_change()
+    env.fail = ValueError("Open a glyph first.")
+    panel.follow_change()
+    assert panel.snapshot_data is shown and panel.status_line.text() == applied
+    env.fail = None
+    panel.snapshot_data = None
+    panel.follow_change()
+    assert panel.snapshot_data is None
+    panel.close()
+
+
+def test_panel_when_fontlab_missing_or_incomplete_then_no_follow(nt, panel_env, monkeypatch):
+    monkeypatch.setitem(sys.modules, "fontlab", NS())
+    panel = nt.show(panel_env.qt, None, embedded=True)
+    assert not hasattr(panel, "history_timer")
+    panel.close()
+    monkeypatch.setitem(sys.modules, "fontlab", NS(flItems=NS(instance=lambda: NS(qobject=NS()))))
+    panel = nt.show(panel_env.qt, None, embedded=True)
+    assert panel.history_timer.interval() == nt._HISTORY_DELAY_MS
+    panel.close()

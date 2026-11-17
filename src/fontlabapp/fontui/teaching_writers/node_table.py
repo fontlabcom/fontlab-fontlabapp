@@ -36,6 +36,10 @@ from typing import Any
 TITLE = "Node Table"
 Key = tuple[int, int, int]
 _PANELS: list[Any] = []
+# flItems signals that mean the outline may have changed; Undo/Redo emit only
+# historyIndexChanged (see fontui/lifecycle.py CHANGE_SIGNALS).
+_HISTORY_SIGNALS = ("historyIndexChanged", "historyChanged", "glyphUpdated")
+_HISTORY_DELAY_MS = 150
 
 
 @dataclass(frozen=True)
@@ -400,6 +404,58 @@ def show(qt: Any, parent: Any, *, embedded: bool = False) -> Any:
             self.signal_scope.connect(
                 self.destroyed, lambda *args: self.release_owner()
             )
+            self.follow_history()
+
+        def follow_history(self) -> None:
+            """Re-read rows after native Undo/Redo or another outline edit.
+
+            Undo/Redo emit only historyIndexChanged; glyph edits emit
+            historyChanged and glyphUpdated. Each signal arms one short timer.
+            Outside FontLab nothing is connected and no timer exists.
+            """
+            try:
+                import fontlab
+
+                items = fontlab.flItems.instance().qobject
+            except (ImportError, AttributeError):
+                return
+            self.history_timer = core.QTimer(self)
+            self.history_timer.setSingleShot(True)
+            self.history_timer.setInterval(_HISTORY_DELAY_MS)
+            self.signal_scope.connect(
+                self.history_timer.timeout, lambda *args: self.follow_change()
+            )
+            for name in _HISTORY_SIGNALS:
+                signal = getattr(items, name, None)
+                if signal is not None:
+                    self.signal_scope.connect(
+                        signal, lambda *args: self.history_timer.start()
+                    )
+
+        def follow_change(self) -> None:
+            """Refresh when the shown layer changed and no cell edits are staged.
+
+            Apply's own notification finds unchanged geometry, so its kept-row
+            labels stay. Another current glyph keeps the table as it is.
+            """
+            old = self.snapshot_data
+            if old is None:
+                return
+            try:
+                fresh = capture_nodes(facts=old.facts)
+            except (ValueError, RuntimeError, TimeoutError):
+                return
+            if fresh.context != old.context or (
+                len(fresh.rows) == len(old.rows)
+                and all(same_geometry(a, b) for a, b in zip(old.rows, fresh.rows, strict=True))
+            ):
+                return
+            if self.staged_edits():
+                self.status_line.setText(
+                    "The outline changed (Undo, Redo or another edit). Refresh discards your cell edits."
+                )
+                return
+            self.refresh_nodes()
 
         def fill_nodes(self, snapshot: Snapshot, kept: dict[Key, str]) -> None:
             """Publish every row; only safe coordinate cells are editable."""
