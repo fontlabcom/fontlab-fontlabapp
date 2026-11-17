@@ -103,6 +103,32 @@ def test_reads_when_repeated_then_font_asked_once_until_reset():
     assert font.counts == {"keys": 2, "kerning": 2, "groups": 1, "layer:Bold": 2}
 
 
+
+def test_reset_when_font_has_refresh_then_cached_handles_dropped():
+    """A live Fontport font snapshots glyph handles; reset() must refresh it."""
+
+    class Snapshotting:
+        def __init__(self):
+            self.width, self.refreshed, self.handle = 500, 0, None
+
+        def __getitem__(self, name):
+            if self.handle is None:
+                self.handle = NS(name=name, width=self.width)
+            return self.handle
+
+        def refresh(self):
+            self.refreshed += 1
+            self.handle = None
+
+    font = Snapshotting()
+    reads = FontReads(font)
+    assert reads["A"].width == 500
+    font.width = 510  # an edit made in FontLab, invisible to the old handle
+    assert reads["A"].width == 500, "Memo holds until reset"
+    reads.reset()
+    assert font.refreshed == 1 and reads["A"].width == 510
+    FontReads(NS(refresh=None)).reset()  # a font without a callable refresh is fine
+
 def test_reads_when_glyph_requested_then_live_glyph_object_kept():
     font = CountingFont()
     reads = FontReads(font)

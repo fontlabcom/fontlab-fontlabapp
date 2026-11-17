@@ -16,7 +16,7 @@ On an older Fontport every ``font[name]`` re-lists the whole layer to check
 that the name exists, so a per-glyph loop costs a scan per glyph; remembering
 each glyph object keeps later keystrokes free of those scans. Every other
 attribute passes straight through to ``font``. ``reset()`` forgets
-everything. Write through ``view.font``; the one exception is ``view.info``,
+everything and refreshes a font that has ``refresh()``. Write through ``view.font``; the one exception is ``view.info``,
 whose attribute writes go to the font's info and drop that cached value.
 """
 
@@ -68,8 +68,18 @@ class FontReads:
         self._memo: dict[str, Any] = {}
 
     def reset(self) -> None:
-        """Forget every remembered read; the next read asks the font again."""
+        """Forget every remembered read; the next read asks the font again.
+
+        A live Fontport font also keeps each glyph handle's width and outline
+        as read when the handle was made, and FontLab edits do not reach it,
+        so ``reset()`` calls the font's ``refresh()`` too when it has one.
+        Without that, TMetrics kept showing the old width after a width
+        change made in FontLab (issue 258).
+        """
         self._memo.clear()
+        refresh = getattr(self.font, "refresh", None)
+        if callable(refresh):
+            refresh()
 
     def _read(self, key: str, read: Callable[[], Any]) -> Any:
         memo = self._memo
