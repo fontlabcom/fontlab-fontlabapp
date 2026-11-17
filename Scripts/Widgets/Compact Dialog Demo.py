@@ -31,7 +31,8 @@ def main() -> None:
     controls, controls_layout = controls_box(dialog)
     controls_layout.addWidget(gui.QLabel("Margin 6 px, spacing 4 px, like FontLab panels."))
     close = gui.QPushButton("Close")
-    close.clicked.connect(dialog.close)
+    # A lambda, not dialog.close: FontLab 9.1.9813 PythonQt ignores a bound C++ method as a slot.
+    close.clicked.connect(lambda *_: dialog.close())
     controls_layout.addWidget(close)
     split_view(layout, view, controls)
     _KEEP[:] = [dialog]

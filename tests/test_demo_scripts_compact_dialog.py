@@ -59,3 +59,9 @@ def test_compact_dialog_when_close_clicked_then_dialog_closes(app) -> None:
 def test_compact_dialog_when_imported_then_nothing_runs(app) -> None:
     names = run_script(DEMO, run_name="imported")
     assert names["_KEEP"] == [] and callable(names["main"])
+
+
+def test_demo_source_when_wiring_close_then_uses_lambda_not_bound_cpp_method() -> None:
+    """FontLab 9.1.9813 PythonQt ignores a bound C++ method as a slot (native probe p17)."""
+    source = DEMO.read_text(encoding="utf-8")
+    assert "clicked.connect(dialog.close)" not in source and "clicked.connect(lambda" in source

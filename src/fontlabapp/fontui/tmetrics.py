@@ -29,6 +29,7 @@ from typing import Any
 
 from PythonQt import QtCore, QtGui
 
+from fontlabapp.qt.compact import compact_layout
 from fontlabapp.qt.events.key import key_press_handler
 
 from ._canvas_palette import _canvas_colors
@@ -41,8 +42,6 @@ from .livesync import Echo
 from .model import partition_paths
 from .tmetrics_model import MARGIN, METRIC_FIELDS, TMetricsModel, _layer_sidebearings, write_metric
 from .twindow_host import FontLabHost, Host
-
-from fontlabapp.qt.compact import compact_layout
 
 __all__ = ["TMetrics", "create_canvas", "open_tglyph", "paint", "show_tmetrics"]
 
