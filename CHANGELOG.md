@@ -2,6 +2,13 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — v1.2.34: TMetrics "Current master" follows FontLab's current master
+
+- FontLab's `setMaster()` moves `flPackage.master` and leaves `flPackage.defaultMaster`, which Fontport reports as `defaultLayerName`. TMetrics read "Current master" through `defaultLayerName`, so after a switch it kept showing (and would have written) the old master's widths. `FontReads.current_master` now reads `flPackage.master` (falling back to `defaultLayerName` for a detached or host-free font), `master_changed()` compares it too, and TMetrics passes the resolved layer explicitly to the model, metric writes, nudges, hint checks and kerning (commit `64f06f8`, tests in `tests/test_tmetrics_font_reads.py`).
+- Font kerning stays on the default master: when the current master is another one, kerning is not shown and the status says "kerning is unavailable for Black; FontLab keeps font kerning on the default master (Hairline)."
+- Native check (FontLab 9.1.9813, `i2-lato.vfj`): first with a locally built dev wheel, then with the v1.2.34 release wheel, both installed with `fontlab_instamix pkg install`. `setMaster("Black", True)` then `follow()` showed Black's widths 1554/1422/1422/1422/2130; switching back showed Hairline's 1496/1274/1274/1274/2002. Evidence: `/Volumes/Falstaff4T/fontlab-scripting-data/issue258/native/p10/`.
+- Not checked: a master switch made by hand in the FontLab UI (none could be driven from Python), outlines and kerning after a switch. v1.2.33 was already taken by the Issue 259 release, so this is v1.2.34; PyPI publishing still fails (trusted publisher), the GitHub release has the wheel.
+
 ## 2026-11-17 — v1.2.32 TMetrics master switch and large-font checks
 
 Evidence: `/Volumes/Falstaff4T/fontlab-scripting-data/issue258/native/p9/`. FontLab 9.1.9813, installed App 1.2.32, no uharfbuzz.
