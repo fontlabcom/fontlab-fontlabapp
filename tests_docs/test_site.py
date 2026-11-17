@@ -164,7 +164,7 @@ class SiteTests(unittest.TestCase):
             if parts[-1] == '__init__':
                 parts.pop()
             actual.add('.'.join(parts))
-        self.assertEqual(len(rows), 1029)
+        self.assertEqual(len(rows), 1030)
         self.assertEqual(set(rows), actual)
         self.assertEqual(len(rows), len(set(rows)))
         api = rendered('guides/api-map')
