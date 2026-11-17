@@ -165,6 +165,39 @@ def test_reporters_when_small_display_then_labels_fit_scroll_and_states_survive(
     dialog.deleteLater()
 
 
+RECT = NS(width=1600, height=900)
+
+
+@pytest.mark.parametrize(
+    "application",
+    [
+        NS(primaryScreen=lambda: NS(availableGeometry=lambda: RECT)),  # Qt methods
+        NS(primaryScreen=NS(availableGeometry=RECT)),  # PythonQt value bindings
+        NS(primaryScreen=None, screens=lambda: [NS(availableGeometry=RECT)]),
+        NS(primaryScreen=None, screens=[NS(availableGeometry=lambda: RECT)]),
+        NS(primaryScreen=lambda: None, screens=lambda: [NS(availableGeometry=RECT)]),
+    ],
+    ids=["methods", "values", "null-then-screens", "null-then-screens-value", "none-then-screens"],
+)
+def test_available_geometry_when_widget_has_no_screen_then_reads_any_primary_screen_binding(
+    application,
+):
+    from fontlabapp.plugins.reporters_panel import ReportersPanel
+
+    owner = NS(services=NS(qt=NS(QtGui=NS(QGuiApplication=application, QApplication=None))))
+    widget = NS(screen=lambda: None)
+    assert ReportersPanel._available_geometry(owner, widget) is RECT
+
+
+@pytest.mark.parametrize("screens", [lambda: [], [], None], ids=["empty-method", "empty-value", "none"])
+def test_available_geometry_when_no_screen_exists_then_none_so_fit_is_skipped(screens):
+    from fontlabapp.plugins.reporters_panel import ReportersPanel
+
+    application = NS(primaryScreen=None, screens=screens)
+    owner = NS(services=NS(qt=NS(QtGui=NS(QGuiApplication=application, QApplication=None))))
+    assert ReportersPanel._available_geometry(owner, NS(screen=lambda: None)) is None
+
+
 @pytest.mark.parametrize('name', ['glyph_metrics', 'node_counts_masters'])
 def test_inspector_when_small_display_then_real_preview_right_and_details_left(real_qt, name):
     qt, points = real_qt

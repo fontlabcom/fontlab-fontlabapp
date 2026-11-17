@@ -90,7 +90,9 @@ class ReportersPanel:
         """Qt 6 ``screen()``, else the Qt 5 desktop: FontLab 9's QDockWidget has no ``screen``.
 
         Qt 6 returns no screen before the window is placed; it has no ``desktop()``, so use the
-        primary screen then.
+        primary screen then. FontLab's PythonQt may expose ``primaryScreen`` as a value, or as
+        nothing at all; the first of ``screens`` is the primary screen in that case. With no
+        screen at all the result is None, and ``_fit`` skips the fit.
         """
         gui = self.services.qt.QtGui
         try:
@@ -98,7 +100,13 @@ class ReportersPanel:
         except AttributeError:
             return gui.QApplication.desktop().availableGeometry(widget)
         if screen is None:
-            screen = getattr(gui, "QGuiApplication", gui.QApplication).primaryScreen()
+            application = getattr(gui, "QGuiApplication", gui.QApplication)
+            screen = value(application, "primaryScreen")
+        if screen is None:
+            screens = value(application, "screens")
+            if not screens:
+                return None
+            screen = screens[0]
         return value(screen, "availableGeometry")
 
     @staticmethod

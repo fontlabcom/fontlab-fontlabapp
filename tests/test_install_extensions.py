@@ -21,7 +21,7 @@ def canonical_stub() -> bytes | None:
     return stub.text().encode("utf-8")
 
 
-STUB_HEADER = b"#FLM: Install this package into FontLab (fontlab-instamix)\n"
+STUB_HEADER = b"#FLM: Install into FontLab with fontlab-instamix\n"
 ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*(\.[a-z0-9][a-z0-9-]*)+$")
 
 
@@ -29,7 +29,7 @@ def test_installer_when_read_then_it_is_the_small_instamix_stub():
     installer = (ROOT / "install.vfpy").read_bytes()
     assert installer.startswith(STUB_HEADER), installer[:80]
     assert b"bootstrap.install_project(__file__)" in installer
-    assert len(installer.splitlines()) < 80, "legacy installer body must not return"
+    assert len(installer.splitlines()) < 250, "legacy installer body must not return"
     canonical = canonical_stub()
     if canonical is not None:
         assert installer == canonical, "install.vfpy must match instamix's canonical stub"

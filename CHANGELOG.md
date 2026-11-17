@@ -2,6 +2,18 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — Reporters panel screen lookup; installer stub 1.0.15 (Issue 259 follow-ups)
+
+- The Reporters and Inspectors panel no longer fails with
+  `'NoneType' object is not callable` when FontLab's `primaryScreen` binding is a
+  value or null: the screen is read as a value or a call, and the first of
+  `screens()` is used when there is none. With no screen at all the
+  initial fit is skipped.
+- `install.vfpy` is now the stub from fontlab-python-instamix 1.0.15. It replaces an
+  installed instamix older than 1.0.13 and puts the old copy back if the upgrade
+  fails; linked checkouts and local builds are kept. A download that fails for
+  lack of root certificates (FontLab 9 for macOS) is retried with the system curl.
+
 ## 2026-11-17 — v1.2.35: TMetrics falls back to the default master when the current master names no layer
 
 - FontLab's `renameMaster()` renames the master but leaves every glyph layer under the old name. On a copy of i2-lato, renaming Black to "Black Renamed" left glyph A with the layers Black and Hairline. On i2-lato (3,055 glyphs) and KinneyMM (3,171 glyphs) the master names match the master layer names; KinneyMM's `space.superior` has no master layers at all. `FontReads.current_master` now checks the master name against the first glyph that has the default layer. If no layer has that name, TMetrics shows the default master, and the status says "FontLab's current master Black Renamed has no layer of that name, so the default master (Hairline) is shown." (commit `227efb7`).
