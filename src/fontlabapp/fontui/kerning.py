@@ -12,6 +12,7 @@ with require_fontport(__name__):
 
 from .kerning_view import build
 from .lifecycle import Owned, follow_changes, follow_history
+from fontlabapp.qt.compact import compact_layout
 
 EMPTY_PAIR_TEXT = "Select a pair, or type the left and right names."
 
@@ -86,6 +87,7 @@ class KerningEditor(Owned):
         on_apply: Callable[[Any, Any], None] | None = None,
     ) -> None:
         super().__init__(parent)
+        compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.font, self.on_apply = font, on_apply
         self.rows: list[tuple[str, str]] = []
         self.selected: tuple[str, str] | None = None

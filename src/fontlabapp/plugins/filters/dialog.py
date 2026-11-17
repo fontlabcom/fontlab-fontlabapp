@@ -6,6 +6,7 @@ from typing import Any
 
 from fontlabapp.plugins.filter import Filter, Param
 from fontlabapp.plugins.kinds import guarded
+from fontlabapp.qt.compact import compact_layout
 
 
 def _control(gui: Any, param: Param, value: Any, parent: Any) -> Any:
@@ -59,8 +60,9 @@ class FilterDialog:
         self.widget = gui.QWidget()
         self.controls: dict[str, tuple[Param, Any]] = {}
         self.connections: list[tuple[Any, Any]] = []
-        layout = gui.QVBoxLayout(self.widget)
+        layout = compact_layout(gui.QVBoxLayout(self.widget))
         form = gui.QFormLayout()
+        compact_layout(form, 0)
         layout.addLayout(form)
         for param in plugin.params:
             control = _control(gui, param, values[param.key], self.widget)

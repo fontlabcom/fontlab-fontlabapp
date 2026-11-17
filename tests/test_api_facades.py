@@ -22,6 +22,12 @@ EXPORTS = {
     },
     "ui": {
         "OwnedWidget": "qt.widgets",
+        "compact": "qt.compact",
+        "compact_dialog": "qt.compact",
+        "compact_layout": "qt.compact",
+        "controls_box": "qt.compact",
+        "frameless": "qt.compact",
+        "split_view": "qt.compact",
         "create_dialog": "qt.widgets",
         "create_panel": "qt.widgets",
         "create_widget": "qt.widgets",

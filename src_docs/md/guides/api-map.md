@@ -20,7 +20,7 @@ source inventory, not a native FontLab compatibility claim.
 | internal | 77 |
 | menus/actions/shortcuts | 11 |
 | objects | 339 |
-| qt | 24 |
+| qt | 25 |
 | scripting | 8 |
 | signals | 10 |
 | ui.canvas | 14 |
@@ -30,7 +30,7 @@ source inventory, not a native FontLab compatibility claim.
 | ui.windows/views | 343 |
 | plugins | 31 |
 | plugmix | 1 |
-| **Total** | **1029** |
+| **Total** | **1030** |
 
 ## Modules
 
@@ -680,6 +680,7 @@ source inventory, not a native FontLab compatibility claim.
 | `fontlabapp.qt.calendars.official.formats` | objects | `apply` | Keep part3 font-style headers, weekday colours and two independent date rules. |
 | `fontlabapp.qt.choices` | ui.windows/views | `accept_activation`, `configure_combo`, `consume_commit`, `set_combo_text` | Injected Qt editable-choice and line-edit commit mechanics. |
 | `fontlabapp.qt.colors` | qt | `ColorDialog`, `color_palette`, `group_box_style`, `rgba255`, `rgba_css`, `swatch_style` | Injected Qt color presentation; foreign color/callback policy stays local. |
+| `fontlabapp.qt.compact` | qt | `MARGIN`, `SIDES`, `SPACING`, `compact`, `compact_dialog`, `compact_layout`, `controls_box`, `frameless`, `split_view` | Native-like 6 px margins and 4 px spacing; frameless glyph view in the top or right half. |
 | `fontlabapp.qt.completion` | qt | — | qt.completion domain helpers; children load only when explicitly imported. |
 | `fontlabapp.qt.completion.editor` | ui.widgets | `CompletionEditor` | Own an injected-Qt multiline completion editor and whole vocabulary swaps. |
 | `fontlabapp.qt.completion.events` | signals | `insert`, `key_press`, `under_cursor` | Keep the distinct archived completion key, cursor and focus policies. |
@@ -707,7 +708,7 @@ source inventory, not a native FontLab compatibility claim.
 | `fontlabapp.qt.layouts.content` | ui.widgets | `fit_contents` | Fit an injected child to a container's current contents rectangle. |
 | `fontlabapp.qt.layouts.linear` | ui.widgets | `DEFAULT_EPSILON`, `Equation`, `InconsistentEquations`, `solve` | Binding-free linear UI equations, extracted from Glyport's layout backend. |
 | `fontlabapp.qt.layouts.stack` | ui.widgets | `Distribution`, `distribute` | Binding-free, one-axis stack arithmetic shared by Cocoa and Vanilla adapters. |
-| `fontlabapp.qt.literal_text` | qt | `line_edit_type`, `read_text`, `set_mime_text`, `text_fragment` | Lossless Qt text values without PythonQt's no-length QString ingress. |
+| `fontlabapp.qt.literal_text` | qt | `document_raw_text`, `line_edit_type`, `read_text`, `set_mime_text`, `text_fragment` | Lossless Qt text values without PythonQt's no-length QString ingress. |
 | `fontlabapp.qt.menus` | menus/actions/shortcuts | `OWNED_MENU_TITLE`, `OwnedMenus` | Menu actions and tool windows that are safe to remove under signal dispatch. |
 | `fontlabapp.qt.numeric` | qt | `STEPS`, `position`, `set_position`, `set_step_range`, `value_at` | Exact proportional integer Qt ranges shared by sliders and progress bars. |
 | `fontlabapp.qt.painting` | qt | — | qt.painting domain helpers; children load only when explicitly imported. |
@@ -948,7 +949,7 @@ source inventory, not a native FontLab compatibility claim.
 | `fontlabapp.studios.vertical_metrics.diagram` | ui.windows/views | `collect`, `Diagram`, `DiagramPanel`, `FIELDS`, `Frame`, `frame`, `line_start`, `master_metrics`, `near_misses`, `on_curve_points`, `outline`, `read_metrics`, `SAMPLE`, `scan` | Diagram tab (Scriptmix Vertical Metrics Diagram, Nodes Near Zones): read-only metric lines per master and near-miss nodes. |
 | `fontlabapp.studios.vertical_metrics.table` | ui.windows/views | `MASTER_FIELDS`, `master_values`, `MetricsTablePanel`, `plan`, `validate_metrics`, `write_changes` | Metrics table tab (Scriptmix Master Metrics Table): editable per-master metrics with a dry run and one labelled write. |
 | `fontlabapp.studios.vertical_metrics.zones` | ui.windows/views | `GLYPHS`, `measure`, `merge`, `missing`, `overshoot_zone`, `preview_row`, `RULES`, `stage`, `Suggestion`, `suggestions`, `ZonesPanel` | Zones tab (Scriptmix Alignment Zones, Suggest Zones From Overshoots): staged per-master zones and one labelled write. |
-| `fontlabapp.ui` | ui.widgets | `OwnedWidget`, `create_dialog`, `create_panel`, `create_widget` | Owned UI factories for FontLab windows and widgets. |
+| `fontlabapp.ui` | ui.widgets | `OwnedWidget`, `compact`, `compact_dialog`, `compact_layout`, `controls_box`, `create_dialog`, `create_panel`, `create_widget`, `frameless`, `split_view` | Owned UI factories and compact native-like layout helpers. |
 | `fontlabapp.ui.actions` | menus/actions/shortcuts | `Action`, `ActionDisabledError`, `Actions`, `GlyphAction`, `GlyphActions`, `live` | Live FontLab action descriptors and lookup. |
 | `fontlabapp.ui.canvas` | ui.canvas | `AFTER_NATIVE_LAYER`, `Drawing`, `EditorPainters`, `LAYER_FILTERS`, `PaintContext` | Drawing overlays and glyph editor painters. |
 | `fontlabapp.ui.dialogs` | ui.dialogs | `create_dialog`, `create_message_box`, `name_filters`, `run_file_dialog`, `run_owned_dialog`, `run_standard_message_box`, `run_text_dialog` | Owned dialogs and injected Qt dialog execution. |

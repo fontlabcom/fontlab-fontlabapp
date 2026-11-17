@@ -5,6 +5,7 @@
 from PythonQt import QtGui
 
 from fontlabapp.fontui.lifecycle import Owned, follow_changes
+from fontlabapp.qt.compact import compact_layout
 from fontlabapp.fontui.model import FontListState
 from fontlabapp.fontui.native import Browser
 
@@ -12,6 +13,7 @@ from fontlabapp.fontui.native import Browser
 class FontBrowser(Owned):
     def __init__(self, fonts=(), parent=None, on_activate=None, follow=True):
         super().__init__(parent)
+        compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.state = FontListState(fonts)
         self.count_label = QtGui.QLabel(self.widget)
         self.layout.addWidget(self.count_label)

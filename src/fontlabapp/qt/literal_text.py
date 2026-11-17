@@ -21,6 +21,26 @@ def read_text(qt: Any, raw: Any) -> str:
     return text
 
 
+_PARAGRAPH = "\u2029"
+
+
+def document_raw_text(qt: Any, document: Any) -> str:
+    """Return ``QTextDocument.toRawText()``, or its block equivalent.
+
+    FontLab's PythonQt (9.1.9813) does not wrap ``toRawText``; joining every
+    block's literal text with U+2029 gives the same string for plain-text
+    documents (issue 253 native check, Features Editor).
+    """
+    if hasattr(document, "toRawText"):
+        return read_text(qt, value(document, "toRawText"))
+    parts = []
+    block = value(document, "begin")
+    while value(block, "isValid"):
+        parts.append(read_text(qt, value(block, "text")))
+        block = value(block, "next")
+    return _PARAGRAPH.join(parts)
+
+
 def set_mime_text(qt: Any, mime: Any, text: str) -> None:
     """Fill an existing MIME object; its allocator and ownership stay unchanged."""
     if "\0" in text:

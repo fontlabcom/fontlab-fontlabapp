@@ -15,6 +15,7 @@ with require_fontport(__name__):
 from PythonQt import QtCore, QtGui
 
 from .lifecycle import Owned, follow_changes, native_ids
+from fontlabapp.qt.compact import compact_layout
 from .model import outline
 from .sequence_canvas import create_canvas, prepare, reveal
 
@@ -42,6 +43,7 @@ class Sequence(Owned):
         on_update: Any = None,
     ) -> None:
         super().__init__(parent)
+        compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.font: Any = font
         self.on_select: Any = on_select
         self.on_update: Any = on_update

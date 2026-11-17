@@ -31,6 +31,7 @@ from PythonQt import QtCore, QtGui
 
 from fontlabapp.qt.events.key import key_press_handler
 
+from fontlabapp.qt.compact import compact_layout
 from ._canvas_palette import _canvas_colors
 from ._font_reads import FontReads
 from ._fontport import require_fontport
@@ -126,9 +127,10 @@ class TMetrics(Owned):
         if not controls:
             self.layout.setContentsMargins(0, 0, 0, 0)
             self.layout.setSpacing(0)
-            self.scroll.setFrameShape(QtGui.QFrame.NoFrame)
             for control in self.control_widgets:
                 control.hide()
+        else:
+            compact_layout(self.layout)  # FontLab panel metrics, issue 253
         if text:
             self.set_text(text)
         else:
@@ -224,7 +226,8 @@ class TMetrics(Owned):
         self.canvas = create_canvas(self, self.scroll)
         self.scroll.setWidget(self.canvas)
         self.scroll.setWidgetResizable(False)
-        self.layout.addWidget(self.scroll)
+        self.scroll.setFrameShape(QtGui.QFrame.NoFrame)
+        self.layout.insertWidget(0, self.scroll, 1)  # frameless view in the top half
 
     def fail(self, error: Exception) -> None:
         """Show ``error`` in the status line; the window stays usable."""

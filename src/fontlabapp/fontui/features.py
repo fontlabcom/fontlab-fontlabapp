@@ -8,6 +8,7 @@ from typing import Any
 from fontlabapp.fontui.features_state import PREFIX, FeatureState
 from fontlabapp.fontui.features_view import build
 from fontlabapp.fontui.lifecycle import Owned, follow_changes, follow_history
+from fontlabapp.qt.compact import compact_layout
 
 UNDO_NAME = "Edit font features"
 READ_ONLY = "Feature code is read-only: model has no features.set_blocks or apply."
@@ -29,6 +30,7 @@ class FeaturesEditor(Owned):
         on_apply: Callable[[Any, str], None] | None = None,
     ) -> None:
         super().__init__(parent)
+        compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.font, self.on_apply = font, on_apply
         self.state, self.key, self.blocks, self.editable = None, PREFIX, False, False
         build(self)

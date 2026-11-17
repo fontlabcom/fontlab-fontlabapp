@@ -14,9 +14,26 @@ Usage inside FontLab::
 from importlib import import_module
 from typing import Any
 
-__all__ = ["OwnedWidget", "create_dialog", "create_panel", "create_widget"]
+__all__ = [
+    "OwnedWidget",
+    "compact",
+    "compact_dialog",
+    "compact_layout",
+    "controls_box",
+    "create_dialog",
+    "create_panel",
+    "create_widget",
+    "frameless",
+    "split_view",
+]
 _EXPORTS = {
     "OwnedWidget": "fontlabapp.qt.widgets",
+    "compact": "fontlabapp.qt.compact",
+    "compact_dialog": "fontlabapp.qt.compact",
+    "compact_layout": "fontlabapp.qt.compact",
+    "controls_box": "fontlabapp.qt.compact",
+    "frameless": "fontlabapp.qt.compact",
+    "split_view": "fontlabapp.qt.compact",
     "create_dialog": "fontlabapp.qt.widgets",
     "create_panel": "fontlabapp.qt.widgets",
     "create_widget": "fontlabapp.qt.widgets",

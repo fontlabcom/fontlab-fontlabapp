@@ -12,7 +12,7 @@ from typing import Any
 
 from fontlabapp.fontui.features_state import shown
 from fontlabapp.qt.properties import value
-from fontlabapp.qt.literal_text import read_text, set_mime_text
+from fontlabapp.qt.literal_text import document_raw_text, read_text, set_mime_text
 
 
 def raw(text: str) -> str:
@@ -98,9 +98,7 @@ def create_source_input(
                 self._report("Unobserved replacement document: persistence refused.")
             if value(self.document(), "revision") != self.revision:
                 self.quarantined = True
-            if self.quarantined or read_text(
-                qt, value(self.document(), "toRawText")
-            ) != raw(self.accepted):
+            if self.quarantined or document_raw_text(qt, self.document()) != raw(self.accepted):
                 return None
             return self.accepted
 
@@ -174,7 +172,7 @@ def create_source_input(
         def _state(self) -> dict[str, Any]:
             d = self.observed_document
             return {
-                "raw": read_text(qt, value(d, "toRawText")),
+                "raw": document_raw_text(qt, d),
                 "revision": value(d, "revision"),
                 "undo_steps": value(d, "availableUndoSteps"),
                 "redo_steps": value(d, "availableRedoSteps"),
@@ -479,7 +477,7 @@ def create_source_input(
                     not self.closed
                     and self.document() is document
                     and value(document, "revision") == revision
-                    and read_text(qt, value(document, "toRawText")) == raw(source)
+                    and document_raw_text(qt, document) == raw(source)
                     and not self.active["events"]
                 )
             finally:
