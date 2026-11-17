@@ -2,6 +2,10 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — App windows open in FontLab 9 for Windows (Issue 259)
+
+- `available_geometry` reads `QScreen.availableGeometry` as a value or a method. FontLab 9.1 for Windows exposes it as a `QRect` value, so every App studio window (for example Font Audit) failed with `TypeError: 'QRect' object is not callable` before it opened. Verified in Windows FontLab 9.1.9813: Font Audit now opens.
+
 ## 2026-11-17 — TMetrics: follow survives a refused Fontport refresh
 
 - `FontReads.reset()` (`src/fontlabapp/fontui/_font_reads.py`) catches Fontport's `UnsupportedCapability`, which `RFont.refresh()` raises while a glyph has unfinished point edits. The memo is still cleared, the refresh is skipped with a debug log line, and other `NotImplementedError`s still raise. The class is matched by name because App code outside the Fontport editors must not import Fontport. Commit `49ee592`, merged as `bd9deb7`; test `test_reset_when_refresh_refused_for_pending_edits_then_memo_cleared_without_error`. Offline tests only; not run in FontLab.
