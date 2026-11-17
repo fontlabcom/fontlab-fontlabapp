@@ -15,7 +15,7 @@ with require_fontport(__name__):
 from PythonQt import QtCore, QtGui
 
 from .lifecycle import Owned, follow_changes, native_ids
-from fontlabapp.qt.compact import compact_layout
+from fontlabapp.qt.compact import MARGIN, compact_layout
 from .model import outline
 from .sequence_canvas import create_canvas, prepare, reveal
 
@@ -43,7 +43,9 @@ class Sequence(Owned):
         on_update: Any = None,
     ) -> None:
         super().__init__(parent)
-        compact_layout(self.layout)  # FontLab panel metrics, issue 253
+        # FontLab panel metrics, issue 253. Embedded in a host window the host's
+        # own compact margin already frames the preview: no second inset.
+        compact_layout(self.layout, margin=0 if parent is not None else MARGIN)
         self.font: Any = font
         self.on_select: Any = on_select
         self.on_update: Any = on_update

@@ -25,6 +25,7 @@ from types import SimpleNamespace
 
 import _cov_qt as fq
 import pytest
+from _light_canvas import light_canvas
 from _demo_support import Recorder, run_script, script_path, stub_module
 
 KERNING = script_path("Font Editors", "FontParts Kerning Editor Demo")
@@ -957,8 +958,9 @@ def test_sequence_when_glyph_names_are_typed_then_they_are_placed(host) -> None:
     assert [g.name for g in editor.run.glyphs] == ["T", "O"] and editor.run.glyphs[1].x == 560 - 30
 
 
-def test_sequence_when_wrapping_is_on_then_a_long_run_continues_on_further_lines(host) -> None:
+def test_sequence_when_wrapping_is_on_then_a_long_run_continues_on_further_lines(host, monkeypatch) -> None:
     names, demo, editor = sequence_parts(host)
+    light_canvas(monkeypatch, sys.modules["fontlabapp.fontui.sequence_canvas"])
     editor.wrap_control.setChecked(True)
     lines = {line for _, line in editor.positions}
     assert len(lines) > 1, "the narrow canvas wraps the eight glyphs onto several lines"
@@ -1070,8 +1072,9 @@ def test_glyphs_when_a_name_is_filtered_then_the_list_and_the_count_follow(host)
     assert texts(editor.glyph_list) == ["O"] and editor.count_label.text == "1 glyphs"
 
 
-def test_glyphs_when_a_glyph_is_selected_then_the_preview_shows_it_and_its_overlays_toggle(host) -> None:
+def test_glyphs_when_a_glyph_is_selected_then_the_preview_shows_it_and_its_overlays_toggle(host, monkeypatch) -> None:
     names, demo, editor = glyphs_parts(host)
+    light_canvas(monkeypatch, sys.modules["fontlabapp.fontui.preview"])
     editor.glyph_list.item(0).setSelected(True)  # A
     editor.glyph_list.itemSelectionChanged.emit()
     assert editor.preview.diagnostic.text == "A" and editor.state.selected == ("A",)

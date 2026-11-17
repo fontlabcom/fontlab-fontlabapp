@@ -8,6 +8,7 @@ from unittest.mock import Mock
 import pytest
 
 import _cov_qt as fq
+from _light_canvas import light_canvas
 
 
 @pytest.fixture
@@ -210,6 +211,7 @@ def test_preview_when_painted_then_draws_overlays_and_releases_painter_on_error(
     controls, monkeypatch
 ):
     module = controls.load("fontlabapp.fontui.preview")
+    light_canvas(monkeypatch, module)
     font = fq.ufo_font()
     preview = module.Preview(font, "A")
     painter = Mock()

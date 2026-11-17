@@ -11,8 +11,12 @@ from fontTools.pens.recordingPen import replayRecording
 from PythonQt import QtCore, QtGui
 
 from fontlabapp.qt.events.key import key_press_handler
+from fontlabapp.fontui._canvas_palette import _canvas_colors
 from fontlabapp.fontui.model import partition_paths
 from fontlabapp.fontui.wrap import wrap
+
+# Light-theme values; _canvas_colors swaps them for dark or palette colours.
+_LIGHT = {"background": "white", "glyph": "#303030", "outline": "#303030", "missing": "#b04040"}
 
 
 def create_canvas(owner: Any, parent: Any) -> Any:
@@ -91,12 +95,12 @@ def prepare(owner: Any) -> None:
     )
 
 
-def _draw_glyph(owner: Any, painter: Any, occurrence: Any) -> None:
+def _draw_glyph(owner: Any, painter: Any, occurrence: Any, colors: dict[str, str]) -> None:
     painter.save()
     try:
         painter.translate(*place(owner, occurrence))
         painter.scale(owner.scale, -owner.scale)
-        pen = QtGui.QPen(QtGui.QColor("#303030"))
+        pen = QtGui.QPen(QtGui.QColor(colors["outline"]))
         pen.setWidthF(1 / owner.scale)
         painter.setPen(pen)
         closed, opened = partition_paths(owner.outlines[occurrence.name].recording)
@@ -105,7 +109,7 @@ def _draw_glyph(owner: Any, painter: Any, occurrence: Any) -> None:
             path.setFillRule(QtCore.Qt.WindingFill)
             replayRecording(recording, QtPen(None, path=path))
             painter.setBrush(
-                QtGui.QBrush(QtGui.QColor("#303030"))
+                QtGui.QBrush(QtGui.QColor(colors["glyph"]))
                 if fill
                 else QtGui.QBrush(QtCore.Qt.NoBrush)
             )
@@ -116,8 +120,9 @@ def _draw_glyph(owner: Any, painter: Any, occurrence: Any) -> None:
 
 def paint(owner: Any, canvas: Any) -> None:
     painter = QtGui.QPainter(canvas)
+    colors = _canvas_colors(canvas, _LIGHT)
     try:
-        painter.fillRect(canvas.rect, QtGui.QColor("white"))
+        painter.fillRect(canvas.rect, QtGui.QColor(colors["background"]))
         if owner.closed or owner.run is None:
             return
         owner.font.keys()  # Detect document closure before drawing cached paths.
@@ -132,18 +137,18 @@ def paint(owner: Any, canvas: Any) -> None:
                 owner.line_height - 10,
             )
             if occurrence.index == owner.selected_index:
-                painter.fillRect(rect, QtGui.QColor("#d8eaff"))
+                painter.fillRect(rect, QtGui.QColor(colors["selection_background"]))
             if occurrence.name is not None:
                 if occurrence.name not in owner.font:
                     raise ValueError(f"Missing glyph: {occurrence.name}")
-                _draw_glyph(owner, painter, occurrence)
+                _draw_glyph(owner, painter, occurrence, colors)
             else:
-                painter.setPen(QtGui.QPen(QtGui.QColor("#b04040")))
+                painter.setPen(QtGui.QPen(QtGui.QColor(colors["missing"])))
                 painter.setBrush(QtGui.QBrush(QtCore.Qt.NoBrush))
                 painter.drawRect(rect)
                 painter.drawText(int(rect.left() + 3), int(baseline), occurrence.label)
     except Exception as error:  # noqa: BLE001 - never let a paint failure escape into Qt
         owner.fail(error)
-        painter.fillRect(canvas.rect, QtGui.QColor("white"))
+        painter.fillRect(canvas.rect, QtGui.QColor(colors["background"]))
     finally:
         painter.end()

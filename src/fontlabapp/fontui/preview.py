@@ -4,8 +4,12 @@
 
 from PythonQt import QtCore, QtGui
 
+from fontlabapp.fontui._canvas_palette import _canvas_colors
 from fontlabapp.fontui.lifecycle import Owned, follow_changes
 from fontlabapp.fontui.model import outline, partition_paths, viewport
+
+# Light-theme values; _canvas_colors swaps them for dark or palette colours.
+_LIGHT = {"background": "white", "glyph": "#303030", "outline": "#222222", "missing": "#b04040", "guide": "#8092b0"}
 
 
 class Preview(Owned):
@@ -114,8 +118,9 @@ class Preview(Owned):
         from fontTools.pens.recordingPen import replayRecording
 
         painter = QtGui.QPainter(canvas)
+        colors = _canvas_colors(canvas, _LIGHT)
         try:
-            painter.fillRect(canvas.rect, QtGui.QColor("white"))
+            painter.fillRect(canvas.rect, QtGui.QColor(colors["background"]))
             if self.closed or self.data is None:
                 return
             # Refresh at paint time so deletion never leaves a stale outline.
@@ -137,11 +142,11 @@ class Preview(Owned):
             painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
             painter.translate(dx, dy)
             painter.scale(scale, -scale)
-            pen = QtGui.QPen(QtGui.QColor("#222222"))
+            pen = QtGui.QPen(QtGui.QColor(colors["outline"]))
             pen.setWidthF(1 / scale)
             painter.setPen(pen)
             painter.setBrush(
-                QtGui.QBrush(QtGui.QColor("#303030"))
+                QtGui.QBrush(QtGui.QColor(colors["glyph"]))
                 if self.options["fill"]
                 else QtGui.QBrush(QtCore.Qt.NoBrush)
             )
@@ -157,7 +162,7 @@ class Preview(Owned):
             painter.setBrush(QtGui.QBrush(QtCore.Qt.NoBrush))
             painter.drawPath(open_path)
             if self.options["metrics"]:
-                painter.setPen(QtGui.QPen(QtGui.QColor("#8092b0")))
+                painter.setPen(QtGui.QPen(QtGui.QColor(colors["guide"])))
                 for y in (0, descent, ascent):
                     painter.drawLine(
                         QtCore.QPointF(0, y), QtCore.QPointF(data.width, y)
@@ -167,7 +172,7 @@ class Preview(Owned):
                         QtCore.QPointF(x, descent), QtCore.QPointF(x, ascent)
                     )
             painter.setPen(pen)
-            painter.setBrush(QtGui.QBrush(QtGui.QColor("#b04040")))
+            painter.setBrush(QtGui.QBrush(QtGui.QColor(colors["missing"])))
             for operation, points in data.recording:
                 for index, point in enumerate(points):
                     if point is None:

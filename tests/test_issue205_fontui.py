@@ -6,6 +6,7 @@ from types import SimpleNamespace as NS
 
 import pytest
 import _cov_qt as fq
+from _light_canvas import light_canvas
 
 
 @pytest.fixture
@@ -146,6 +147,7 @@ def test_preview_when_overlays_and_source_fail_then_paths_metrics_diagnostics_an
     from test_cov_ui_transform import Painter
 
     module = ui.load("fontlabapp.fontui.preview")
+    light_canvas(monkeypatch, module)
     monkeypatch.setattr(module.QtGui, "QPainter", Painter)
     monkeypatch.setattr(module.QtGui, "QPainterPath", QtGui.QPainterPath)
     monkeypatch.setattr(module.QtCore, "Qt", QtCore.Qt)

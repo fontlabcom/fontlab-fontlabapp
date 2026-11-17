@@ -6,6 +6,7 @@ from types import SimpleNamespace as NS
 from unittest.mock import Mock
 
 import pytest
+from _light_canvas import light_canvas
 from fontlabapp.fontui.model import Outline
 from test_fontui_browser_keys import Widget
 
@@ -22,6 +23,7 @@ def canvas_module(monkeypatch):
     core=NS(Qt=NS(StrongFocus=1,WindingFill=2,NoBrush=0),QRectF=lambda x,y,w,h:NS(left=lambda:x))
     monkeypatch.setitem(sys.modules,'PythonQt',NS(QtGui=gui,QtCore=core))
     module=importlib.import_module('fontlabapp.fontui.sequence_canvas')
+    light_canvas(monkeypatch,module)
     yield module,gui
     sys.modules.pop('fontlabapp.fontui.sequence_canvas',None)
 
