@@ -2,6 +2,16 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-18 — v1.2.37: compact GUI metrics for eleven windows; `qt.compact` helpers (Issue 253)
+
+- New `fontlabapp.qt.compact` (re-exported by `fontlabapp.ui`; scripts import it as `fly.ap.qt.compact`): `compact_layout`, `compact`, `compact_dialog`, `controls_box` and `split_view`. They give windows FontLab's own panel metrics (margins 6 px, spacing 4 px, instead of Qt's 11 and 6) and put a glyph view frameless above or beside its controls. A missing Qt setter logs a warning and leaves the object unchanged, because compaction is cosmetic and the window must still open.
+- Compacted windows (11): TGlyph, TMetrics, the filter dialog, Kerning, Font Info, Groups, Features, Sequence, Transform, Designspace and Font Browser. TGlyph and TMetrics place the canvas first with stretch 1 (`insertWidget(0, view, 1)`).
+- New script `Scripts/Widgets/Compact Dialog Demo.py`: a modeless compact dialog with a frameless glyph view above a label and a Close button.
+- `document_raw_text` falls back to a bounded block loop when `toRawText` is missing (FontLab 9.1.9813 has none) or raises.
+- PythonQt finding: in FontLab 9.1.9813, `button.clicked.connect(dialog.close)` and `.connect(dialog.hide)` (bound C++ methods) do nothing; a lambda or a string slot works (`native/p17`). The demo uses a lambda. Other windows that connect bound C++ methods were not audited.
+- Native checks (FontLab 9.1.9813, clone source): the helpers' margins, spacing and frames and the `toRawText` fallback (`native/p15`), and the demo itself, Close included (`native/p16`). Not covered by a margin test: Designspace, Features, Font Browser.
+- Docs: the api-map pin in `tests_docs/test_site.py` gets reviewed reversal entries for the new module.
+
 ## 2026-11-17 — Reporters panel screen lookup; installer stub 1.0.15 (Issue 259 follow-ups)
 
 - The Reporters and Inspectors panel no longer fails with
