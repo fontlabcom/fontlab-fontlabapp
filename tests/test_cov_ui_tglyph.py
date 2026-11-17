@@ -749,3 +749,11 @@ def test_embed_when_controls_hidden_then_no_outer_margins_or_spacing(tg_mod):
     assert calls(window.layout, "setSpacing") == [(0,)]
     assert window.diagnostic.shown and window.readout.shown
     window.close()
+
+
+def test_window_when_controls_shown_then_compact_metrics_and_canvas_above_controls(tg_mod):
+    window = tg_mod.TGlyph(layered_font(), "a")
+    assert calls(window.layout, "setContentsMargins") == [(6, 6, 6, 6)]
+    assert calls(window.layout, "setSpacing") == [(4,)]
+    assert calls(window.layout, "insertWidget") == [(0, window.canvas, 1)], "the glyph view is first, with stretch"
+    window.close()

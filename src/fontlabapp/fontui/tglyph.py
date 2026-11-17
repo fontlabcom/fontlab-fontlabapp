@@ -36,7 +36,6 @@ from PythonQt import QtCore, QtGui
 
 from fontlabapp.qt.events.key import key_press_handler
 
-from fontlabapp.qt.compact import compact_layout
 from ._canvas_palette import _canvas_colors
 from .hinting import font_hint_check
 from .lifecycle import Owned
@@ -44,6 +43,8 @@ from .livesync import Echo
 from .tglyph_edit import Edit, Editor
 from .tglyph_model import ZOOM_STEP, TGlyphModel, fingerprint, neighbour
 from .twindow_host import FontLabHost, Host
+
+from fontlabapp.qt.compact import compact_layout
 
 __all__ = ["TGlyph", "create_canvas", "current_glyph_name", "paint", "show_tglyph"]
 

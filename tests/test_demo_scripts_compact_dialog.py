@@ -1,43 +1,61 @@
 # this_file: tests/test_demo_scripts_compact_dialog.py
 """Offline run of Scripts/Widgets/Compact Dialog Demo.py (Issue 253).
 
-The demo runs through runpy as ``__main__`` (one modeless dialog is built, filled and
-shown) and as an imported name (nothing may run). ``PythonQt`` and ``fontlab`` natives
-and ``compact_dialog`` are replaced; offline results are not native FontLab acceptance.
+The demo runs through runpy as ``__main__`` and as an imported name (nothing may
+run). ``PythonQt`` is replaced by real PySide6 widgets so the real ``compact``
+helpers set real margins and spacing; ``fontlab`` is a stub. Offline results are
+not native FontLab acceptance (see the native probe evidence for that).
 """
 
-from unittest.mock import MagicMock
+from types import SimpleNamespace
 
-from _demo_support import Recorder, qt_namespace, run_script, script_path, stub_module
+import pytest
+
+QtWidgets = pytest.importorskip("PySide6.QtWidgets")
+
+from _demo_support import run_script, script_path, stub_module
 
 import fontlabapp.qt.compact as compact
 
 DEMO = script_path("Widgets", "Compact Dialog Demo")
 
 
-def install(monkeypatch):
-    """Stub the natives and ``compact_dialog``; return (QtGui namespace, dialog, layout, recorder)."""
-    qt = qt_namespace()
-    stub_module(monkeypatch, "PythonQt", QtGui=qt.QtGui, QtCore=qt.QtCore)
-    stub_module(monkeypatch, "fontlab", MainWindow=lambda: "main-window")
-    dialog, layout = MagicMock(), MagicMock()
-    recorder = Recorder((dialog, layout))
-    monkeypatch.setattr(compact, "compact_dialog", recorder)
-    return qt, dialog, layout, recorder
+@pytest.fixture
+def app(monkeypatch):
+    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    stub_module(monkeypatch, "PythonQt", QtGui=QtWidgets, QtCore=SimpleNamespace())
+    stub_module(monkeypatch, "fontlab", MainWindow=lambda: None)
+    monkeypatch.setattr(compact, "_qt", lambda: SimpleNamespace(QtGui=QtWidgets))
+    return app
 
 
-def test_compact_dialog_when_main_then_fills_and_shows_one_dialog(monkeypatch) -> None:
-    qt, dialog, layout, recorder = install(monkeypatch)
+def margins(layout):
+    m = layout.contentsMargins()
+    return (m.left(), m.top(), m.right(), m.bottom())
+
+
+def test_compact_dialog_when_main_then_real_compact_metrics_and_view_above_controls(app) -> None:
     names = run_script(DEMO)
-    assert recorder.calls == [(("Compact Dialog Demo",), {})]
-    assert layout.addWidget.call_count == 2
-    dialog.show.assert_called_once_with()
-    assert names["_KEEP"] == [dialog], "the modeless dialog must stay referenced"
-    qt.QtGui.QPushButton.return_value.clicked.connect.assert_called_once_with(dialog.close)
+    (dialog,) = names["_KEEP"]
+    outer = dialog.layout()
+    assert margins(outer) == (0, 0, 0, 0), "split_view lets the view reach the window edges"
+    view, controls = outer.itemAt(0).widget(), outer.itemAt(1).widget()
+    assert isinstance(view, QtWidgets.QGraphicsView) and view.frameShape() == QtWidgets.QFrame.NoFrame
+    assert outer.stretch(0) == 1, "the view takes all extra space"
+    assert margins(controls.layout()) == (compact.MARGIN,) * 4
+    assert controls.layout().spacing() == compact.SPACING
+    assert dialog.windowTitle() == "Compact Dialog Demo" and not dialog.isModal()
+    assert not dialog.isHidden(), "the dialog is shown"
+    dialog.close()
 
 
-def test_compact_dialog_when_imported_then_nothing_runs(monkeypatch) -> None:
-    _, dialog, _, recorder = install(monkeypatch)
+def test_compact_dialog_when_close_clicked_then_dialog_closes(app) -> None:
+    (dialog,) = run_script(DEMO)["_KEEP"]
+    button = dialog.findChildren(QtWidgets.QPushButton)[0]
+    button.click()
+    assert not dialog.isVisible()
+
+
+def test_compact_dialog_when_imported_then_nothing_runs(app) -> None:
     names = run_script(DEMO, run_name="imported")
-    assert recorder.calls == [] and names["_KEEP"] == [] and callable(names["main"])
-    dialog.show.assert_not_called()
+    assert names["_KEEP"] == [] and callable(names["main"])

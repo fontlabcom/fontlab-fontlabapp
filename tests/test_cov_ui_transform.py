@@ -360,3 +360,9 @@ def test_close_when_called_then_callback_dropped_and_widget_deleted(tmod):
     editor.close()
     assert editor.on_change is None, "the callback is dropped"
     assert editor.widget.deleted, "the root widget is scheduled for deletion"
+
+
+def test_window_when_created_then_compact_panel_metrics(tmod):
+    window = make(tmod)[0]
+    assert [a for c, a in window.layout.calls if c == "setContentsMargins"] == [(6, 6, 6, 6)]
+    assert [a for c, a in window.layout.calls if c == "setSpacing"] == [(4,)]

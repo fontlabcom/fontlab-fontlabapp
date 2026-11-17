@@ -5,9 +5,9 @@
 from PythonQt import QtGui
 
 from fontlabapp.fontui.lifecycle import Owned, follow_changes
-from fontlabapp.qt.compact import compact_layout
 from fontlabapp.fontui.model import FontListState
 from fontlabapp.fontui.native import Browser
+from fontlabapp.qt.compact import compact_layout
 
 
 class FontBrowser(Owned):

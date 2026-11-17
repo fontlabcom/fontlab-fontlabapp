@@ -468,3 +468,9 @@ def test_pending_when_close_cleanup_fails_then_discarded_before_retry(seq_mod, m
     monkeypatch.setattr(seq.widget, "hide", hide)
     seq.close()
     assert seq._close_complete and seq._pending_selection is None
+
+
+def test_window_when_created_then_compact_panel_metrics(seq_mod):
+    window = make(seq_mod)[0]
+    assert [a for c, a in window.layout.calls if c == "setContentsMargins"] == [(6, 6, 6, 6)]
+    assert [a for c, a in window.layout.calls if c == "setSpacing"] == [(4,)]

@@ -321,3 +321,9 @@ def test_close_when_actual_sequence_hide_fails_then_parent_work_is_fenced(kernin
     assert before == (False, False, True, False)
     assert after == (True, True, True, False)
     assert borrowed == (model.ufo, tuple(model.keys()), dict(model.groups), dict(model.kerning), tuple(model.groups.undo_names), tuple(model.kerning.undo_names))
+
+
+def test_window_when_created_then_compact_panel_metrics(kerning_mod):
+    window = make(kerning_mod)[0]
+    assert [a for c, a in window.layout.calls if c == "setContentsMargins"] == [(6, 6, 6, 6)]
+    assert [a for c, a in window.layout.calls if c == "setSpacing"] == [(4,)]

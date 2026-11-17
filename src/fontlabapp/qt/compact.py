@@ -3,9 +3,10 @@
 
 FontLab's own panels (Proteus ``.ui`` files) use 0-8 px margins and 0-4 px
 spacing; Qt's style defaults (about 11-20 px on macOS) waste space. A
-standalone script needs one line::
+standalone script needs one line (scripts import through ``fly.ap``; code
+inside fontlabapp may use ``fontlabapp.ui``, which re-exports the same names)::
 
-    from fontlabapp.ui import compact_dialog
+    from fly.ap.qt.compact import compact_dialog
     dialog, layout = compact_dialog("My tool")
 
 An existing window can be tightened in place with ``compact(widget)``.
@@ -16,7 +17,10 @@ dark FontLab themes both apply.
 
 from __future__ import annotations
 
+import logging
 from typing import Any
+
+_LOG = logging.getLogger(__name__)
 
 MARGIN = 6  # outer margin of a dialog or palette, px (Proteus panels: 4-8)
 SPACING = 4  # gap between controls, px (Proteus panels: 0-4)
@@ -26,15 +30,18 @@ SIDES = ("top", "right")
 def compact_layout(layout: Any, margin: int = MARGIN, spacing: int = SPACING) -> Any:
     """Set ``layout``'s margins to ``margin`` and its spacing to ``spacing``.
 
-    Objects without the Qt layout setters (test doubles, partial wrappers)
-    are returned unchanged: compaction is cosmetic and must not break a window.
+    An object without the Qt layout setters (a partial wrapper) is returned
+    unchanged with a logged warning, not an exception: compaction is cosmetic
+    and must not stop a window from opening, but a missing setter must not go
+    unseen either. FontLab 9.1.9813 wraps both setters (issue 253 native check).
     """
     margins = getattr(layout, "setContentsMargins", None)
-    if margins is not None:
-        margins(margin, margin, margin, margin)
     spacing_setter = getattr(layout, "setSpacing", None)
-    if spacing_setter is not None:
-        spacing_setter(spacing)
+    if margins is None or spacing_setter is None:
+        _LOG.warning("compact_layout: %r lacks setContentsMargins/setSpacing; left unchanged", layout)
+        return layout
+    margins(margin, margin, margin, margin)
+    spacing_setter(spacing)
     return layout
 
 

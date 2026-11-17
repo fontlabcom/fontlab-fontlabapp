@@ -18,10 +18,20 @@ class _NoRaw:
     def begin(self):
         return self._document.begin()
 
+    def blockCount(self):
+        return self._document.blockCount()
+
+
+class _BrokenRaw(_NoRaw):
+    """Exposes toRawText but cannot call it."""
+
+    def toRawText(self):
+        raise RuntimeError("wrapper cannot call toRawText")
+
 
 @pytest.mark.parametrize(
     "text",
-    ["", "A", "A\nB", "A B", "line break", "nb sp\ttab", "x\n\n", "\n", "ąę 中 🙂"],
+    ["", "A", "A\nB", "A B", "line\u2028break", "nb\u00a0sp\ttab", "x\n\n", "\n", "\u0105\u0119 \u4e2d \U0001f642"],
 )
 def test_document_raw_text_when_toRawText_missing_then_blocks_match_it(text):
     QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
@@ -31,3 +41,11 @@ def test_document_raw_text_when_toRawText_missing_then_blocks_match_it(text):
     expected = document.toRawText()
     assert document_raw_text(None, document) == expected, "direct path uses toRawText"
     assert document_raw_text(None, _NoRaw(document)) == expected, f"block fallback differs for {text!r}"
+
+
+def test_document_raw_text_when_toRawText_call_fails_then_block_fallback_used():
+    QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    document = QtGui.QTextDocument()
+    document.setDocumentLayout(QtWidgets.QPlainTextDocumentLayout(document))
+    document.setPlainText("A\nB\u2028C")
+    assert document_raw_text(None, _BrokenRaw(document)) == document.toRawText()

@@ -36,6 +36,7 @@ RECORDED_METHODS = frozenset(
         "addLayout",
         "insertWidget",
         "setContentsMargins",
+        "setSpacing",
         "setSizeConstraint",
         "setRootIsDecorated",
         "removeWidget",

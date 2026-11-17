@@ -528,3 +528,9 @@ print('cold actual factory import/cleanup PASS')
     done = subprocess.run([sys.executable, "-s", "-B", "-c", code, case, str(Path(ui.__file__).resolve())], cwd=tmp_path, env=env, capture_output=True, text=True, check=False)
     assert done.returncode == 0, done.stdout + done.stderr
     assert done.stdout.strip() == "cold actual factory import/cleanup PASS"
+
+
+def test_window_when_created_then_compact_panel_metrics(imod):
+    window = make(imod)[0]
+    assert [a for c, a in window.layout.calls if c == "setContentsMargins"] == [(6, 6, 6, 6)]
+    assert [a for c, a in window.layout.calls if c == "setSpacing"] == [(4,)]

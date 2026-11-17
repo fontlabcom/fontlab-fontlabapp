@@ -109,7 +109,7 @@ def test_ui_facade_when_compact_dialog_requested_then_exported():
     assert "split_view" in dir(ui)
 
 
-def test_compact_layout_when_object_lacks_setters_then_returned_unchanged():
+def test_compact_layout_when_object_lacks_setters_then_returned_unchanged(caplog):
     from fontlabapp.qt.compact import compact_layout
 
     class Bare:
@@ -117,3 +117,4 @@ def test_compact_layout_when_object_lacks_setters_then_returned_unchanged():
 
     bare = Bare()
     assert compact_layout(bare) is bare, "objects without Qt setters pass through"
+    assert "lacks setContentsMargins/setSpacing" in caplog.text, "the missing setter is logged"

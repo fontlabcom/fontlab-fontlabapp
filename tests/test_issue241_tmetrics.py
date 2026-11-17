@@ -172,3 +172,10 @@ def test_first_available_host_preserves_draft_and_readonly_preview(tm_mod):  # n
     readonly, readonly_host = make(tm_mod, read_only=True)
     readonly_host.callback()
     assert readonly.text_control.text == ""
+
+
+def test_window_when_created_then_compact_metrics_and_view_above_controls(tm_mod):  # noqa: F811 - shared fixture
+    window, _ = make(tm_mod, text="AV")
+    assert [args for call, args in window.layout.calls if call == "setContentsMargins"] == [(6, 6, 6, 6)]
+    assert [args for call, args in window.layout.calls if call == "setSpacing"] == [(4,)]
+    assert [args for call, args in window.layout.calls if call == "insertWidget"] == [(0, window.scroll, 1)]

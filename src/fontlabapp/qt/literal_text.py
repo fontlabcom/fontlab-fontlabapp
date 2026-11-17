@@ -32,10 +32,15 @@ def document_raw_text(qt: Any, document: Any) -> str:
     documents (issue 253 native check, Features Editor).
     """
     if hasattr(document, "toRawText"):
-        return read_text(qt, value(document, "toRawText"))
+        try:
+            return read_text(qt, value(document, "toRawText"))
+        except Exception:  # noqa: BLE001 - a wrapper that exposes but cannot call it
+            pass
     parts = []
     block = value(document, "begin")
-    while value(block, "isValid"):
+    for _ in range(value(document, "blockCount")):  # bounded: never loop on a bad wrapper
+        if not value(block, "isValid"):
+            break
         parts.append(read_text(qt, value(block, "text")))
         block = value(block, "next")
     return _PARAGRAPH.join(parts)
