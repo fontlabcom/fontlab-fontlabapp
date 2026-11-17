@@ -12,6 +12,7 @@ this_file: TODO.md
 - [ ] Issue 256: independently review and deliver App lowercase compatibility before renamed Plugmix; qualify Instamix managed legacy conflict refusal, bootstrap readiness, released App 1.2.31 and native/Windows migration before deployment.
 
 
+- [ ] `plugins/reporters_panel._available_geometry`: the `primaryScreen()` fallback may be a value binding in FontLab (see `proof/text_holder/ui.py`); read it like `available_geometry` (Issue 259 F9 review).
 - [ ] Live-check the scriptmix vfjo demo scripts in FontLab 9.1 (Task 3).
 - [ ] Object JSON `paste_glyphs`: run the auto-rebuild skip before reserving names and Unicode values, so a skipped glyph does not rename or strip later items (review round 1 Minor).
 - [ ] Live-check the object JSON demo scripts in FontLab 9.1: Paste JSON Glyphs and Import Glyphs From JSON File dialogs, Paste JSON Shapes Into Layer (detached layer shapes added directly or copied), Edit > Paste of shapes from Copy Selection As JSON (by hand: never drive Paste from code), `glyph.activeLayer()` and `shape.selected` as the Copy demo expects, the 9.0 message on 9.0. The API path passed on 2026-11-17.
