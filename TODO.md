@@ -304,3 +304,4 @@ this_file: TODO.md
 
 - [ ] T44 follow-up: live-check Apply and Undo of all five selected-layer Filters with the `d3962ed` reason rows installed (source fix landed; native check covered only the skip message). Low priority: needs a released App and an install.
 - [ ] Low priority: intermittent segfault in the `lab` fixture teardown at `tests/_text_lab.py:72` (`QApplication.topL...`) during the full gate suite (seen once, gate run `fontlab-fontlabapp.ZbqEl6`); find the Qt object lifetime cause.
+- [ ] Low priority, review notes from `0450641`/`d3962ed` (WORK/issue258/tasks/n1-review.md): `node_table.py` `follow_change` swallows `(ValueError, RuntimeError, TimeoutError)` from the re-read with no status or log, so the table can go stale unseen: show a status-line note and log it. Also confirm that not following a glyph/context switch is intended, and replace the positional `outline_shapes(layer)[1]` index at `src/fontlabapp/plugins/filters/apply.py:190`.
