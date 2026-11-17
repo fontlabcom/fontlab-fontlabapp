@@ -38,8 +38,10 @@ NO_FONT_TEXT = "Open a font first."
 def available_geometry(widget: Any) -> Any:
     """The available screen rectangle for ``widget`` (Qt 5 desktop or Qt 6 screen)."""
     screen = getattr(widget, "screen", None)
-    if callable(screen) and screen() is not None:
-        return screen().availableGeometry()
+    current = screen() if callable(screen) else None
+    if current is not None:
+        # FontLab 9 for Windows exposes QScreen.availableGeometry as a QRect value.
+        return value(current, "availableGeometry")
     return QtGui.QApplication.desktop().availableGeometry(widget)
 
 

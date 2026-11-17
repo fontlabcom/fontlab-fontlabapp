@@ -72,6 +72,26 @@ def test_available_geometry_when_qt5_desktop_then_used(studio_qt, monkeypatch): 
     assert module.available_geometry(SimpleNamespace()) is rect
 
 
+def test_available_geometry_when_screen_property_then_value_returned(studio_qt):  # noqa: F811
+    rect = object()
+    screen = SimpleNamespace(availableGeometry=rect)
+    assert studio_qt.modules.appshell.available_geometry(SimpleNamespace(screen=lambda: screen)) is rect
+
+
+def test_available_geometry_when_screen_method_then_called(studio_qt):  # noqa: F811
+    rect = object()
+    screen = SimpleNamespace(availableGeometry=lambda: rect)
+    assert studio_qt.modules.appshell.available_geometry(SimpleNamespace(screen=lambda: screen)) is rect
+
+
+def test_available_geometry_when_screen_none_then_desktop_used(studio_qt, monkeypatch):  # noqa: F811
+    module = studio_qt.modules.appshell
+    rect = object()
+    desktop = SimpleNamespace(availableGeometry=lambda widget: rect)
+    monkeypatch.setattr(module.QtGui, "QApplication", SimpleNamespace(desktop=lambda: desktop), raising=False)
+    assert module.available_geometry(SimpleNamespace(screen=lambda: None)) is rect
+
+
 def test_shell_when_tabs_built_then_titled_and_closed_with_shell(studio_qt):  # noqa: F811
     spec, built = owned_tab(studio_qt, "Pairs")
     plain = SimpleNamespace(title="Plain", build=lambda app: studio_qt.modules.appshell.QtGui.QWidget())

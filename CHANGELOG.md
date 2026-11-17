@@ -2,6 +2,10 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — App windows open in FontLab 9 for Windows (Issue 259)
+
+- `available_geometry` reads `QScreen.availableGeometry` as a value or a method. FontLab 9.1 for Windows exposes it as a `QRect` value, so every App studio window (for example Font Audit) failed with `TypeError: 'QRect' object is not callable` before it opened. Verified in Windows FontLab 9.1.9813: Font Audit now opens.
+
 ## 2026-11-17 — v1.2.32 installed and checked in FontLab
 
 Evidence: `/Volumes/Falstaff4T/fontlab-scripting-data/issue258/native/p8/` (`result.json`, `install-command.txt`). FontLab 9.1.9813, `i2-lato.vfj`, App 1.2.32 installed from the GitHub release wheel into the FontLab 9 site-packages with `fontlab_instamix pkg install`, fontport 1.2.13. uharfbuzz is not installed on this host.
