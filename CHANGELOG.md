@@ -2,6 +2,13 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — v1.2.32 TMetrics master switch and large-font checks
+
+Evidence: `/Volumes/Falstaff4T/fontlab-scripting-data/issue258/native/p9/`. FontLab 9.1.9813, installed App 1.2.32, no uharfbuzz.
+
+- Large font: on `terminaldesign--KinneyMM-Upr.vfj` (3,171 glyphs, master Light), TMetrics opened in 0.32 s with 21 cells, and three `follow()` calls, each including the font refresh, took 0.35, 0.35 and 0.37 s (`large.json`).
+- Master switch: a defect was found and is not fixed. After `setMaster("Black", True)` on i2-lato, `follow()` kept the Hairline widths and showed no error (`master3.json`); see the TODO row.
+
 ## 2026-11-17 — App windows open in FontLab 9 for Windows (Issue 259)
 
 - `available_geometry` reads `QScreen.availableGeometry` as a value or a method. FontLab 9.1 for Windows exposes it as a `QRect` value, so every App studio window (for example Font Audit) failed with `TypeError: 'QRect' object is not callable` before it opened. Verified in Windows FontLab 9.1.9813: Font Audit now opens.
