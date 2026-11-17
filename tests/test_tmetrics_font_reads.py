@@ -103,7 +103,6 @@ def test_reads_when_repeated_then_font_asked_once_until_reset():
     assert font.counts == {"keys": 2, "kerning": 2, "groups": 1, "layer:Bold": 2}
 
 
-
 def test_reset_when_font_has_refresh_then_cached_handles_dropped():
     """A live Fontport font snapshots glyph handles; reset() must refresh it."""
 
@@ -128,6 +127,32 @@ def test_reset_when_font_has_refresh_then_cached_handles_dropped():
     reads.reset()
     assert font.refreshed == 1 and reads["A"].width == 510
     FontReads(NS(refresh=None)).reset()  # a font without a callable refresh is fine
+
+
+def test_reset_when_refresh_refused_for_pending_edits_then_memo_cleared_without_error(caplog):
+    """Fontport refuses refresh() during unfinished point edits; reset() must not raise."""
+    from fontlab_fontport.errors import UnsupportedCapability
+
+    def refuse():
+        raise UnsupportedCapability("glyph.incompleteContours", "pending point edits")
+
+    font = CountingFont()
+    font.refresh = refuse
+    reads = FontReads(font)
+    reads.keys()
+    with caplog.at_level("DEBUG", logger="fontlabapp.fontui._font_reads"):
+        reads.reset()
+    reads.keys()
+    assert font.counts["keys"] == 2, "The memo was cleared although refresh was refused"
+    assert "font refresh skipped" in caplog.text
+
+    def unrelated():
+        raise NotImplementedError("something else")
+
+    font.refresh = unrelated
+    with pytest.raises(NotImplementedError, match="something else"):
+        reads.reset()
+
 
 def test_reads_when_glyph_requested_then_live_glyph_object_kept():
     font = CountingFont()

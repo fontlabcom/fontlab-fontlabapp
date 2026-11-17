@@ -16,16 +16,20 @@ On an older Fontport every ``font[name]`` re-lists the whole layer to check
 that the name exists, so a per-glyph loop costs a scan per glyph; remembering
 each glyph object keeps later keystrokes free of those scans. Every other
 attribute passes straight through to ``font``. ``reset()`` forgets
-everything and refreshes a font that has ``refresh()``. Write through ``view.font``; the one exception is ``view.info``,
-whose attribute writes go to the font's info and drop that cached value.
+everything and refreshes a font that has ``refresh()``. Write through
+``view.font``; the one exception is ``view.info``, whose attribute writes go
+to the font's info and drop that cached value.
 """
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable, Iterator
 from typing import Any
 
 __all__ = ["FontReads"]
+
+LOG = logging.getLogger(__name__)
 
 
 class _Features:
@@ -74,12 +78,22 @@ class FontReads:
         as read when the handle was made, and FontLab edits do not reach it,
         so ``reset()`` calls the font's ``refresh()`` too when it has one.
         Without that, TMetrics kept showing the old width after a width
-        change made in FontLab (issue 258).
+        change made in FontLab (issue 258). Fontport refuses ``refresh()``
+        while a glyph has unfinished point edits; then the memo is still
+        cleared and the cached handles are kept until the next reset.
         """
         self._memo.clear()
         refresh = getattr(self.font, "refresh", None)
-        if callable(refresh):
+        if not callable(refresh):
+            return
+        try:
             refresh()
+        except NotImplementedError as error:
+            # Fontport's UnsupportedCapability (a NotImplementedError); matched by
+            # name because App code outside the Fontport editors must not import it.
+            if type(error).__name__ != "UnsupportedCapability":
+                raise
+            LOG.debug("FontReads.reset: font refresh skipped: %s", error)
 
     def _read(self, key: str, read: Callable[[], Any]) -> Any:
         memo = self._memo
