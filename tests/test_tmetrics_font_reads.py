@@ -628,3 +628,53 @@ def test_typing_when_font_has_summaries_then_summaries_used_not_glyphs(
     window.text_control.setText("AVA")
     assert font.counts.get("glyph_summaries", 0) == 1, font.counts
     assert set(asked) <= {"A", "V"}, "Only the typed glyphs are read one by one"
+
+
+class _Package:
+    """Live FontLab package double: ``master`` is the current master, ``defaultMaster`` stays put."""
+
+    def __init__(self, master):
+        self.master = master
+        self.defaultMaster = "public.default"
+
+
+def _cell_widths(window, name):
+    return [cell.width for cell in window.model.cells if cell.name == name]
+
+
+def test_follow_when_fontlab_current_master_switched_then_its_widths_shown(tm_mod, monkeypatch):
+    reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
+    package = _Package("public.default")
+    monkeypatch.setattr(reads_mod, "package_of", lambda font: package)
+    window, _, _ = make(tm_mod)
+    window.set_text("AV")
+    default_width = _cell_widths(window, "A")
+    assert default_width and default_width[0] != 700, default_width
+    package.master = "Bold"  # FontLab setMaster(): master moves, defaultMaster (defaultLayerName) does not
+    window.follow()
+    assert _cell_widths(window, "A") == [700], "Current master follows flPackage.master, not defaultMaster"
+    assert window.layer is None, "The choice stays 'Current master'"
+    assert not window._current_master(), "Font kerning belongs to defaultMaster, so it is not shown for Bold"
+    assert "kerning is unavailable for Bold" in window.diagnostic.text, window.diagnostic.text
+    package.master = "public.default"
+    window.set_text("AV")
+    assert _cell_widths(window, "A") == default_width, "Switching back is seen on the next keystroke"
+
+
+def test_metric_write_when_current_master_differs_from_default_then_current_master_written(tm_mod, monkeypatch):
+    reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
+    monkeypatch.setattr(reads_mod, "package_of", lambda font: _Package("Bold"))
+    window, _, font = make(tm_mod)
+    window.set_text("A")
+    window.model.select(0)
+    assert window._target_layer() == "Bold"
+    assert window.commit("width", "720"), window.diagnostic.text
+    assert font.edits[-1][1] == "Bold", font.edits
+
+
+def test_current_master_when_no_live_package_then_default_layer_used(tm_mod):
+    window, _, font = make(tm_mod)
+    window.set_text("A")
+    assert window._reads.current_master == font.defaultLayerName
+    assert window._target_layer() is None
+    assert window._current_master()

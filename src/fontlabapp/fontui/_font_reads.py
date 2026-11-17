@@ -10,7 +10,7 @@ lagged by seconds. Typing and view settings never change the font, so those
 reads can be reused until a font change, an Undo, or a write of our own.
 
 What: ``FontReads(font)`` answers ``keys()``, ``in``, ``kerning``, ``groups``,
-``features.text``, ``info``, ``glyphOrder``, ``defaultLayerName`` and
+``features.text``, ``info``, ``glyphOrder``, ``defaultLayerName``, ``current_master`` and
 ``glyph_summaries()`` and ``font[name]`` from memory after the first read.
 On an older Fontport every ``font[name]`` re-lists the whole layer to check
 that the name exists, so a per-glyph loop costs a scan per glyph; remembering
@@ -26,6 +26,8 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable, Iterator
 from typing import Any
+
+from .hinting import package_of
 
 __all__ = ["FontReads"]
 
@@ -151,11 +153,26 @@ class FontReads:
         read = getattr(self.font, "_get_defaultLayerName", None)
         return read() if callable(read) else self.font.defaultLayerName
 
+    @property
+    def current_master(self) -> Any:
+        """FontLab's current master (``flPackage.master``), else ``defaultLayerName``.
+
+        ``setMaster()`` moves ``flPackage.master`` and leaves ``defaultMaster``
+        (Fontport's ``defaultLayerName``) where it was, so "Current master"
+        must read the package; a detached or host-free font has no package.
+        """
+        return self._read("current_master", self._live_current_master)
+
+    def _live_current_master(self) -> Any:
+        master = getattr(package_of(self.font), "master", None)
+        return str(master) if master else self._live_default_layer()
+
     def master_changed(self) -> bool:
-        """True when the current master differs from the remembered one."""
-        if "defaultLayerName" not in self._memo:
-            return False
-        return self._live_default_layer() != self._memo["defaultLayerName"]
+        """True when the current or default master differs from the remembered one."""
+        memo = self._memo
+        if "current_master" in memo and self._live_current_master() != memo["current_master"]:
+            return True
+        return "defaultLayerName" in memo and self._live_default_layer() != memo["defaultLayerName"]
 
     def __getattr__(self, name: str) -> Any:
         if name.startswith("_") or name == "font":

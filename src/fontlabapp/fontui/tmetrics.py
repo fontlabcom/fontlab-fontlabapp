@@ -298,7 +298,10 @@ class TMetrics(Owned):
                         self.outlines[cell.name] = _outline(self.model, cell.name)
             status = self.model.status
             if not self._current_master():
-                status += "; kerning is unavailable for this layer; make this master current in FontLab before editing pairs."
+                status += (
+                    f"; kerning is unavailable for {self._target_layer()}; FontLab keeps font kerning "
+                    f"on the default master ({getattr(self._reads, 'defaultLayerName', None)})."
+                )
             self.diagnostic.setText(status)
             self._relayout()
             self._refresh_generation += 1
@@ -343,6 +346,7 @@ class TMetrics(Owned):
             # FontLab may switch the current master without a font notification.
             self._forget_font_reads()
         self.model.font = self._reads
+        self.model.layer = self._target_layer()
 
     def _fill_layers(self) -> None:
         from .tglyph_model import layer_names
@@ -358,9 +362,22 @@ class TMetrics(Owned):
         finally:
             self.layer_control.blockSignals(blocked)
 
+    def _target_layer(self) -> str | None:
+        """The layer read and written: the chosen one, else FontLab's current master.
+
+        None means the default master (``defaultLayerName``). FontLab's current
+        master can differ from it after ``setMaster()``; reads come from FontReads,
+        so this costs nothing per keystroke.
+        """
+        if self.layer is not None:
+            return self.layer
+        current = getattr(self._reads, "current_master", None)
+        return None if current in (None, getattr(self._reads, "defaultLayerName", None)) else current
+
     def _current_master(self) -> bool:
+        """True when the target layer is the default master, which owns font kerning."""
         # FontParts checks the name against every layer of the font: read it once per refresh.
-        return self.layer in (None, getattr(self._reads, "defaultLayerName", None))
+        return self._target_layer() in (None, getattr(self._reads, "defaultLayerName", None))
 
     def choose_layer(self) -> None:
         """Select the explicit layer for outlines and metrics; guard current-master kerning."""
@@ -425,7 +442,8 @@ class TMetrics(Owned):
                 pair = self._pair()
                 return self._write_kerning(pair.value + step)
             glyph = self._glyph()
-            rsb = glyph.rsb if self.layer is None else _layer_sidebearings(self.font, glyph.name, self.layer)[2]
+            layer = self._target_layer()
+            rsb = glyph.rsb if layer is None else _layer_sidebearings(self.font, glyph.name, layer)[2]
             if rsb is None:
                 raise ValueError(f"{glyph.name} has no outline; set its advance width instead")
             return self._write_metric(target, rsb + step)
@@ -453,7 +471,7 @@ class TMetrics(Owned):
         if name is None:
             return None
         check = self.hint_check if self.hint_check is not None else font_hint_check(self.font)
-        return check(name, self.layer)
+        return check(name, self._target_layer())
 
     def _write_metric(self, metric: str, value: float) -> bool:
         name = self._glyph().name
@@ -463,7 +481,7 @@ class TMetrics(Owned):
                 raise ValueError(state.text())
         note = _pending_note()
         undo = f"{self.label_prefix}: {METRIC_FIELDS[metric]} {name}"
-        if not write_metric(self.font, name, metric, value, layer=self.layer, undo_name=undo):
+        if not write_metric(self.font, name, metric, value, layer=self._target_layer(), undo_name=undo):
             self.diagnostic.setText("No changes to apply.")
             return False
         self._written(f"Set {METRIC_FIELDS[metric]} of {name} to {number_text(value)}.", note)
@@ -482,7 +500,7 @@ class TMetrics(Owned):
             key,
             value,
             undo_name=f"{self.label_prefix}: kerning {pair.left} {pair.right}",
-            master=self.layer,
+            master=self._target_layer(),
         )
         if values is None:
             self.diagnostic.setText("No changes to apply.")
