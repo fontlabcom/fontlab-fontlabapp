@@ -2,6 +2,16 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — Issue 258 task cleanup, round 4 (native Round 3 evidence)
+
+Evidence: `WORK/issue258/tasks/n1-report.md` "Round 3"; native files under `/Volumes/Falstaff4T/fontlab-scripting-data/issue258/native/`. FontLab 9.1.9813, Lato `i2-lato.vfj`, installed App 1.2.30 and fontport 1.2.13. Every probe restored its edits.
+
+- T44 five filters (`p5/filters.json`, unreleased source with `d3962ed`): Apply changed the outline and one Undo restored it exactly for DeleteSmallPaths, MoveOutlines, RoundOutlineToGrid, ScaleOutlines and SlantOutlines. With the element scaled to 1.1, each filter refused `A` with a reason row, none bare. Redo and save/reopen were not run.
+- `vfjo.scale` ghost hints (`p6/vfjo.json`, fix `92f35ba`, in App 1.2.30): `scale(2, 0.5, origin=(100, 200))` on `W` and `A` kept the ghosts at -20/21 in both masters, and the read-back from FontLab matched.
+- `vfjo.paste` shapes (`p6/vfjo.json`): element and contour data landed on the active layer, one Undo each restored it (1 to 2 to 1), and `font=` another font was refused with the "make that font current first" message.
+- Object JSON glyph paste through the API (`p6/vfjo.json`): `objs.paste()` created renamed glyphs `W.n1sc` and `A.n1sc` with outlines, per-master widths and hints. Three Undo triggers removed them. The demo scripts and Edit > Paste were not driven.
+- TMetrics `follow()` (`p7/tmetrics.json`, `p7/retest.json`): 0.21 s per call, open 0.36 s, measured without uharfbuzz. This replaces the earlier 1.1 s figure. A width edit (`A` 1274 to 1284) was not shown after `follow()` because the fontport `RFont` kept stale glyph handles (`p7/width_diag.json`, `p7/cache_diag.json`). `FontReads.reset()` now calls the font's `refresh()`: commit `bf7d5b3`, merged as `66113f5`; the retest showed 1284 after `follow()` and 1274 after restore. Not checked in an installed release or with an edit through the FontLab UI.
+
 ## 2026-11-17 — Issue 258 task cleanup, round 2
 
 - T44 "Skipped: a" (Issue 253): the Filters now name why a coordinate edit was skipped (shared, scaled and rotated elements) in a reason row. Commit `d3962ed`. Live Apply/Undo of all five filters is not yet tested; a follow-up row stays in TODO.

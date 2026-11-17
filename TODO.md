@@ -3,7 +3,7 @@ this_file: TODO.md
 ---
 ## Next steps (functional first)
 
-1. Native queue: live Apply/Undo of all five filters, live rechecks of vfjo.scale/paste and object JSON, TMetrics `follow()` cost.
+1. Native queue: Redo/save-reopen of the five filters from an installed release, object JSON demo scripts (dialogs, by hand), installed-release TMetrics typing speed.
 2. TMetrics typing: remove the remaining ~1.1 s `follow()` cost per external edit (kerning read).
 3. Deliver the reviewed items (Node Table action row, TMetrics prepared-path reuse, Spacing Studio, Kerning Studio, Master Text) through main, then qualify installed.
 4. Issue 254: move grablab, python-examples and aidus-agentus to the current installer.
@@ -12,13 +12,10 @@ this_file: TODO.md
 - [ ] Issue 256: independently review and deliver App lowercase compatibility before renamed Plugmix; qualify Instamix managed legacy conflict refusal, bootstrap readiness, released App 1.2.31 and native/Windows migration before deployment.
 
 
-- [ ] Re-check `fontlabapp.vfjo.scale` ghost hints live in FontLab 9.1: `scale(2, 0.5, origin=(100, 200))` on Lato `W` and `A` must keep top/bottom ghosts as ghosts (thickness -20/21). The non-zero-origin live check on `W` (guideline + hints) and `A` (hints) passed for nodes, widths, guides and stem hints; the ghost fix is offline-tested only.
-- [ ] Live-check vfjo shape paste in FontLab 9.1: `vfjo.paste` of element or contour data lands on the current glyph's active layer as one Undo step; `font=` another font is refused.
 - [ ] Live-check the scriptmix vfjo demo scripts in FontLab 9.1 (Task 3).
 - [ ] Object JSON `paste_glyphs`: run the auto-rebuild skip before reserving names and Unicode values, so a skipped glyph does not rename or strip later items (review round 1 Minor).
-- [ ] Live-check object JSON in FontLab 9.1 on the Lato Desktop VFJ: Paste JSON Glyphs and Import Glyphs From JSON File create renamed glyphs with outlines and widths per master (a live dict round trip through `export` and `paste_glyphs` also kept anchors, guidelines and hints), and Edit > Undo removes them; Paste JSON Shapes Into Layer adds element, layer and contour items as one Undo step (check whether shapes of a decoded detached layer can be added directly or need copying); Edit > Paste of shapes copied by Copy Selection As JSON (glyph Paste passed live); `glyph.activeLayer()` and `shape.selected` work as the Copy demo expects; the FontLab 9.0 message shows on 9.0.
+- [ ] Live-check the object JSON demo scripts in FontLab 9.1: Paste JSON Glyphs and Import Glyphs From JSON File dialogs, Paste JSON Shapes Into Layer (detached layer shapes added directly or copied), Edit > Paste of shapes from Copy Selection As JSON (by hand: never drive Paste from code), `glyph.activeLayer()` and `shape.selected` as the Copy demo expects, the 9.0 message on 9.0. The API path passed on 2026-11-17.
 - [ ] Live-check TMetrics typing timing on the Desktop i2-lato.vfj with the old fontport (630edf1, no `glyph_summaries`): keys after the first should not grow with glyph count; time the first key after a font edit and one external width edit while TMetrics is open (offline `follow()` costs about N whole-font scans, 3007 at N=3000). Done with current fontport 8ffb9af on 2026-11-16: 0.056–0.172 s per key, open 1.13 s, refresh about 0.75 s, follow 1.13 s.
-- [ ] TMetrics `follow()` still costs about 1.1 s per external edit on i2-lato (3055 glyphs): one whole kerning read through fontport (`host.get_kerning`, about 0.75 s) plus the fingerprint. Consider a cheaper change test (a font-level revision or changed-glyph names from the notification) before re-reading kerning.
 - [ ] Live-check TMetrics typing speed with the released fontlabapp and fontport installed (target about 0.13 s per key on Lato); confirm kerning/outline updates appear after a master switch and after editing a glyph while TMetrics is open.
 - [ ] TMetrics: while a `/name` is being typed, each new prefix (`/s`, `/sp`, …) costs one native glyph-name read (measured 0.05–0.07 s per key live, within target); probe only completed tokens or add a cheap has-glyph path if it shows.
 - [ ] Live-check the 2026-11-16 fixes in FontLab 9 on the Lato Desktop VFJ: Reporters panel opens at 3 columns on the Qt 5 host (layout timing of `_fit`); Glyph Browser and Node Counts open and scroll without a hang (PythonQt `visualItemRect`/`verticalScrollBar`); all five filters edit `a`; Outline Doctor and Transform Studio edit `a`/`o` with `aacute` following and Undo restoring; probe `referenceCount` on a component base with two or more separate elements (none exist in Lato).
@@ -59,7 +56,7 @@ this_file: TODO.md
 
 - [ ] TMetrics: review the raw text-field observer compatibility limit after delivered source integration; qualify matched release/install and real typing/visible-frame latency in both input routes without weakening font/history/Undo/Redo/reopen gates.
 
-- [ ] Qualify released Filter reason text and all five filters live, including Apply/Undo/Redo/save-reopen and complete font preservation.
+- [ ] Qualify released Filter reason text and all five filters live from an installed release: Redo, save/reopen and complete font preservation (Apply/Undo of all five and the reason rows passed natively on the unreleased source, 2026-11-17).
 
 - [ ] Issue 253 Reporters/inspectors: independently review and integrate the compact grid and shared right-hand preview; then qualify released/installed/cached origins, all toggles and rescans, long names, actual glyph/master values, resize, native light/dark appearance and repeated/failed Close with complete font/history preservation. Keep the original full-script scope open.
 - [ ] Issue 242 Node Inspector (A19) studio series on `issue-242-integrate-3` (e8e7b4b) and `issue-242-phaseD` (237bff9), about 32,000 added lines with 12-13 merge conflicts against main: re-derive it onto current main in a fresh clone, or retire the branches after checking which A19 parts main already covers.
@@ -302,6 +299,5 @@ this_file: TODO.md
 - [ ] Native: verify the stale-class-member kerning fix in a real subset font, then save and reopen it.
 - [ ] Native: verify in FontLab PythonQt that the QPoint/QEvent wrapper reads now routed through `value()` (drag-distance `x`/`y` in six drag profiles; `type`/`key`/`pos().x()`/`rect.left`/`width` in Glyph Review Priorities) return numbers, not bound methods, and that drag start and star click/Delete/Backspace work.
 
-- [ ] T44 follow-up: live-check Apply and Undo of all five selected-layer Filters with the `d3962ed` reason rows installed (source fix landed; native check covered only the skip message). Low priority: needs a released App and an install.
 - [ ] Low priority: intermittent segfault in the `lab` fixture teardown at `tests/_text_lab.py:72` (`QApplication.topL...`) during the full gate suite (seen once, gate run `fontlab-fontlabapp.ZbqEl6`); find the Qt object lifetime cause.
 - [ ] Low priority, review notes from `0450641`/`d3962ed` (WORK/issue258/tasks/n1-review.md): `node_table.py` `follow_change` swallows `(ValueError, RuntimeError, TimeoutError)` from the re-read with no status or log, so the table can go stale unseen: show a status-line note and log it. Also confirm that not following a glyph/context switch is intended, and replace the positional `outline_shapes(layer)[1]` index at `src/fontlabapp/plugins/filters/apply.py:190`.
