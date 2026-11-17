@@ -4,6 +4,13 @@ this_file: WORK.md
 
 ## 2026-11-15 — Node Table compact action row in focused source
 
+## 2026-11-14 — Functional work order documented
+
+Updated AGENTS, PLAN and TODO to prioritize useful functional changes and compatible package boundaries, with detailed testing deferred. Existing backlog and prior records are retained. Documentation preservation and policy consistency were checked; no runtime, installed or native checks ran in this documentation-only pass.
+
+Next: advance compact forms, selected-layer Filters and TMetrics typing fixes in shared App code with matching Scriptmix/Plugmix consumers; measure the changed input route and defer the full theme/native matrix.
+
+[fontlab-fontlabapp v1.2.16](https://github.com/fontlabcom/fontlab-fontlabapp/releases/tag/v1.2.16) is qualified at `516f9dfba810e4a4cac5225ee817cd763a40410b`.
 Refresh, Read Canvas Selection and Apply now share one horizontal row in the existing panel, including the embedded Node Editing Lab. Widget ownership, labels, callbacks, selection/edit guards, standalone 800 × 560 sizing and shared shell behavior are unchanged. Automatic history refresh remains held.
 
 Existing focused baseline: 79 passed in 2.91 seconds. The compactness regression fails twice on old source; final focused checks pass 81 tests in 2.75 seconds (2.93 wall). The regression checks both embedded and standalone 420 × 320 layouts, labels, order, aligned nonoverlapping controls, containment, table separation, text fit and action dispatch. Pinned Ruff 0.14.10 F821 passes. Real offscreen Qt measurements recover 62 pixels of table height at both 800 × 560 (424 to 486) and 420 × 320 (184 to 246). Minimum-size hint changes from 187 × 226 to 346 × 164. The first baseline lacked Fly and failed five launcher tests; adding the allowed sibling Fly source fixes that test environment without changing product code.

@@ -35,6 +35,8 @@ this_file: TODO.md
 - [ ] Qualify matching FontLab installation of App 1.2.18 translated-element filters, the deletion target fence and host-follow refresh deduplication, then after native admission physical typing, both themes, all five filters, whole-font/history, Undo/Redo and saved reopen without closing T44/T49 by inference.
 
 
+- [ ] Advance compact forms, selected-layer Filters and TMetrics typing fixes in shared App code with matching Scriptmix/Plugmix consumers; measure the changed input route and defer the full theme/native matrix.
+
 - [ ] Complete Font Info/Master Text final documentation/combined review and graph check, normal pre-push gates, actual main delivery and exact-commit CI, then release and matching artifact/installation qualification.
 - [ ] Qualify matching released/installed Master Text source and native PythonQt preset reload, text/selection, proof dispatch and close/parent-destruction/reopen behavior; retain the unproved underlying C++ corruption mechanism separately.
 
