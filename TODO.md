@@ -1,6 +1,14 @@
 ---
 this_file: TODO.md
 ---
+## Next steps (functional first)
+
+1. Native queue: Node Editing Lab table after Undo/Redo, native "Skipped: a", three Examples R failures under the installed App, live rechecks of vfjo.scale/paste and object JSON.
+2. TMetrics typing: remove the remaining ~1.1 s `follow()` cost per external edit (kerning read).
+3. Deliver the reviewed items (Node Table action row, TMetrics prepared-path reuse, Spacing Studio, Kerning Studio, Master Text) through main, then qualify installed.
+4. Issue 254: move grablab, python-examples and aidus-agentus to the current installer.
+5. Gate, coverage and mutation rows below are deprioritised; detailed testing follows in a later pass.
+
 - [ ] Issue 256: independently review and deliver App lowercase compatibility before renamed Plugmix; qualify Instamix managed legacy conflict refusal, bootstrap readiness, released App 1.2.31 and native/Windows migration before deployment.
 
 
@@ -34,7 +42,6 @@ this_file: TODO.md
 - [ ] Qualify matching FontLab installation of App 1.2.18 translated-element filters, the deletion target fence and host-follow refresh deduplication, then after native admission physical typing, both themes, all five filters, whole-font/history, Undo/Redo and saved reopen without closing T44/T49 by inference.
 
 
-- [ ] Advance compact forms, selected-layer Filters and TMetrics typing fixes in shared App code with matching Scriptmix/Plugmix consumers; measure the changed input route and defer the full theme/native matrix.
 
 - [ ] Complete Font Info/Master Text final documentation/combined review and graph check, normal pre-push gates, actual main delivery and exact-commit CI, then release and matching artifact/installation qualification.
 - [ ] Qualify matching released/installed Master Text source and native PythonQt preset reload, text/selection, proof dispatch and close/parent-destruction/reopen behavior; retain the unproved underlying C++ corruption mechanism separately.
@@ -64,7 +71,7 @@ this_file: TODO.md
 - [ ] App user-visible string changes must run the Scriptmix S1/S2 suite (cross-repo consumer): App 3083abe's gate log (pushlogs/app-3083abe.log) shows App and App-docs tests only, and Scriptmix tests/test_issue122_S1.py and S2.py asserted the old Metrics status wording, so Scriptmix main went red until Scriptmix 6c02460f. Add a gate step or a checklist item that runs the Scriptmix suite (or at least S1/S2) against an App change that alters status or dialog text.
 - [ ] Issue 253-C: qualify the E01 embedded four-table minimum on smaller displays; retained offscreen evidence uses 1920x1440. Keep globally complete stock graph analysis held: scoped source qualification retains truncation, CRITICAL/UNKNOWN, arbitrary reflection and native-callback limits.
 - [ ] Issue 253-C: after reviewed integration/release/install, native-qualify the new thin Table Filter Demo and shared helper with matched source/cached callable hashes, eight full rows per view, readable content-sized columns, compact controls, five actions and owned cleanup in dark/light FontLab; keep prior compactness failure and original555/App136 scope open until actual evidence.
-- [ ] Issue 254: five repos still ship the older 620-line install.vfpy (fontlab-grablab, fontlab-python-examples, fontlab-remopy, pythonqtside, fontlab-aidus-agentus) and lack the `extensions` key; for each, move it to the current installer and check install, reinstall, uninstall and foreign-target behaviour with a temp data folder; none ships bundles today. Also owner-optional native check: install Plugmix, restart FontLab, confirm Plugmix Demo lists the 50 bundles
+- [ ] Issue 254: three repos still ship the older 620-line install.vfpy (fontlab-grablab, fontlab-python-examples, fontlab-aidus-agentus; fontlab-remopy and pythonqtside already use the Instamix stub installer) and lack the `extensions` key; for each, move it to the current installer and check install, reinstall, uninstall and foreign-target behaviour with a temp data folder; none ships bundles today. Also owner-optional native check: install Plugmix, restart FontLab, confirm Plugmix Demo lists the 50 bundles
 - [ ] WP07: run canonical G-App and G-Scriptmix with orchestrator-owned milestone/upstream baselines and fully provisioned dependencies on the integrated cohort.
 - [ ] WP07 native: qualify all nine tools and 31 tabs in installed FontLab PythonQt, including active-master context, live previews, sorting/resizing, staged actions and repeated/failed Close.
 - [ ] WP07 native: verify names/encoding, duplicate Unicode, tags/marks/notes, exact feature text and U+2029 refusals with whole-font preservation, Apply/Undo/Redo and save/reopen.
@@ -164,7 +171,7 @@ this_file: TODO.md
 - [ ] Run the exact repository checks on the integrated source, obtain independent review, commit/push the scoped milestone and verify its remote head.
 - [ ] After qualified main integration, inventory obsolete branches/files, preserve unique work and remove only proven stale items with recovery evidence.
 
-- [ ] Native-requalify the relocated external examples/native_ui.py with the combined App/Remopy cohort, including TypeRig, ownership, cleanup and whole-font preservation.
+- [ ] Native-requalify the relocated external examples/native_ui.py with the combined App/Remopy cohort, including TypeRig, ownership, cleanup and whole-font preservation. Blocked: the 9.1.9813 fontlab-mcp bridge SIGSEGV (https://github.com/Fontlab/fl/issues/8657) stops Remopy run/tools/setup.
 
 - [ ] Qualify complete ordinary consumer cohorts and native window/lifetime acceptance after D30 reconciliation; local App source/archive checks are tracked in the Issue 204 integration report.
 - [ ] Complete all27 direct Examples constructor/parent-death and shared launcher disconnect contracts without losing refused-Close recovery.
@@ -273,7 +280,7 @@ this_file: TODO.md
 - [ ] Implement source for the remaining ten compositions in the minimum eighteen, in reviewed A1–A4 order; qualify all workflows and retain all 8,723 compatibility obligations and the 18-or-more floor.
 - [ ] Generate and qualify new catalogue pages at a genuine committed source revision; no old-SHA links to new uncommitted paths.
 
-- [ ] For a reproduced upstream FontLab gap in these workflows, retain a privacy-safe reproducer, file or extend the fl issue and link a required fix PR in the proven responsible Proteus, FontGate or pyfontgate repository; preserve native safety and ownership gates.
+- [ ] For a reproduced upstream FontLab gap in these workflows, retain a privacy-safe reproducer, file or extend the issue in https://github.com/fontlab/fl/issues with the suggested code change in the issue body (owner rule 2026-11-16: issues only, no pull requests in Proteus, FontGate or pyfontgate); preserve native safety and ownership gates.
 
 - [ ] Bind the accepted A0/I1 payload to reviewed containing commits and truthful source links; requalify any later changed payload.
 - [ ] Qualify Tabular Width Audit native painting, history, cleanup and whole-font preservation in an admitted owned lane.

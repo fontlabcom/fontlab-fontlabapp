@@ -2,6 +2,14 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-17 — Issue 258 task cleanup
+
+- TODO: removed a duplicated "Advance compact forms, selected-layer Filters and TMetrics typing fixes" row.
+- TODO: the Issue 254 row now lists three repositories, not five. Remopy 2.0.4 and pythonqtside moved to the Instamix stub installer (see their CHANGELOGs, 2026-11-15 to 2026-11-16).
+- TODO: the "link a fix PR" row now says to file the issue in fontlab/fl with suggested code changes (owner rule 2026-11-16).
+- TODO: the native_ui.py requalification row cites fl#8657 as its blocker.
+- Added a prioritised Next steps list. Documentation only.
+
 ## Issue 256 source qualification completed — 2026-11-17
 
 The corrected owned-peer environment passes 17,011 tests with 47 existing skips (229.35 s). The earlier 30 failures reproduce on baseline and are retained below: missing Lessons and Fly context, resolved without source/test changes. Bundle-module combined coverage is 97.44%; all five Instamix-generated plugin kinds load offline from source and scratch installation. Independent review, normal-hook integration, release and native acceptance remain separate gates.
