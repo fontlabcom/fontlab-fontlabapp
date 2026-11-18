@@ -600,3 +600,11 @@ canonical adoption, publication and private Pages holds; these are not added
 recipe-workbench features. Until the separate controller qualification, retain
 source floor eight, full parity zero, all 8,723 obligations and the minimum
 eighteen workflows.
+
+
+## Issue 271 remaining installer qualification
+
+Resolve or independently classify the full-suite standalone Qt teardown crash,
+then integrate the reviewed installer candidate against fresh main through normal
+gates. Verify exact CI, release and ordinary installation separately. Native
+checks wait for the workspace's required serialized guard; preserve owner files.

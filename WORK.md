@@ -176,3 +176,16 @@ cover sources, glyphs, rendering and publication with the GUI deadline/closed
 checks; blocking I/O remains non-preemptible. Native PythonQt, themes, actual
 installation and latency remain unverified; controller review/full gates and
 delivery are separate.
+
+
+## 2026-11-18 — Issue 271 installer candidate
+
+Regenerated install.vfpy from reviewed released Instamix 1.0.18. Exact template
+parity and four focused installer/archive tests pass. Independent cohort source
+review approved the generated stub and its exact 266-line oracle.
+
+Full source suite was attempted with the reviewed sibling cohort and arm64
+Python 3.11; it terminated with SIGSEGV (exit 139) in standalone Qt fixture
+teardown at tests/_text_lab.py:72, around 79%. This is not full-suite acceptance
+and is not a native FontLab run. No related runtime source was changed.
+Full-suite qualification, fresh remote integration and native checks remain open.

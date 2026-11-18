@@ -5510,3 +5510,12 @@ cover sources, glyphs, rendering and publication with the GUI deadline/closed
 checks; blocking I/O remains non-preemptible. Native PythonQt, themes, actual
 installation and latency remain unverified; controller review/full gates and
 delivery are separate.
+
+
+## 2026-11-18 — Issue 271 installer source
+
+Regenerate the standalone installer from Instamix 1.0.18, retaining conflict
+preflight capability checks, compatible local-wheel selection and partial-success
+reporting. Exact-template checks and four focused installer/archive tests pass.
+Source cohort independently reviewed; full-suite and delivery qualification are
+separate (WORK.md records a standalone Qt teardown crash). No native claim.
