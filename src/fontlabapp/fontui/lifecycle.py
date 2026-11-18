@@ -63,10 +63,11 @@ class Owned:
                     event.accept()
 
         self.widget = Root(parent)
-        _mark_root(self.widget)
+        self.widget._owner_ref = owner_ref
         self.layout = QtGui.QVBoxLayout(self.widget)
         self._compact = compact
         if compact:
+            _mark_root(self.widget)
             inset = _host_inset(parent)
             compact_layout(self.layout, MARGIN if inset is None else inset)  # FontLab panel metrics, issue 253
         self.connect(self.widget.destroyed, lambda *args: self._destroyed(), closing=True)

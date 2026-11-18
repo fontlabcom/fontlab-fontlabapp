@@ -91,6 +91,8 @@ def compact(widget: Any, margin: int = MARGIN, spacing: int = SPACING) -> Any:
     for layout in widget.findChildren(qt.QtGui.QLayout):
         if own is not None and _same(layout, own):
             continue
+        if _opted_out(layout):
+            continue
         layout.setSpacing(spacing)
         if _parent_is_layout(layout):
             continue
@@ -109,11 +111,48 @@ def _flatten_embedded_roots(widget: Any) -> None:
             _LOG.debug("compact: could not flatten %r", child)
 
 
+def _compact_tab_page(page: Any) -> None:
+    """Make a plain tab-page wrapper carry the tab inset; wrappers and ``Owned`` roots inside it add none."""
+    layout = page.layout() if callable(getattr(page, "layout", None)) else None
+    if layout is None:
+        return
+    compact_layout(layout)
+    _flatten_wrappers(page)
+
+
+def _flatten_wrappers(widget: Any) -> None:
+    for child in widget.findChildren(_qt().QtGui.QWidget):
+        try:
+            if child.parentWidget() is not widget and not _same(child.parentWidget(), widget):
+                continue
+            inner = child.layout()
+            if inner is None:
+                continue
+            if child.property(_ROOT_PROPERTY):
+                inner.setContentsMargins(0, 0, 0, 0)
+            elif type(child) is _qt().QtGui.QWidget:
+                compact_layout(inner, 0)
+                _flatten_wrappers(child)
+        except Exception:  # noqa: BLE001 - cosmetic; never stop a window opening
+            _LOG.debug("compact: could not flatten %r", child)
+
+
 def _same(left: Any, right: Any) -> bool:
     try:
         return bool(left == right)
     except Exception:  # noqa: BLE001 - wrapper comparison is optional
         return left is right
+
+
+def _opted_out(layout: Any) -> bool:
+    """True for the root layout of an ``Owned`` built with ``compact=False``: it keeps Qt defaults."""
+    try:
+        owner = layout.parentWidget()
+        ref = getattr(owner, "_owner_ref", None)
+        window = ref() if callable(ref) else None
+        return window is not None and window._compact is False
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def _parent_is_layout(layout: Any) -> bool:

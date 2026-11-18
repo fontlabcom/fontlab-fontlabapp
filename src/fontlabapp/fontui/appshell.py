@@ -25,6 +25,7 @@ from PythonQt import QtCore, QtGui
 
 from ..qt.properties import value
 from .hinting import hint_state_of
+from ..qt.compact import _compact_tab_page
 from .lifecycle import Owned
 
 PREVIEWS = ("tglyph", "tmetrics", None)
@@ -43,6 +44,18 @@ def available_geometry(widget: Any) -> Any:
         # FontLab 9 for Windows exposes QScreen.availableGeometry as a QRect value.
         return value(current, "availableGeometry")
     return QtGui.QApplication.desktop().availableGeometry(widget)
+
+
+def _tab_page(built: Any) -> None:
+    """Give a tab page the tab inset: an ``Owned`` (or its root widget), else a plain wrapper's layout."""
+    owner = built if isinstance(built, Owned) else None
+    if owner is None:
+        ref = getattr(built, "_owner_ref", None)
+        owner = ref() if callable(ref) else None
+    if owner is not None:
+        owner.as_tab_page()
+    else:
+        _compact_tab_page(built)
 
 
 class AppShell(Owned):
@@ -120,8 +133,7 @@ class AppShell(Owned):
     def add_tab(self, spec: Any) -> Any:
         """Build ``spec`` into a new tab and return what ``spec.build`` returned."""
         built = spec.build(self)
-        if isinstance(built, Owned):
-            built.as_tab_page()  # built as Owned(shell.widget), so only now is it a tab page
+        _tab_page(built)  # built inside the shell widget, so only now is it a tab page
         self.tabs.insertTab(self.tabs.indexOf(self.about), self.embed(built), spec.title)
         if value(self.tabs, "count") == 2:
             self.tabs.setCurrentIndex(0)

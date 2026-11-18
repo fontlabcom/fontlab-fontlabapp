@@ -4,6 +4,7 @@
 from types import SimpleNamespace as NS
 
 import pytest
+from _studio_qt import isolated_studio_modules  # noqa: F401
 from _studio_qt import studio_qt as _studio_qt
 from test_spacing_worksheet import GUI, QtCore, drain
 
@@ -36,6 +37,14 @@ def restore_modules():
         parent, _, leaf = name.rpartition(".")
         if name.startswith("fontlabapp") and name not in saved and parent in saved and hasattr(saved[parent], leaf):
             delattr(saved[parent], leaf)
+
+
+def qt_default():
+    """Margins Qt gives a fresh layout on a child widget (what an uncompacted embedded root keeps)."""
+    holder = GUI.QWidget()
+    child = GUI.QWidget(holder)
+    layout = GUI.QVBoxLayout(child)
+    return margins(layout)
 
 
 def margins(layout):
@@ -304,7 +313,7 @@ def test_add_tab_when_owned_built_in_a_root_then_page_reads_tab_inset(studio_qt)
         shell.add_tab(NS(build=lambda app, page=pages[name]: page, title=name))
     assert (margins(pages["added"].layout), pages["added"].layout.spacing()) == ((6, 6, 6, 6), 4)
     assert margins(pages["never"].layout) == (0, 0, 0, 0) and pages["never"].layout.spacing() == 4
-    assert margins(pages["roomy"].layout) != (6, 6, 6, 6), "compact=False stays at Qt defaults"
+    assert margins(pages["roomy"].layout) == qt_default(), "compact=False stays at exact Qt defaults"
 
 
 def test_add_tab_when_page_hosts_an_inner_owned_then_inner_stays_zero_and_about_is_plain(studio_qt):
@@ -318,3 +327,89 @@ def test_add_tab_when_page_hosts_an_inner_owned_then_inner_stays_zero_and_about_
     assert margins(inner.layout) == (0, 0, 0, 0), "an inner Owned adds no second inset"
     about = shell.about
     assert about.layout() is None, "About is a plain label: it has no layout of its own to inset"
+
+
+def test_owned_when_compact_false_inside_compacted_host_then_qt_defaults_and_sibling_zero(restore_modules, binding, studio_qt):
+    lifecycle = studio_qt.modules.lifecycle
+    seen = {}
+
+    def build(content):
+        layout = GUI.QVBoxLayout(content)
+        seen["compact"] = lifecycle.Owned(content)
+        seen["roomy"] = lifecycle.Owned(content, compact=False)
+        layout.addWidget(seen["compact"].widget)
+        layout.addWidget(seen["roomy"].widget)
+
+    main = GUI.QMainWindow()
+    owned = widgets.create_dialog(main, "T", build)
+    assert margins(seen["compact"].layout) == (0, 0, 0, 0)
+    assert margins(seen["roomy"].layout) == qt_default()
+    owned.close()
+
+
+def test_add_tab_when_builder_returns_an_owned_root_widget_then_page_reads_tab_inset(studio_qt):
+    lifecycle, appshell = studio_qt.modules.lifecycle, studio_qt.modules.appshell
+    shell = appshell.AppShell("T", None, package=lambda: None)
+    studio_qt.owned.append(shell)
+    page = lifecycle.Owned(shell.widget)
+    roomy = lifecycle.Owned(shell.widget, compact=False)
+    plain = GUI.QWidget()
+    plain_layout = GUI.QVBoxLayout(plain)
+    plain_layout.setContentsMargins(3, 3, 3, 3)
+    for name, built in (("page", page.widget), ("roomy", roomy.widget)):
+        shell.add_tab(NS(build=lambda app, built=built: built, title=name))
+    assert (margins(page.layout), page.layout.spacing()) == ((6, 6, 6, 6), 4)
+    assert margins(roomy.layout) == qt_default()
+
+
+def _wrapper(parent_layout_host, roots):
+    """A plain studio-style wrapper: default (Qt) layout holding Owned roots."""
+    wrapper = GUI.QWidget()
+    layout = GUI.QVBoxLayout(wrapper)
+    for root in roots:
+        layout.addWidget(root)
+    return wrapper, layout
+
+
+def test_add_tab_when_builder_returns_plain_wrappers_then_total_inset_is_six_even_nested(studio_qt):
+    lifecycle, appshell = studio_qt.modules.lifecycle, studio_qt.modules.appshell
+    shell = appshell.AppShell("T", None, package=lambda: None)
+    studio_qt.owned.append(shell)
+    inner = lifecycle.Owned(None)
+    outer_owned = lifecycle.Owned(None)
+    nested, nested_layout = _wrapper(None, [inner.widget])
+    wrapper, layout = _wrapper(None, [outer_owned.widget, nested])
+    shell.add_tab(NS(build=lambda app: wrapper, title="W"))
+    assert (margins(layout), layout.spacing()) == ((6, 6, 6, 6), 4)
+    assert margins(nested_layout) == (0, 0, 0, 0), "a nested wrapper adds no second inset"
+    assert margins(inner.layout) == (0, 0, 0, 0) and margins(outer_owned.layout) == (0, 0, 0, 0)
+    assert inner.layout.spacing() == 4 and nested_layout.spacing() == 4
+
+
+def test_add_tab_when_page_is_a_layoutless_widget_then_it_is_left_alone(studio_qt):
+    appshell = studio_qt.modules.appshell
+    shell = appshell.AppShell("T", None, package=lambda: None)
+    studio_qt.owned.append(shell)
+    label = GUI.QLabel("x")
+    shell.add_tab(NS(build=lambda app: label, title="L"))
+    assert label.layout() is None
+
+
+def test_add_tab_when_kerning_panel_is_built_by_its_real_class_then_wrapper_six_and_table_root_zero(
+        restore_modules, isolated_studio_modules, studio_qt, monkeypatch):
+    import sys
+
+    for name in [n for n in sys.modules if n.startswith("fontlabapp.fontui.") and n not in
+                 {"fontlabapp.fontui.lifecycle", "fontlabapp.fontui.table", "fontlabapp.fontui.appshell"}]:
+        monkeypatch.delitem(sys.modules, name)
+    import importlib
+
+    kui = importlib.import_module("fontlabapp.studios._kerning_ui")
+    appshell = studio_qt.modules.appshell
+    shell = appshell.AppShell("T", None, package=lambda: None)
+    studio_qt.owned.append(shell)
+    panel = kui.Panel(NS(shell=shell, views=[]))
+    grid = panel.table(["Pair"])
+    shell.add_tab(NS(build=lambda app: panel.widget, title="K"))
+    assert (margins(panel.layout), panel.layout.spacing()) == ((6, 6, 6, 6), 4)
+    assert margins(grid.layout) == (0, 0, 0, 0)
