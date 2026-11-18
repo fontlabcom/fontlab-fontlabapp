@@ -50,6 +50,23 @@ def test_owned_when_compact_false_then_qt_default(studio_qt):
     assert margins(owned.layout) != (6, 6, 6, 6)
 
 
+def test_owned_when_embedded_then_no_second_inset_and_top_level_is_compact(studio_qt):
+    lifecycle = studio_qt.modules.lifecycle
+    top = lifecycle.Owned(None)
+    studio_qt.owned.append(top)
+    inner = lifecycle.Owned(top.widget)
+    studio_qt.owned.append(inner)
+    tabs = GUI.QTabWidget()
+    in_tab = lifecycle.Owned(tabs)
+    studio_qt.owned.append(in_tab)
+    assert margins(top.layout) == (6, 6, 6, 6)
+    assert margins(inner.layout) != (6, 6, 6, 6), "embedded in another Owned: host supplies the inset"
+    assert margins(in_tab.layout) != (6, 6, 6, 6), "embedded in a tab container: no double inset"
+    forced = lifecycle.Owned(top.widget, compact=True)
+    studio_qt.owned.append(forced)
+    assert margins(forced.layout) != (6, 6, 6, 6), "embedding wins over the default"
+
+
 def test_create_dialog_when_build_makes_roomy_layout_then_compact(binding):
     seen = {}
 

@@ -8,8 +8,20 @@ from weakref import ref as _ref
 from fontlabapp.qt.compact import compact_layout
 
 
+def _embedded(parent):
+    """True when ``parent`` already insets its children: another Owned root or a tab/stack container."""
+    return parent is not None and (
+        getattr(parent, "_owned_root", False) or callable(getattr(parent, "addTab", None))
+        or callable(getattr(parent, "addWidget", None)) and callable(getattr(parent, "currentIndex", None))
+    )
+
+
 class Owned:
-    """Owned top-level widget; its root layout is compact (6 px / 4 px) unless ``compact=False``."""
+    """Owned widget; its root layout is compact (6 px / 4 px) unless ``compact=False``.
+
+    Compaction applies only to a window that is not embedded: an Owned whose parent is another
+    Owned's root or a tab/stack container keeps the host's inset (no double margin) and is left as built.
+    """
 
     def __init__(self, parent, *, compact=True):
         self.closed = False
@@ -22,6 +34,8 @@ class Owned:
         owner_ref = _ref(self)
 
         class Root(QtGui.QWidget):
+            _owned_root = True
+
             def closeEvent(self, event):
                 owner = owner_ref()
                 if owner is None:
@@ -37,7 +51,7 @@ class Owned:
 
         self.widget = Root(parent)
         self.layout = QtGui.QVBoxLayout(self.widget)
-        if compact:
+        if compact and not _embedded(parent):
             compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.connect(self.widget.destroyed, lambda *args: self._destroyed(), closing=True)
         self._own_observer = self.connections[-1]
