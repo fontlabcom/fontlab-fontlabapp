@@ -119,6 +119,8 @@ class Demo:
         layout = gui.QVBoxLayout(content)
         caption, self.status = gui.QLabel(CAPTION, content), gui.QLabel(IDLE, content)
         self.editor = designspace_panel(self.designspace, content, self.moved)
+        # The dialog layout already insets 6 px; the panel root adds none (no 12 px double inset).
+        self.editor.layout.setContentsMargins(0, 0, 0, 0)
         for label in (caption, self.status):
             label.setWordWrap(True)
         for widget in (caption, self.editor.widget, self.status):

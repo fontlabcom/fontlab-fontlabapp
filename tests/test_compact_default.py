@@ -50,21 +50,21 @@ def test_owned_when_compact_false_then_qt_default(studio_qt):
     assert margins(owned.layout) != (6, 6, 6, 6)
 
 
-def test_owned_when_embedded_then_no_second_inset_and_top_level_is_compact(studio_qt):
+def test_owned_when_embedded_then_inset_follows_the_host_and_top_level_is_compact(studio_qt):
     lifecycle = studio_qt.modules.lifecycle
     top = lifecycle.Owned(None)
-    studio_qt.owned.append(top)
     inner = lifecycle.Owned(top.widget)
-    studio_qt.owned.append(inner)
+    stack = GUI.QStackedWidget()
+    in_stack = lifecycle.Owned(stack)
     tabs = GUI.QTabWidget()
     in_tab = lifecycle.Owned(tabs)
-    studio_qt.owned.append(in_tab)
-    assert margins(top.layout) == (6, 6, 6, 6)
-    assert margins(inner.layout) != (6, 6, 6, 6), "embedded in another Owned: host supplies the inset"
-    assert margins(in_tab.layout) != (6, 6, 6, 6), "embedded in a tab container: no double inset"
-    forced = lifecycle.Owned(top.widget, compact=True)
-    studio_qt.owned.append(forced)
-    assert margins(forced.layout) != (6, 6, 6, 6), "embedding wins over the default"
+    roomy = lifecycle.Owned(top.widget, compact=False)
+    studio_qt.owned.extend([top, inner, in_stack, in_tab, roomy])
+    assert (margins(top.layout), top.layout.spacing()) == ((6, 6, 6, 6), 4), "top level: panel metrics"
+    assert (margins(inner.layout), inner.layout.spacing()) == ((0, 0, 0, 0), 4), "in another Owned: host insets"
+    assert (margins(in_stack.layout), in_stack.layout.spacing()) == ((0, 0, 0, 0), 4), "in a stack: host insets"
+    assert (margins(in_tab.layout), in_tab.layout.spacing()) == ((6, 6, 6, 6), 4), "a tab page has no inset of its own"
+    assert margins(roomy.layout) != (0, 0, 0, 0) and roomy.layout.spacing() != 4, "compact=False opts out"
 
 
 def test_create_dialog_when_build_makes_roomy_layout_then_compact(binding):
@@ -162,3 +162,28 @@ def test_designspace_panel_when_created_then_compact_metrics(studio_qt, monkeypa
     window = mod.DesignspacePanel(space)
     studio_qt.owned.append(window)
     assert margins(window.layout) == (6, 6, 6, 6) and window.layout.spacing() == 4
+
+
+def test_designspace_demo_when_built_in_real_qt_then_total_outer_inset_is_six(binding, studio_qt, monkeypatch):
+    """The demo's dialog layout is 6 px; the embedded panel root must add none (it was 6 + 6 = 12)."""
+    import importlib
+    import sys
+    from types import ModuleType
+
+    from _demo_support import run_script, script_path
+
+    monkeypatch.delitem(sys.modules, "fontlabapp.fontui.designspace", raising=False)
+    panel_mod = importlib.import_module("fontlabapp.fontui.designspace")
+    fly_fontui = ModuleType("fly.ap.fontui")
+    fly_fontui.designspace_panel = lambda ds, parent, cb: panel_mod.DesignspacePanel(ds, parent, cb)
+    monkeypatch.setitem(sys.modules, "fly.ap.fontui", fly_fontui)
+    names = run_script(script_path("Font Editors", "Designspace Panel Demo"), "imported")
+    scope = NS(connect=lambda *a, **k: None)
+    demo = names["Demo"](NS(QtGui=GUI, QtCore=QtCore), lambda sink: scope, names["SampleDesignspace"]())
+    main = GUI.QMainWindow()
+    demo.owned = widgets.create_dialog(main, "T", demo.build)
+    studio_qt.owned.append(demo.editor)
+    outer = margins(demo.editor.widget.parentWidget().layout())
+    assert outer == (6, 6, 6, 6), "the dialog layout supplies the 6 px inset"
+    assert margins(demo.editor.layout) == (0, 0, 0, 0), "the panel root adds no second inset"
+    demo.owned.close()
