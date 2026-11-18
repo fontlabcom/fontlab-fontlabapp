@@ -21,8 +21,6 @@ def rgb(image, x, y):
 
 
 def canvas_with(dark):
-    from _studio_qt import gui_namespace
-
     widget = type("W", (QtWidgets.QWidget,), {n: property(getattr(QtWidgets.QWidget, n)) for n in ("width", "height", "rect", "palette")})()
     widget.setPalette(palette(dark))
     widget.resize(120, 90)
@@ -65,11 +63,9 @@ def test_sequence_canvas_when_palette_is_dark_or_light_then_background_and_ink_f
     recording = [("moveTo", ((10, 10),)), ("lineTo", ((10, 60),)), ("lineTo", ((100, 60),)), ("lineTo", ((100, 10),)), ("closePath", ())]
     glyph = NS(index=0, name="A", x=0, advance=110, label="A")
     owner = NS(
-        font={"A": object()}, run=NS(glyphs=[glyph], direction="ltr"), outlines={"A": Outline(recording, (0, 0, 110, 70), 110, ())},
+        font=type("F", (dict,), {"keys": lambda s: list(s)})({"A": 1}), run=NS(glyphs=[glyph], direction="ltr"), outlines={"A": Outline(recording, (0, 0, 110, 70), 110, ())},
         positions=[(0, 0)], scale=1.0, origin_x=0, baseline=70, line_height=70, selected_index=-1, closed=False, fail=lambda e: pytest.fail(str(e)),
     )
-    owner.font = type("F", (dict,), {"keys": lambda s: list(s)})({"A": 1})
-    owner.positions = [(0, 0)]
     image = grab(canvas_with(dark), lambda w: module.paint(owner, w))
     assert rgb(image, 2, 2) == (DARK if dark else LIGHT), "canvas background follows the palette"
     ink = rgb(image, 50, 35)
