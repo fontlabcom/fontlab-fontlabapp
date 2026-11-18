@@ -658,6 +658,99 @@ class _Package:
         return _Glyph(self.layers)
 
 
+class _CountingKerning:
+    """Non-dict mapping: only ``items()`` works, and each call is counted."""
+
+    def __init__(self, pairs):
+        self._pairs = pairs
+        self.item_calls = 0
+
+    def items(self):
+        self.item_calls += 1
+        return list(self._pairs.items())
+
+    def __getitem__(self, key):
+        raise AssertionError("per-key kerning read")
+
+    def __iter__(self):
+        raise AssertionError("dict(mapping) style read")
+
+
+class _KernPackage(_Package):
+    def __init__(self, master, masters):
+        super().__init__(master)
+        self.masters = masters
+
+    def kerning(self, name):
+        return self.masters[name]
+
+
+def _kern_setup(tm_mod, monkeypatch, master="public.default"):
+    reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
+    masters = {"public.default": _CountingKerning({("A", "V"): -92}), "Bold": _CountingKerning({("A", "V"): -122})}
+    package = _KernPackage(master, masters)
+    monkeypatch.setattr(reads_mod, "package_of", lambda font: package)
+    window, _, font = make(tm_mod)
+    window.set_text("AV")
+    return window, package, masters, font
+
+
+def _kerns(window):
+    return [cell.kern for cell in window.model.cells]
+
+
+def test_kerning_when_master_switched_then_active_masters_pairs_shown_and_switch_back(tm_mod, monkeypatch):
+    window, package, masters, _ = _kern_setup(tm_mod, monkeypatch)
+    package.masters["public.default"]._pairs = {("A", "V"): -92}
+    window.follow()
+    default_kerns = _kerns(window)
+    package.master = "Bold"
+    window.follow()
+    bold_kerns = _kerns(window)
+    assert bold_kerns != default_kerns and bold_kerns[0] == -122 or -122 in bold_kerns, (default_kerns, bold_kerns)
+    assert window.model.settings.kerning
+    package.master = "public.default"
+    window.follow()
+    assert _kerns(window) == default_kerns, "switching back shows the default master's kerning again"
+
+
+def test_kerning_when_refreshed_repeatedly_then_one_snapshot_per_master(tm_mod, monkeypatch):
+    window, package, masters, _ = _kern_setup(tm_mod, monkeypatch, master="Bold")
+    counter = masters["Bold"]
+    for text in ("AVA", "VAV"):
+        before = counter.item_calls
+        window.set_text(text)
+        window.follow()
+        assert counter.item_calls - before <= 2, "at most one snapshot per refresh (set_text and follow each refresh once)"
+    before = counter.item_calls
+    window.follow()
+    assert counter.item_calls - before == 1, "one refresh reads the active master once"
+
+
+def test_kerning_write_when_master_is_not_default_then_refused_truthfully_and_default_unchanged(tm_mod, monkeypatch):
+    window, package, masters, font = _kern_setup(tm_mod, monkeypatch, master="Bold")
+    window.follow()
+    window.model.select(1)
+    before = dict(font.kerning.items())
+    assert not window.commit("kerning", "-50")
+    assert "default master" in window.diagnostic.text and "FontLab keeps" not in window.diagnostic.text
+    assert dict(font.kerning.items()) == before, "the default master's kerning is untouched"
+
+
+def test_kerning_when_native_master_read_fails_then_default_kerning_is_used(tm_mod, monkeypatch):
+    reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
+
+    class Broken(_Package):
+        def kerning(self, name):
+            raise RuntimeError("no such master")
+
+    package = Broken("Bold")
+    monkeypatch.setattr(reads_mod, "package_of", lambda font: package)
+    window, _, _ = make(tm_mod)
+    window.set_text("AV")
+    assert window.model.settings.kerning and window.diagnostic.text
+
+
 def _cell_widths(window, name):
     return [cell.width for cell in window.model.cells if cell.name == name]
 
@@ -674,8 +767,7 @@ def test_follow_when_fontlab_current_master_switched_then_its_widths_shown(tm_mo
     window.follow()
     assert _cell_widths(window, "A") == [700], "Current master follows flPackage.master, not defaultMaster"
     assert window.layer is None, "The choice stays 'Current master'"
-    assert not window._current_master(), "Font kerning belongs to defaultMaster, so it is not shown for Bold"
-    assert "kerning is unavailable for Bold" in window.diagnostic.text, window.diagnostic.text
+    assert "kerning is unavailable" not in window.diagnostic.text, window.diagnostic.text
     package.master = "public.default"
     window.set_text("AV")
     assert _cell_widths(window, "A") == default_width, "Switching back is seen on the next keystroke"
@@ -744,5 +836,5 @@ def test_kerning_commit_when_current_master_not_default_then_refused_in_status(t
     window.model.select(1)
     before = dict(font.kerning.items())
     assert window.commit("kerning", "-50") is False
-    assert "Bold cannot be targeted" in window.diagnostic.text, window.diagnostic.text
+    assert "not supported yet" in window.diagnostic.text, window.diagnostic.text
     assert dict(font.kerning.items()) == before, "No kerning written to the default master"

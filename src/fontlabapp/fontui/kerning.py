@@ -54,8 +54,8 @@ def apply_kerning(
         current = getattr(font, "defaultLayerName", None)
         if master != current:
             raise ValueError(
-                f"Kerning is written to the default master ({current}) only; "
-                f"{master} cannot be targeted."
+                f"Kerning edits on master {master} are not supported yet: its kerning is shown, "
+                f"but the editing backend writes only the default master ({current}). Nothing was changed."
             )
     pairs = font.kerning if pairs is None else pairs
     before = _snapshot(pairs) if before is None else before

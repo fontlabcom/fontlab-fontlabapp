@@ -44,7 +44,7 @@ def test_label_prefix_and_layer_when_writing_then_used_in_edit(tm_mod):  # noqa:
 def test_kerning_when_layer_not_current_master_then_refused_in_status(tm_mod):  # noqa: F811
     window = embedded(tm_mod, layer="Bold", label_prefix="Kerning Studio")
     assert window.commit("kerning", "-50") is False
-    assert "Kerning is written to the default master (public.default) only; Bold cannot be targeted." in window.diagnostic.text
+    assert "Kerning edits on master Bold are not supported yet" in window.diagnostic.text
     assert "current master" not in window.diagnostic.text
 
 

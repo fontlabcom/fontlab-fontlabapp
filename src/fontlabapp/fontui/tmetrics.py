@@ -284,7 +284,7 @@ class TMetrics(Owned):
                 direction="rtl" if self.direction_control.currentIndex == 1 else "ltr",
                 script=self.script_control.text,
                 language=self.language_control.text,
-                kerning=bool(self.kerning_control.checked) and self._current_master(),
+                kerning=bool(self.kerning_control.checked),
                 size=float(self.size_control.value),
             )
             self._see_new_glyph_names()
@@ -302,11 +302,6 @@ class TMetrics(Owned):
                 status += (
                     f"; FontLab's current master {unresolved} has no layer of that name, "
                     f"so the default master ({getattr(self._reads, 'defaultLayerName', None)}) is shown."
-                )
-            if not self._current_master():
-                status += (
-                    f"; kerning is unavailable for {self._target_layer()}; FontLab keeps font kerning "
-                    f"on the default master ({getattr(self._reads, 'defaultLayerName', None)})."
                 )
             self.diagnostic.setText(status)
             self._relayout()
@@ -353,6 +348,7 @@ class TMetrics(Owned):
             self._forget_font_reads()
         self.model.font = self._reads
         self.model.layer = self._target_layer()
+        self._reads.kerning_master = self.model.layer  # kerning follows the active master
 
     def _fill_layers(self) -> None:
         from .tglyph_model import layer_names
@@ -382,7 +378,7 @@ class TMetrics(Owned):
         return None if current in (None, getattr(self._reads, "defaultLayerName", None)) else current
 
     def _current_master(self) -> bool:
-        """True when the target layer is the default master, which owns font kerning."""
+        """True when the target layer is the default master, the only master whose kerning can be written."""
         # FontParts checks the name against every layer of the font: read it once per refresh.
         return self._target_layer() in (None, getattr(self._reads, "defaultLayerName", None))
 
@@ -574,8 +570,8 @@ class TMetrics(Owned):
 
     def _show_selection(self) -> None:
         glyph = self.model.glyph_readout()
-        pair = self.model.pair_readout() if self._current_master() else None
-        self.kern_control.setEnabled(self._current_master() and not self.read_only)
+        pair = self.model.pair_readout()
+        self.kern_control.setEnabled(not self.read_only)
         self.readout.setText(glyph.text() if glyph else "")
         self.pair_readout.setText(pair.text() if pair else "")
         values = {"lsb": glyph.lsb, "rsb": glyph.rsb, "width": glyph.advance} if glyph else {}

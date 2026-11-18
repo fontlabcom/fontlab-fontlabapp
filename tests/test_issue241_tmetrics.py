@@ -37,10 +37,8 @@ def test_master_selection_targets_layer_metrics_and_refuses_wrong_master_kerning
     window.layer_control.setCurrentIndex(2)
     assert window.layer == window.model.layer == "Bold"
     assert window.model.cells[0].width == 700
-    assert "kerning is unavailable" in window.diagnostic.text
-    assert not window.model.settings.kerning
-    assert all(cell.kern == 0 for cell in window.model.cells)
-    assert window.pair_readout.text == ""
+    assert "kerning is unavailable" not in window.diagnostic.text
+    assert window.model.settings.kerning
     window.model.select(0)
     assert window.commit("width", "720")
     assert window.font.getLayer("Bold")["A"].width == 720

@@ -89,7 +89,7 @@ def test_apply_kerning_when_master_is_current_then_writes_with_label(apply_kerni
 
 def test_apply_kerning_when_master_not_current_then_refused_before_write(apply_kerning):
     font = kerning_font()
-    with pytest.raises(ValueError, match=r"default master \(Regular\) only; Bold cannot be targeted\."):
+    with pytest.raises(ValueError, match=r"Kerning edits on master Bold are not supported yet"):
         apply_kerning(font, "apply", ("L", "T"), -40, undo_name="x", master="Bold")
     assert font.kerning.applied == []
 
