@@ -555,3 +555,13 @@ def test_selection_when_occurrence_has_no_glyph_then_notice_keeps_tool_open(comp
     assert not owner._closing and not owner._released
     owner.sequence._select_occurrence(run.glyphs[0])
     assert owner.rows == (("Light", 500.25), ("Middle", None), ("Bold", 750.75))
+
+
+def test_window_when_compact_then_host_margin_is_six_and_embedded_preview_is_zero(comparison):
+    owner, _, _, _, _ = comparison
+    host = owner.sequence.widget.parentWidget().layout()
+    margins = host.contentsMargins()
+    assert (margins.left(), margins.top(), margins.right(), margins.bottom()) == (6, 6, 6, 6), (
+        "the preview sits 6 px from the window edge, never against it")
+    inner = owner.sequence.widget.layout().contentsMargins()
+    assert inner.left() == 0, "the embedded sequence adds no second margin"
