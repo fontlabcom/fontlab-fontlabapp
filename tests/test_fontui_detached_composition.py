@@ -12,6 +12,19 @@ from _detached_transform_fixture import (
 scene = _scene_fixture
 
 
+@pytest.mark.parametrize('scene', [False], indirect=True)
+def test_window_when_compact_then_host_margin_is_six_and_embedded_previews_are_zero(scene):
+    owner = capture(scene)
+    stage = owner.active
+    margins = owner.layout.contentsMargins()
+    assert (margins.left(), margins.top(), margins.right(), margins.bottom()) == (6, 6, 6, 6), (
+        'the previews sit 6 px from the window edge, never against it')
+    for peer in (stage.before, stage.after):
+        inner = peer.widget.layout().contentsMargins()
+        assert inner.left() == 0, 'an embedded preview adds no second margin'
+    scene.check()
+
+
 @pytest.mark.parametrize('scene', [False, True], indirect=True)
 def test_capture_when_explicit_then_stored_closure_and_no_borrowed_binding_mutation(scene):
     owner = capture(scene)

@@ -19,7 +19,12 @@ QT_SLOTS = frozenset(
 
 
 def bound_slots(tree: ast.AST) -> list[tuple[int, str]]:
-    """Return (line, text) of ``x.connect(<expr>.<qt-slot>)`` where ``<expr>`` is not bare self."""
+    """Return (line, text) of ``x.connect(<expr>.<qt-slot>)`` where ``<expr>`` is not bare self.
+
+    Bare ``self.<slot>`` is exempt on purpose: many of our classes define their own Python ``close``/``show``.
+    If ``self`` is itself a QWidget subclass that does not override the method, PythonQt ignores that connect
+    too, and this scan cannot tell; use a lambda or a plain function there.
+    """
     found = []
     for node in ast.walk(tree):
         if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "connect"):

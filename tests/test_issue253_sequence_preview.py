@@ -45,14 +45,23 @@ def grab(widget, paint):
 
 
 @pytest.fixture(autouse=True)
-def _drop_fake_bound_modules():
-    """Modules loaded here bind the fake Qt; drop them so later tests import real ones."""
+def _restore_fontui_modules():
+    """Modules loaded here bind the fake Qt; afterwards put back what was loaded before."""
+    parent = sys.modules.get("fontlabapp.fontui")
+    saved = {n: sys.modules.get("fontlabapp.fontui." + n) for n in MODULES}
+    attrs = {n: getattr(parent, n) for n in MODULES if parent is not None and hasattr(parent, n)}
     yield
-    for name in MODULES:
-        sys.modules.pop("fontlabapp.fontui." + name, None)
-        parent = sys.modules.get("fontlabapp.fontui")
-        if parent is not None and hasattr(parent, name):
-            delattr(parent, name)
+    for name, module in saved.items():
+        if module is None:
+            sys.modules.pop("fontlabapp.fontui." + name, None)
+        else:
+            sys.modules["fontlabapp.fontui." + name] = module
+    if parent is not None:
+        for name in MODULES:
+            if name in attrs:
+                setattr(parent, name, attrs[name])
+            elif hasattr(parent, name):
+                delattr(parent, name)
 
 
 def load(name):
