@@ -158,7 +158,7 @@ def _assert_lifecycle_origin(module):
     import os
     from pathlib import Path
 
-    approved_hash = "9f24aed160cda3636da75473ca781f5d0d045e3fc7aee5121d51aeb734edc229"
+    approved_hash = "3aba977d29e639bfece85bd334c44d96dd063c9f108e3853b62e3545de11aaf8"
     record_path = os.environ.get("FONTLABAPP_READER_ORIGIN_RECORD")
     record_hash = os.environ.get("FONTLABAPP_READER_ORIGIN_SHA256")
     if record_path is None:

@@ -14,6 +14,30 @@ studio_qt = _studio_qt
 del _studio_qt
 
 
+@pytest.fixture
+def restore_modules():
+    """Put every ``fontlabapp`` module (and parent-package attribute) back as it was after the test."""
+    import sys
+
+    saved = {n: m for n, m in sys.modules.items() if n.startswith("fontlabapp")}
+    attrs = {}
+    for name, module in saved.items():
+        parent, _, leaf = name.rpartition(".")
+        if parent in saved and hasattr(saved[parent], leaf):
+            attrs[name] = getattr(saved[parent], leaf)
+    yield
+    for name in [n for n in sys.modules if n.startswith("fontlabapp") and n not in saved]:
+        del sys.modules[name]
+    sys.modules.update(saved)
+    for name, value in attrs.items():
+        parent, _, leaf = name.rpartition(".")
+        setattr(saved[parent], leaf, value)
+    for name in list(sys.modules):
+        parent, _, leaf = name.rpartition(".")
+        if name.startswith("fontlabapp") and name not in saved and parent in saved and hasattr(saved[parent], leaf):
+            delattr(saved[parent], leaf)
+
+
 def margins(layout):
     m = layout.contentsMargins()
     return (m.left(), m.top(), m.right(), m.bottom())
@@ -164,26 +188,95 @@ def test_designspace_panel_when_created_then_compact_metrics(studio_qt, monkeypa
     assert margins(window.layout) == (6, 6, 6, 6) and window.layout.spacing() == 4
 
 
-def test_designspace_demo_when_built_in_real_qt_then_total_outer_inset_is_six(binding, studio_qt, monkeypatch):
-    """The demo's dialog layout is 6 px; the embedded panel root must add none (it was 6 + 6 = 12)."""
+DEMOS = [  # script, fontui factory, how the demo script makes its model
+    ("Designspace Panel Demo", "designspace_panel", lambda n: n["SampleDesignspace"]()),
+    ("Font Info Editor Demo", "font_info_editor", lambda n: n["SampleFont"](n["sample_info"]())),
+    ("Font Browser Demo", "font_browser", lambda n: [n["sample_ufo"](*f) for f in n["FONTS"]]),
+    ("Groups Editor Demo", "groups_editor", lambda n: n["SampleFont"](n["sample_ufo"]())),
+    ("FontParts Features Editor Demo", "features_editor", lambda n: n["SampleFont"]()),
+    ("FontParts Kerning Editor Demo", "kerning_editor", lambda n: n["SampleFont"](n["sample_ufo"]())),
+    ("Glyph Sequence Demo", "glyph_sequence", lambda n: n["sample_ufo"]()),
+    ("Glyph Browser Demo", "glyph_browser", lambda n: n["sample_ufo"]()),
+    ("Transform Editor Demo", "transform_editor", lambda n: n["sample_ufo"]()),
+]
+
+
+@pytest.mark.parametrize("title,factory,model", DEMOS, ids=[d[0] for d in DEMOS])
+def test_editor_demo_when_built_in_real_qt_then_total_outer_inset_is_six(
+    restore_modules, binding, studio_qt, monkeypatch, title, factory, model
+):
+    """Dialog layout 6 px + embedded panel root 0 px (it was 6 + 6 = 12) for each font-editor demo."""
+    if factory == "kerning_editor":
+        pytest.skip("KerningEditor reads PythonQt's `.text` property, a method in PySide6; see the shape test")
     import importlib
     import sys
     from types import ModuleType
 
     from _demo_support import run_script, script_path
 
-    monkeypatch.delitem(sys.modules, "fontlabapp.fontui.designspace", raising=False)
-    panel_mod = importlib.import_module("fontlabapp.fontui.designspace")
+    keep = {"fontlabapp.fontui", "fontlabapp.fontui.lifecycle", "fontlabapp.fontui.table", "fontlabapp.fontui.appshell"}
+    for name in [n for n in sys.modules if n.startswith("fontlabapp.fontui.") and n not in keep]:
+        monkeypatch.delitem(sys.modules, name)  # rebind the editors to this test's real Qt
     fly_fontui = ModuleType("fly.ap.fontui")
-    fly_fontui.designspace_panel = lambda ds, parent, cb: panel_mod.DesignspacePanel(ds, parent, cb)
+    real = importlib.import_module("fontlabapp.fontui")
+    setattr(fly_fontui, factory, getattr(real, factory))
     monkeypatch.setitem(sys.modules, "fly.ap.fontui", fly_fontui)
-    names = run_script(script_path("Font Editors", "Designspace Panel Demo"), "imported")
+    names = run_script(script_path("Font Editors", title), "imported")
     scope = NS(connect=lambda *a, **k: None)
-    demo = names["Demo"](NS(QtGui=GUI, QtCore=QtCore), lambda sink: scope, names["SampleDesignspace"]())
-    main = GUI.QMainWindow()
+    args = (NS(QtGui=GUI, QtCore=QtCore), lambda sink: scope, model(names))
+    demo = names["Demo"](*args)
+    main = GUI.QMainWindow()  # keep a reference: the dialog dies with it
     demo.owned = widgets.create_dialog(main, "T", demo.build)
-    studio_qt.owned.append(demo.editor)
-    outer = margins(demo.editor.widget.parentWidget().layout())
-    assert outer == (6, 6, 6, 6), "the dialog layout supplies the 6 px inset"
-    assert margins(demo.editor.layout) == (0, 0, 0, 0), "the panel root adds no second inset"
+    assert margins(demo.editor.widget.parentWidget().layout()) == (6, 6, 6, 6), "dialog supplies the inset"
+    assert margins(demo.editor.layout) == (0, 0, 0, 0), "the panel root adds none"
     demo.owned.close()
+
+
+def _shaped(factory_name, make_args):
+    def build(content):
+        import fontlabapp.fontui as fontui
+
+        layout = GUI.QVBoxLayout(content)
+        content.editor = getattr(fontui, factory_name)(*make_args(), parent=content)
+        layout.addWidget(content.editor.widget)
+    return build
+
+
+SHAPES = [  # the four src windows hand-build `QVBoxLayout(content)` + `factory(parent=content)` like this
+    ("features_editor (feature_proof.py:61)", lambda: _shaped("features_editor", lambda: (_FakeFont(),))),
+    ("glyph_sequence (feature_proof.py:63, detached_transform.py:255)", lambda: _shaped("glyph_sequence", lambda: (_FakeFont(),))),
+    ("transform_editor (batch_recipes.py:39, detached_transform.py:248)", lambda: _shaped("transform_editor", lambda: (None,))),
+]
+
+
+class _FakeFont:
+    def __init__(self):
+        from _cov_qt import FontModel, ufo_font
+
+        self.__dict__.update(FontModel(ufo_font()).__dict__)
+
+    def keys(self):
+        return list(self.ufo.keys())
+
+    def __getitem__(self, name):
+        return self.ufo[name]
+
+    def __contains__(self, name):
+        return name in self.ufo
+
+
+@pytest.mark.parametrize("label,builder", SHAPES, ids=[s[0] for s in SHAPES])
+def test_src_window_shapes_when_built_in_dialog_then_total_outer_inset_is_six(restore_modules, binding, studio_qt, monkeypatch, label, builder):
+    import sys
+
+    keep = {"fontlabapp.fontui", "fontlabapp.fontui.lifecycle", "fontlabapp.fontui.table", "fontlabapp.fontui.appshell"}
+    for name in [n for n in sys.modules if n.startswith("fontlabapp.fontui.") and n not in keep]:
+        monkeypatch.delitem(sys.modules, name)
+    main = GUI.QMainWindow()
+    seen = {}
+    build = builder()
+    owned = widgets.create_dialog(main, "T", lambda content: (build(content), seen.update(editor=content.editor)))
+    editor = seen["editor"]
+    assert margins(editor.widget.parentWidget().layout()) == (6, 6, 6, 6)
+    assert margins(editor.layout) == (0, 0, 0, 0), "the embedded root adds no second inset"
+    owned.close()

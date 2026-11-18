@@ -25,6 +25,32 @@ _LOG = logging.getLogger(__name__)
 MARGIN = 6  # outer margin of a dialog or palette, px (Proteus panels: 4-8)
 SPACING = 4  # gap between controls, px (Proteus panels: 0-4)
 SIDES = ("top", "right")
+_HOST_PROPERTY = "fontlab_compact_host"  # set on a widget whose layout supplies the 6 px outer inset
+_ROOT_PROPERTY = "fontlab_owned_root"  # set on the root widget of an ``Owned`` window
+
+
+def _mark_host(widget: Any) -> None:
+    """Record that ``widget``'s layout already insets its children (best effort, cosmetic)."""
+    try:
+        widget.setProperty(_HOST_PROPERTY, True)
+    except Exception:  # noqa: BLE001 - a wrapper without dynamic properties just skips the mark
+        _LOG.debug("_mark_host: %r takes no dynamic property", widget)
+
+
+def _mark_root(widget: Any) -> None:
+    """Record that ``widget`` is the root of an ``Owned`` window (best effort, cosmetic)."""
+    try:
+        widget.setProperty(_ROOT_PROPERTY, True)
+    except Exception:  # noqa: BLE001 - a wrapper without dynamic properties just skips the mark
+        _LOG.debug("mark_root: %r takes no dynamic property", widget)
+
+
+def _is_host(widget: Any) -> bool:
+    """True when ``widget`` was marked by ``compact_layout``/``compact`` as supplying the outer inset."""
+    try:
+        return bool(widget.property(_HOST_PROPERTY))
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def compact_layout(layout: Any, margin: int = MARGIN, spacing: int = SPACING) -> Any:
@@ -42,6 +68,11 @@ def compact_layout(layout: Any, margin: int = MARGIN, spacing: int = SPACING) ->
         return layout
     margins(margin, margin, margin, margin)
     spacing_setter(spacing)
+    if margin > 0:
+        owner = getattr(layout, "parentWidget", None)
+        owner = owner() if callable(owner) else None
+        if owner is not None:
+            _mark_host(owner)
     return layout
 
 
@@ -55,6 +86,7 @@ def compact(widget: Any, margin: int = MARGIN, spacing: int = SPACING) -> Any:
     own = widget.layout()
     if own is not None:
         compact_layout(own, margin, spacing)
+        _flatten_embedded_roots(widget)
     qt = _qt()
     for layout in widget.findChildren(qt.QtGui.QLayout):
         if own is not None and _same(layout, own):
@@ -64,6 +96,17 @@ def compact(widget: Any, margin: int = MARGIN, spacing: int = SPACING) -> Any:
             continue
         _cap_margins(layout, margin)
     return widget
+
+
+def _flatten_embedded_roots(widget: Any) -> None:
+    """Give ``Owned`` roots built directly inside ``widget`` margin 0: ``widget``'s layout is their inset."""
+    for child in widget.findChildren(_qt().QtGui.QWidget):
+        try:
+            direct = child.parentWidget() is widget or _same(child.parentWidget(), widget)
+            if direct and child.property(_ROOT_PROPERTY) and child.layout() is not None:
+                child.layout().setContentsMargins(0, 0, 0, 0)
+        except Exception:  # noqa: BLE001 - cosmetic; never stop a window opening
+            _LOG.debug("compact: could not flatten %r", child)
 
 
 def _same(left: Any, right: Any) -> bool:

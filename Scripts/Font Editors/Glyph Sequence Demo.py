@@ -106,8 +106,6 @@ class Demo:
         layout = gui.QVBoxLayout(content)
         caption, self.status = gui.QLabel(CAPTION, content), gui.QLabel(IDLE, content)
         self.editor = glyph_sequence(self.font, content, self.selected)
-        # The dialog layout already insets 6 px; the panel root adds none (no 12 px double inset).
-        self.editor.layout.setContentsMargins(0, 0, 0, 0)
         self.editor.text_control.setText(START_TEXT)
         for label in (caption, self.status):
             label.setWordWrap(True)

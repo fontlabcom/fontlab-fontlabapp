@@ -5,7 +5,7 @@
 from PythonQt import QtGui
 from weakref import ref as _ref
 
-from fontlabapp.qt.compact import MARGIN, compact_layout
+from fontlabapp.qt.compact import MARGIN, _mark_root, compact_layout, _is_host
 
 
 def _host_inset(parent):
@@ -19,7 +19,7 @@ def _host_inset(parent):
         return None
     if callable(getattr(parent, "addTab", None)):
         return MARGIN
-    if getattr(parent, "_owned_root", False) or (
+    if _is_host(parent) or getattr(parent, "_owned_root", False) or (
         callable(getattr(parent, "addWidget", None)) and callable(getattr(parent, "currentIndex", None))
     ):
         return 0
@@ -61,6 +61,7 @@ class Owned:
                     event.accept()
 
         self.widget = Root(parent)
+        _mark_root(self.widget)
         self.layout = QtGui.QVBoxLayout(self.widget)
         if compact:
             inset = _host_inset(parent)
