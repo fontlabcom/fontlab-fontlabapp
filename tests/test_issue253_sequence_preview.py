@@ -44,6 +44,17 @@ def grab(widget, paint):
     return image
 
 
+@pytest.fixture(autouse=True)
+def _drop_fake_bound_modules():
+    """Modules loaded here bind the fake Qt; drop them so later tests import real ones."""
+    yield
+    for name in MODULES:
+        sys.modules.pop("fontlabapp.fontui." + name, None)
+        parent = sys.modules.get("fontlabapp.fontui")
+        if parent is not None and hasattr(parent, name):
+            delattr(parent, name)
+
+
 def load(name):
     sys.modules.pop("fontlabapp.fontui." + name, None)
     return importlib.import_module("fontlabapp.fontui." + name)
