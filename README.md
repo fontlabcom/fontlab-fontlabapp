@@ -178,9 +178,9 @@ Optional extras:
 | `markdown` | Python-Markdown and PyMdown conversion |
 | `hotkeys` | macOS Quartz hooks; needs existing Accessibility permission |
 | `unicode` | Extended Unicode data through unicodedata2 |
-| `fontui` | fontTools for outline and browser helpers |
+| `fontui` | Kept for existing install lines; fontTools is now a core dependency |
 | `fontport` | `fontlab-fontport` and its fontParts/UFO stack, which the six FontParts editors and feature helpers in `fontlabapp.fontui` need |
-| `fontui-shaping` | fontTools and uharfbuzz, which TMetrics uses to shape text; without them it maps characters one to one and says the text is unshaped |
+| `fontui-shaping` | Kept for existing install lines; fontTools and uharfbuzz are now core dependencies. TMetrics shapes with them; if the import fails on an odd platform it maps characters one to one and says the text is unshaped |
 
 Windows global hotkeys are not implemented. macOS global capture remains unverified. No feature compiler is supplied.
 

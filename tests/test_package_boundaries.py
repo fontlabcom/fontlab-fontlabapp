@@ -215,3 +215,11 @@ def test_studio_sources_when_parsed_then_only_public_app_surfaces_imported() -> 
         if (bad := [n for n in studio_imports(path.read_text(encoding="utf-8")) if studio_offence(n)])
     }
     assert not offenders, f"studio imports outside fontui/core/hints/fontlab: {offenders}"
+
+
+def test_pyproject_when_read_then_shaping_libraries_are_core_dependencies() -> None:
+    data = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    core = {req.split(">")[0].split("=")[0].split("<")[0].strip().lower() for req in data["project"]["dependencies"]}
+    assert {"fonttools", "uharfbuzz"} <= core, core
+    extras = data["project"]["optional-dependencies"]
+    assert "fontui" in extras and "fontui-shaping" in extras, "old install lines keep resolving"

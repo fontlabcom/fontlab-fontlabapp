@@ -52,6 +52,7 @@ Optional extras, all imported lazily with fallbacks:
   for global hotkeys.
 - `unicode`: unicodedata2>=15 (Apache-2.0) provides newer Unicode data for
   normalisation; otherwise the stdlib `unicodedata` is used.
+- Core: fontTools>=4.59 and uharfbuzz>=0.39 (shipped as core dependencies since v1.2.40; TMetrics needs both to shape, and the first shaped display compiles the font once (about 3 s on Lato, about 0.2 s per later refresh); it falls back to an unshaped layout with a status note if the import fails). The `fontui` and `fontui-shaping` extras remain, repeating them, so old install lines resolve.
 - `fontui`: fontTools>=4.59 for outline decomposition, curve bounds and Qt paths
   in the original explicit-model browsers and glyph preview. The caller supplies
   its FontParts, defcon or ufoLib2 model; nothing is opened implicitly.
