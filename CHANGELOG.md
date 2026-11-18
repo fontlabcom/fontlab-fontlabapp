@@ -2,7 +2,7 @@
 this_file: CHANGELOG.md
 ---
 
-## 2026-11-18 — compact is the default for every fontlabapp window (Issue 253)
+## 2026-11-18 — v1.2.38: compact is the default for every fontlabapp window (Issue 253)
 
 - `Owned`, `create_panel`, `create_dialog` and `create_widget` now apply FontLab panel metrics (6 px margins, 4 px spacing) by default; pass `compact=False` to keep Qt's roomy 11/6. Tab pages inside compact windows are capped to the same margins. Redundant per-window `compact_layout` calls were removed. An `Owned` embedded in another `Owned` or in a tab/stack container keeps the host's inset (no double margin).
 - `controls_box` and `split_view(side="right")` exist but no window adopts them yet (TGlyph and TMetrics are already view-first).
