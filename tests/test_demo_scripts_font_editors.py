@@ -884,8 +884,9 @@ def test_transform_when_settings_are_loaded_then_the_fields_take_the_saved_recip
     assert demo.status.text == "Preview of A: matrix (1.5, 0, 0, 1, 10, 0) at 50%. The sample is unchanged."
 
 
-def test_transform_when_the_view_buttons_are_used_then_only_the_view_changes(host) -> None:
+def test_transform_when_the_view_buttons_are_used_then_only_the_view_changes(host, monkeypatch) -> None:
     names, demo, editor = transform_parts(host)
+    light_canvas(monkeypatch, sys.modules["fontlabapp.fontui.transform_view"])
     editor.buttons["zoom"].clicked.emit()
     assert editor.zoom == 1.25
     editor.buttons["view"].clicked.emit()
@@ -1058,8 +1059,9 @@ def glyphs_parts(host):
     return names, demo, demo.editor
 
 
-def test_glyphs_when_opened_then_every_glyph_is_listed_and_several_may_be_selected(host) -> None:
+def test_glyphs_when_opened_then_every_glyph_is_listed_and_several_may_be_selected(host, monkeypatch) -> None:
     names, demo, editor = glyphs_parts(host)
+    light_canvas(monkeypatch, sys.modules["fontlabapp.fontui.native"])
     assert texts(editor.glyph_list) == ["A", "V", "T", "O", "space"] and editor.count_label.text == "5 glyphs"
     assert ("setSelectionMode", ("ExtendedSelection",)) in editor.glyph_list.calls, "multiple selection was requested"
     editor.icon_timer.timeout.emit()  # thumbnails paint on the next idle turn
