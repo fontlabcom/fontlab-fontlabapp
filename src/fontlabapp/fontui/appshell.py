@@ -120,6 +120,8 @@ class AppShell(Owned):
     def add_tab(self, spec: Any) -> Any:
         """Build ``spec`` into a new tab and return what ``spec.build`` returned."""
         built = spec.build(self)
+        if isinstance(built, Owned):
+            built.as_tab_page()  # built as Owned(shell.widget), so only now is it a tab page
         self.tabs.insertTab(self.tabs.indexOf(self.about), self.embed(built), spec.title)
         if value(self.tabs, "count") == 2:
             self.tabs.setCurrentIndex(0)

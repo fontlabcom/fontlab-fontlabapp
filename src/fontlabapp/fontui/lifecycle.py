@@ -11,17 +11,18 @@ from fontlabapp.qt.compact import MARGIN, _mark_root, compact_layout, _is_host
 def _host_inset(parent):
     """Outer margin an Owned root needs inside ``parent``: ``None`` top level, ``0`` host insets, ``6`` tab page.
 
-    Another Owned root and a stack container (``addWidget`` + ``currentIndex``) supply their own inset, so
-    the embedded root adds none; a tab container's pages have no inset of their own, so the root keeps
-    FontLab panel metrics.
+    A tab container (or the internal page stack of one) has no inset of its own, so a page root keeps
+    FontLab panel metrics. Another Owned root or a compacted host supplies the inset, so the embedded root
+    adds none. Any other parent (a stand-alone stack included) supplies nothing: ``None`` (6 px).
     """
     if parent is None:
         return None
     if callable(getattr(parent, "addTab", None)):
         return MARGIN
-    if _is_host(parent) or getattr(parent, "_owned_root", False) or (
-        callable(getattr(parent, "addWidget", None)) and callable(getattr(parent, "currentIndex", None))
-    ):
+    grand = parent.parentWidget() if callable(getattr(parent, "parentWidget", None)) else None
+    if callable(getattr(parent, "currentIndex", None)) and callable(getattr(grand, "addTab", None)):
+        return MARGIN  # the QTabWidget's internal page stack
+    if _is_host(parent) or getattr(parent, "_owned_root", False):
         return 0
     return None
 
@@ -29,9 +30,10 @@ def _host_inset(parent):
 class Owned:
     """Owned widget; its root layout is compact (6 px / 4 px) unless ``compact=False``.
 
-    An Owned embedded in another Owned's root or a stack container gets margin 0 (the host supplies the
-    inset, so there is no double margin); one in a tab container gets 6 px / 4 px (a tab page has no inset);
-    ``compact=False`` leaves the layout at Qt defaults in every case.
+    An Owned embedded in another Owned's root or a compacted host gets margin 0 (the host supplies the
+    inset, so there is no double margin); one that is a tab page, built into a tab container or added
+    later through ``as_tab_page`` (``AppShell.add_tab``), gets 6 px / 4 px; ``compact=False`` leaves the
+    layout at Qt defaults in every case.
     """
 
     def __init__(self, parent, *, compact=True):
@@ -63,6 +65,7 @@ class Owned:
         self.widget = Root(parent)
         _mark_root(self.widget)
         self.layout = QtGui.QVBoxLayout(self.widget)
+        self._compact = compact
         if compact:
             inset = _host_inset(parent)
             compact_layout(self.layout, MARGIN if inset is None else inset)  # FontLab panel metrics, issue 253
@@ -71,6 +74,11 @@ class Owned:
         if parent is not None:
             self.connect(parent.destroyed, lambda *args: self._parent_destroyed(), closing=True)
             self._parent_observer = self.connections[-1]
+
+    def as_tab_page(self):
+        """Give the root the tab-page inset (6 px / 4 px) unless built with ``compact=False``."""
+        if self._compact:
+            compact_layout(self.layout)
 
     def _destroyed(self):
         self.destroying = True

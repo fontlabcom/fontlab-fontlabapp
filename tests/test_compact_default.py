@@ -74,19 +74,30 @@ def test_owned_when_compact_false_then_qt_default(studio_qt):
     assert margins(owned.layout) != (6, 6, 6, 6)
 
 
+_KEEP = []
+
+
+def tabs_for_stack():
+    tabs = GUI.QTabWidget()
+    _KEEP.append(tabs)
+    return tabs
+
+
 def test_owned_when_embedded_then_inset_follows_the_host_and_top_level_is_compact(studio_qt):
     lifecycle = studio_qt.modules.lifecycle
     top = lifecycle.Owned(None)
     inner = lifecycle.Owned(top.widget)
+    in_tab_stack = lifecycle.Owned(tabs_for_stack().findChild(GUI.QStackedWidget))
     stack = GUI.QStackedWidget()
     in_stack = lifecycle.Owned(stack)
     tabs = GUI.QTabWidget()
     in_tab = lifecycle.Owned(tabs)
     roomy = lifecycle.Owned(top.widget, compact=False)
-    studio_qt.owned.extend([top, inner, in_stack, in_tab, roomy])
+    studio_qt.owned.extend([top, inner, in_stack, in_tab, in_tab_stack, roomy])
     assert (margins(top.layout), top.layout.spacing()) == ((6, 6, 6, 6), 4), "top level: panel metrics"
     assert (margins(inner.layout), inner.layout.spacing()) == ((0, 0, 0, 0), 4), "in another Owned: host insets"
-    assert (margins(in_stack.layout), in_stack.layout.spacing()) == ((0, 0, 0, 0), 4), "in a stack: host insets"
+    assert (margins(in_stack.layout), in_stack.layout.spacing()) == ((6, 6, 6, 6), 4), "a stand-alone stack supplies nothing"
+    assert (margins(in_tab_stack.layout), in_tab_stack.layout.spacing()) == ((6, 6, 6, 6), 4), "tab widget's page stack"
     assert (margins(in_tab.layout), in_tab.layout.spacing()) == ((6, 6, 6, 6), 4), "a tab page has no inset of its own"
     assert margins(roomy.layout) != (0, 0, 0, 0) and roomy.layout.spacing() != 4, "compact=False opts out"
 
@@ -280,3 +291,16 @@ def test_src_window_shapes_when_built_in_dialog_then_total_outer_inset_is_six(re
     assert margins(editor.widget.parentWidget().layout()) == (6, 6, 6, 6)
     assert margins(editor.layout) == (0, 0, 0, 0), "the embedded root adds no second inset"
     owned.close()
+
+
+def test_add_tab_when_owned_built_in_a_root_then_page_reads_tab_inset(studio_qt):
+    lifecycle, appshell = studio_qt.modules.lifecycle, studio_qt.modules.appshell
+    shell = appshell.AppShell("T", None, package=lambda: None)
+    studio_qt.owned.append(shell)
+    pages = {name: lifecycle.Owned(shell.widget, compact=name != "roomy") for name in ("added", "never", "roomy")}
+    assert all(margins(p.layout) == (0, 0, 0, 0) or name == "roomy" for name, p in pages.items())
+    for name in ("added", "roomy"):
+        shell.add_tab(NS(build=lambda app, page=pages[name]: page, title=name))
+    assert (margins(pages["added"].layout), pages["added"].layout.spacing()) == ((6, 6, 6, 6), 4)
+    assert margins(pages["never"].layout) == (0, 0, 0, 0) and pages["never"].layout.spacing() == 4
+    assert margins(pages["roomy"].layout) != (6, 6, 6, 6), "compact=False stays at Qt defaults"
