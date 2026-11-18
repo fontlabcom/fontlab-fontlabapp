@@ -680,7 +680,7 @@ source inventory, not a native FontLab compatibility claim.
 | `fontlabapp.qt.calendars.official.formats` | objects | `apply` | Keep part3 font-style headers, weekday colours and two independent date rules. |
 | `fontlabapp.qt.choices` | ui.windows/views | `accept_activation`, `configure_combo`, `consume_commit`, `set_combo_text` | Injected Qt editable-choice and line-edit commit mechanics. |
 | `fontlabapp.qt.colors` | qt | `ColorDialog`, `color_palette`, `group_box_style`, `rgba255`, `rgba_css`, `swatch_style` | Injected Qt color presentation; foreign color/callback policy stays local. |
-| `fontlabapp.qt.compact` | qt | `MARGIN`, `SIDES`, `SPACING`, `compact`, `compact_dialog`, `compact_layout`, `controls_box`, `frameless`, `split_view` | Native-like 6 px margins and 4 px spacing; frameless glyph view in the top or right half. |
+| `fontlabapp.qt.compact` | qt | `MARGIN`, `SIDES`, `SPACING`, `compact`, `compact_dialog`, `compact_layout`, `controls_box`, `frameless`, `split_view` | Native-like 6 px margins and 4 px spacing, applied by default to every window (`compact=False` opts out); frameless glyph view in the top or right half. |
 | `fontlabapp.qt.completion` | qt | — | qt.completion domain helpers; children load only when explicitly imported. |
 | `fontlabapp.qt.completion.editor` | ui.widgets | `CompletionEditor` | Own an injected-Qt multiline completion editor and whole vocabulary swaps. |
 | `fontlabapp.qt.completion.events` | signals | `insert`, `key_press`, `under_cursor` | Keep the distinct archived completion key, cursor and focus policies. |

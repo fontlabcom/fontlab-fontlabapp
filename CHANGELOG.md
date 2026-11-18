@@ -2,6 +2,12 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-18 — compact is the default for every fontlabapp window (Issue 253)
+
+- `Owned`, `create_panel`, `create_dialog` and `create_widget` now apply FontLab panel metrics (6 px margins, 4 px spacing) by default; pass `compact=False` to keep Qt's roomy 11/6. Tab pages inside compact windows are capped to the same margins. Redundant per-window `compact_layout` calls were removed.
+- The Transform preview canvas and Font Browser thumbnails follow the canvas palette instead of painting white in the dark theme.
+- New tests: `tests/test_compact_default.py`, `tests/test_bound_slot_guard.py` (source check that no signal is connected to a bound Qt slot, which PythonQt silently ignores), `tests/test_canvas_palette_literals.py`.
+
 ## 2026-11-18 — v1.2.37: compact GUI metrics for eleven windows; `qt.compact` helpers (Issue 253)
 
 - New `fontlabapp.qt.compact` (re-exported by `fontlabapp.ui`; scripts import it as `fly.ap.qt.compact`): `compact_layout`, `compact`, `compact_dialog`, `controls_box` and `split_view`. They give windows FontLab's own panel metrics (margins 6 px, spacing 4 px, instead of Qt's 11 and 6) and put a glyph view frameless above or beside its controls. A missing Qt setter logs a warning and leaves the object unchanged, because compaction is cosmetic and the window must still open.
