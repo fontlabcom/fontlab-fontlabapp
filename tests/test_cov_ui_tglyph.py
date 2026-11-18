@@ -745,8 +745,8 @@ def test_press_when_right_button_then_ignored(tg_mod):
 
 def test_embed_when_controls_hidden_then_no_outer_margins_or_spacing(tg_mod):
     window = tg_mod.TGlyph(layered_font(), "a", controls=False)
-    assert calls(window.layout, "setContentsMargins") == [(0, 0, 0, 0)]
-    assert calls(window.layout, "setSpacing") == [(0,)]
+    assert calls(window.layout, "setContentsMargins")[-1] == (0, 0, 0, 0)
+    assert calls(window.layout, "setSpacing")[-1] == (0,)
     assert window.diagnostic.shown and window.readout.shown
     window.close()
 

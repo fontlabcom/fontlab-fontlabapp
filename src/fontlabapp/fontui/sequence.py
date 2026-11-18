@@ -42,7 +42,7 @@ class Sequence(Owned):
         on_select: Any = None,
         on_update: Any = None,
     ) -> None:
-        super().__init__(parent)
+        super().__init__(parent, compact=False)
         # FontLab panel metrics, issue 253. Embedded in a host window the host's
         # own compact margin already frames the preview: no second inset.
         compact_layout(self.layout, margin=0 if parent is not None else MARGIN)

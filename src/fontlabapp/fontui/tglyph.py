@@ -34,7 +34,6 @@ from typing import Any
 
 from PythonQt import QtCore, QtGui
 
-from fontlabapp.qt.compact import compact_layout
 from fontlabapp.qt.events.key import key_press_handler
 
 from ._canvas_palette import _canvas_colors
@@ -135,8 +134,6 @@ class TGlyph(Owned):
             self.layout.setSpacing(0)
             for control in self.control_widgets:
                 control.hide()
-        else:
-            compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.canvas = create_canvas(self, self.widget)
         self.layout.insertWidget(0, self.canvas, 1)  # glyph view in the top half
         self.follow_timer = QtCore.QTimer(self.widget)

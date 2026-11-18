@@ -29,7 +29,6 @@ from typing import Any
 
 from PythonQt import QtCore, QtGui
 
-from fontlabapp.qt.compact import compact_layout
 from fontlabapp.qt.events.key import key_press_handler
 
 from ._canvas_palette import _canvas_colors
@@ -129,8 +128,6 @@ class TMetrics(Owned):
             self.layout.setSpacing(0)
             for control in self.control_widgets:
                 control.hide()
-        else:
-            compact_layout(self.layout)  # FontLab panel metrics, issue 253
         if text:
             self.set_text(text)
         else:

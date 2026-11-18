@@ -14,7 +14,6 @@ with require_fontport(__name__):
 from PythonQt import QtGui
 
 from .lifecycle import Owned
-from fontlabapp.qt.compact import compact_layout
 from .model import Outline, viewport
 from .transform_view import MATRIX, build, exact_text, record
 
@@ -35,7 +34,6 @@ class TransformEditor(Owned):
         on_invalidate: Callable[[], None] | None = None,
     ) -> None:
         super().__init__(parent)
-        compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.font: Any = font
         self.on_change: Callable[[Any, Any], None] | None = on_change
         self.on_invalidate: Callable[[], None] | None = None

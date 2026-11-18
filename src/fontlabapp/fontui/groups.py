@@ -12,7 +12,6 @@ with require_fontport(__name__):
 
 from .groups_view import build
 from .lifecycle import Owned, follow_changes
-from fontlabapp.qt.compact import compact_layout
 
 
 class GroupsEditor(Owned):
@@ -25,7 +24,6 @@ class GroupsEditor(Owned):
         on_apply: Callable[[Any, Any], None] | None = None,
     ) -> None:
         super().__init__(parent)
-        compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.font, self.on_apply = font, on_apply
         self.selected: str | None = None
         self.names: list[str] = []

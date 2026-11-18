@@ -8,7 +8,6 @@ from typing import Any
 from PythonQt import QtCore, QtGui
 
 from fontlabapp.fontui.lifecycle import Owned
-from fontlabapp.qt.compact import compact_layout
 from fontlabapp.qt.properties import value as qt_value
 
 STEPS = 100  # slider ticks per user-coordinate unit (two decimals)
@@ -29,7 +28,6 @@ class DesignspacePanel(Owned):
         on_location: Callable[[Any], None] | None = None,
     ) -> None:
         super().__init__(parent)
-        compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.designspace, self.on_location = designspace, on_location
         self.axes, self.current = {}, None
         self.entries = [*designspace.sources, *designspace.instances]

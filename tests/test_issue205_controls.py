@@ -81,8 +81,8 @@ def test_controls_when_owning_resources_then_context_closes_only_owned_in_revers
         child = api.create_widget(parent="parent")
         assert panel.args == ("main", "Owned", None, "left")
         assert dialog.args == ("main", "Question", None)
-        assert widget.kwargs == {"floating": True, "show": False}
-        assert child.kwargs == {"floating": False, "show": True}
+        assert widget.kwargs == {"floating": True, "show": False, "compact": True}
+        assert child.kwargs == {"floating": False, "show": True, "compact": True}
     assert closed == [child.args, widget.args, dialog.args, panel.args]
     api.close()
     assert len(closed) == 4 and api._owned == []

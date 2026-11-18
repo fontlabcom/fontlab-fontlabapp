@@ -4,10 +4,12 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
+import logging
 from typing import Any, Self
 from uuid import uuid4
 
 from fontlabapp import _native
+from fontlabapp.qt.compact import compact as _compact
 from fontlabapp.qt.properties import value
 
 
@@ -144,9 +146,22 @@ def _cleanup_failure(owned, error):
         raise failure from None
 
 
-def _build(owned, build):
+_LOG = logging.getLogger(__name__)
+
+
+def _compact_content(content):
+    """Apply compact metrics; cosmetic, so a widget that cannot take them still opens."""
+    try:
+        _compact(content)
+    except (AttributeError, RuntimeError, TypeError) as error:
+        _LOG.warning("compact: %r left unchanged: %s", content, error)
+
+
+def _build(owned, build, compact=True):
     if build is not None:
         build(owned.content)
+    if compact:
+        _compact_content(owned.content)  # FontLab panel metrics, issue 253
 
 
 def _floating_priority(owned, qt):
@@ -176,7 +191,7 @@ def _enable_floating_updates(dock: Any) -> None:
 
 
 def create_panel(
-    main: Any, title: str, build: Callable | None, area: str
+    main: Any, title: str, build: Callable | None, area: str, *, compact: bool = True
 ) -> OwnedWidget:
     qt = _native("PythonQt")
     areas = {
@@ -193,7 +208,7 @@ def create_panel(
         dock.setObjectName("fontlabappPanel_" + uuid4().hex)
         owned.content = qt.QtGui.QWidget(dock)
         dock.setWidget(owned.content)
-        _build(owned, build)
+        _build(owned, build, compact)
         main.addDockWidget(areas[area], dock)
         # FontLab can keep MainWindow hidden; retain docking and parent identity.
         if not main.isVisible():
@@ -233,14 +248,16 @@ def create_panel(
     return owned
 
 
-def create_dialog(main: Any, title: str, build: Callable | None) -> OwnedWidget:
+def create_dialog(
+    main: Any, title: str, build: Callable | None, *, compact: bool = True
+) -> OwnedWidget:
     qt = _native("PythonQt")
     widget = qt.QtGui.QDialog(main)
     owned = OwnedWidget(widget, widget, parent=main)
     try:
         widget.setWindowTitle(title)
         widget.setModal(False)
-        _build(owned, build)
+        _build(owned, build, compact)
         widget.show()
     except BaseException as error:
         _cleanup_failure(owned, error)
@@ -249,7 +266,12 @@ def create_dialog(main: Any, title: str, build: Callable | None) -> OwnedWidget:
 
 
 def create_widget(
-    parent: Any, build: Callable | None, *, floating: bool = False, show: bool = True
+    parent: Any,
+    build: Callable | None,
+    *,
+    floating: bool = False,
+    show: bool = True,
+    compact: bool = True,
 ) -> OwnedWidget:
     qt = _native("PythonQt")
     widget = (
@@ -259,7 +281,7 @@ def create_widget(
     )
     owned = OwnedWidget(widget, widget, parent=parent)
     try:
-        _build(owned, build)
+        _build(owned, build, compact)
         if show:
             widget.show()
     except BaseException as error:

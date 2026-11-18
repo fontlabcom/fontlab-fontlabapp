@@ -5,9 +5,13 @@
 from PythonQt import QtGui
 from weakref import ref as _ref
 
+from fontlabapp.qt.compact import compact_layout
+
 
 class Owned:
-    def __init__(self, parent):
+    """Owned top-level widget; its root layout is compact (6 px / 4 px) unless ``compact=False``."""
+
+    def __init__(self, parent, *, compact=True):
         self.closed = False
         self.connections = []
         self.destroying = False
@@ -33,6 +37,8 @@ class Owned:
 
         self.widget = Root(parent)
         self.layout = QtGui.QVBoxLayout(self.widget)
+        if compact:
+            compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.connect(self.widget.destroyed, lambda *args: self._destroyed(), closing=True)
         self._own_observer = self.connections[-1]
         if parent is not None:

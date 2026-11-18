@@ -154,23 +154,44 @@ class FontLab:
         raise LookupError("No active Glyph window")
 
     def create_panel(
-        self, title: str, build: Callable | None = None, *, area: str = "right"
+        self,
+        title: str,
+        build: Callable | None = None,
+        *,
+        area: str = "right",
+        compact: bool = True,
     ) -> OwnedWidget:
-        """Create an owned registered dock; float it when MainWindow is hidden."""
+        """Create an owned registered dock; float it when MainWindow is hidden.
+
+        Layouts are compact (6 px / 4 px) unless ``compact=False``.
+        """
         from fontlabapp.qt.widgets import create_panel
 
-        return self._own(create_panel(self.application.main, title, build, area))
+        return self._own(create_panel(self.application.main, title, build, area, compact=compact))
 
-    def create_dialog(self, title: str, build: Callable | None = None) -> OwnedWidget:
-        """Show an owned modeless QDialog composed by build(content)."""
+    def create_dialog(
+        self, title: str, build: Callable | None = None, *, compact: bool = True
+    ) -> OwnedWidget:
+        """Show an owned modeless QDialog composed by build(content).
+
+        Layouts are compact (6 px / 4 px) unless ``compact=False``.
+        """
         from fontlabapp.qt.widgets import create_dialog
 
-        return self._own(create_dialog(self.application.main, title, build))
+        return self._own(create_dialog(self.application.main, title, build, compact=compact))
 
     def create_widget(
-        self, parent: Any = None, build: Callable | None = None, *, show: bool = True
+        self,
+        parent: Any = None,
+        build: Callable | None = None,
+        *,
+        show: bool = True,
+        compact: bool = True,
     ) -> OwnedWidget:
-        """Compose a visible owned tool QWidget, or a child of explicit parent."""
+        """Compose a visible owned tool QWidget, or a child of explicit parent.
+
+        Layouts are compact (6 px / 4 px) unless ``compact=False``.
+        """
         from fontlabapp.qt.widgets import create_widget
 
         return self._own(
@@ -179,5 +200,6 @@ class FontLab:
                 build,
                 floating=parent is None,
                 show=show,
+                compact=compact,
             )
         )

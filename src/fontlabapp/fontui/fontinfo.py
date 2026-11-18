@@ -13,7 +13,6 @@ with require_fontport(__name__):
 from PythonQt import QtGui
 
 from .lifecycle import Owned, follow_changes
-from fontlabapp.qt.compact import compact_layout
 
 UNDO_NAME = "Font information"
 
@@ -111,7 +110,6 @@ class FontInfoEditor(Owned):
         on_apply: Callable[[Any, dict[str, Any]], None] | None = None,
     ) -> None:
         super().__init__(parent)
-        compact_layout(self.layout)  # FontLab panel metrics, issue 253
         self.font, self.on_apply = font, on_apply
         self.fields: dict[str, Any] = {}
         self.source_text: dict[str, str] = {}
