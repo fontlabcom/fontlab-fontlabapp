@@ -286,3 +286,38 @@ def test_window_when_created_then_compact_panel_metrics(groups_mod):
     window = make(groups_mod)[0]
     assert [a for c, a in window.layout.calls if c == "setContentsMargins"] == [(6, 6, 6, 6)]
     assert [a for c, a in window.layout.calls if c == "setSpacing"] == [(4,)]
+
+
+def test_select_and_edit_when_run_then_groups_are_read_in_one_pass(groups_mod):
+    """``dict(mapping)`` is one native snapshot per key on Fontport groups; ``items()`` is one total."""
+    from collections.abc import Mapping
+
+    class Counting(Mapping):
+        """A fontParts-like mapping: not a dict, so ``dict(m)`` goes through ``__getitem__`` per key."""
+
+        def __init__(self, data):
+            self.data, self.getitems = dict(data), 0
+
+        def __getitem__(self, key):
+            self.getitems += 1
+            return self.data[key]
+
+        def __iter__(self):
+            return iter(self.data)
+
+        def __len__(self):
+            return len(self.data)
+
+        def items(self):
+            return self.data.items()
+
+        def apply(self, values, *, undo_name):
+            self.data = dict(values)
+
+    editor, model = make(groups_mod)
+    model.groups = Counting(model.groups)
+    editor.select(1)
+    editor.members_control.setText("V")
+    editor.name_control.setText("one")
+    editor.edit("add_members")
+    assert model.groups.getitems == 0, "no per-key __getitem__ reads of the borrowed groups"

@@ -42,7 +42,7 @@ def _snapshot(font: Font, check: Any) -> dict:
         'info': {key: deepcopy(getattr(font.info, key)) for key in sorted(fontInfoAttributesVersion3)},
         'features': font.features.text,
         'groups': {name: tuple(members) for name, members in font.groups.items()},
-        'kerning': deepcopy(dict(font.kerning)),
+        'kerning': deepcopy(dict(font.kerning.items())),
         'lib': deepcopy(dict(font.lib)),
         'defaultLayer': font.layers.defaultLayer.name,
         'layerOrder': tuple(layer.name for layer in font.layers),

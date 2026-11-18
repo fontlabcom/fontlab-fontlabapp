@@ -1,6 +1,7 @@
 # this_file: tests/test_cov_ui_kerning.py
 """KerningEditor and its view built offscreen against a behavioural PythonQt fake."""
 
+from collections.abc import Mapping
 from typing import Any
 
 import pytest
@@ -327,3 +328,75 @@ def test_window_when_created_then_compact_panel_metrics(kerning_mod):
     window = make(kerning_mod)[0]
     assert [a for c, a in window.layout.calls if c == "setContentsMargins"] == [(6, 6, 6, 6)]
     assert [a for c, a in window.layout.calls if c == "setSpacing"] == [(4,)]
+
+
+class _Counting(Mapping):
+    """A mapping like fontParts': not a dict, so ``dict(m)`` reads keys() then ``__getitem__`` per key
+    (one native snapshot per key on Fontport backends)."""
+
+    def __init__(self, data):
+        self.data = dict(data)
+        self.getitems = 0
+        self.items_calls = 0
+
+    def __getitem__(self, key):
+        self.getitems += 1
+        return self.data[key]
+
+    def __iter__(self):
+        return iter(self.data)
+
+    def __len__(self):
+        return len(self.data)
+
+    def items(self):
+        self.items_calls += 1
+        return self.data.items()
+
+    def apply(self, values, *, undo_name):
+        self.data = dict(values)
+
+
+def _counted(module):
+    editor, model = make(module)
+    model.kerning = _Counting(model.kerning)
+    model.groups = _Counting(model.groups)
+    # The nested preview reads kerning itself (one linear snapshot per layout, in Fontport);
+    # these tests count the editor's own reads.
+    editor.preview._load_run = lambda *a, **k: None
+    return editor, model
+
+
+def test_fill_when_run_then_kerning_is_read_in_one_pass_without_per_key_getitem(kerning_mod):
+    editor, model = _counted(kerning_mod)
+    editor.fill()
+    assert model.kerning.getitems == 0, "fill must not read kerning key by key (quadratic natively)"
+    assert model.kerning.items_calls == 1, "fill reads one snapshot"
+
+
+def test_inspect_when_pair_typed_then_kerning_and_groups_are_read_in_one_pass(kerning_mod):
+    editor, model = _counted(kerning_mod)
+    editor.left_control.setText(PAIR[0])
+    editor.right_control.setText(PAIR[1])
+    model.kerning.items_calls = model.groups.items_calls = 0
+    editor.inspect()
+    assert model.kerning.getitems == 0 and model.groups.getitems == 0, "no per-key reads"
+    assert model.kerning.items_calls == 1 and model.groups.items_calls == 1, "one snapshot each"
+
+
+def test_refresh_when_run_then_one_kerning_snapshot_serves_fill_and_inspect(kerning_mod):
+    editor, model = _counted(kerning_mod)
+    editor.refresh(PAIR)
+    assert model.kerning.getitems == 0 and model.groups.getitems == 0
+    assert model.kerning.items_calls == 1, "refresh reuses one kerning snapshot"
+    assert model.groups.items_calls == 1
+
+
+def test_select_and_edit_when_run_then_no_per_key_reads(kerning_mod):
+    editor, model = _counted(kerning_mod)
+    editor.refresh()
+    model.kerning.getitems = 0
+    editor.select(0)
+    editor.value_control.setText("-90")
+    assert editor.edit("apply")
+    assert model.kerning.getitems == 0 and model.groups.getitems == 0

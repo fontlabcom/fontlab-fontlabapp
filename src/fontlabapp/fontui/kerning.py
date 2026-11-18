@@ -58,17 +58,27 @@ def apply_kerning(
                 f"{master} cannot be targeted."
             )
     pairs = font.kerning if pairs is None else pairs
-    before = dict(pairs) if before is None else before
+    before = _snapshot(pairs) if before is None else before
     _require_apply(pairs)
     values = edit_kerning(
-        before, action, pair, value, groups=dict(font.groups), glyphs=font.keys()
+        before, action, pair, value, groups=_snapshot(font.groups), glyphs=font.keys()
     )
     if values == before:
         return None
     pairs.apply(values, undo_name=undo_name)
-    if dict(pairs) != values:
+    if _snapshot(pairs) != values:
         raise RuntimeError("Backend kerning readback differs from the requested edit")
     return values
+
+
+def _snapshot(mapping: Any) -> dict:
+    """One-pass copy of a fontParts-style mapping.
+
+    ``dict(mapping)`` reads keys() and then ``__getitem__`` per key; on the Fontport
+    backends every ``__getitem__`` builds a full native snapshot, so that is quadratic
+    in the number of pairs. ``items()`` takes one snapshot.
+    """
+    return dict(mapping.items())
 
 
 def _value(value: float | None) -> str:
@@ -91,11 +101,12 @@ class KerningEditor(Owned):
         self.selected: tuple[str, str] | None = None
         self.editable: bool = False
         self._shown: tuple[str, str, str] = ("", "", "")
+        self._showing = False
         build(self)
         self.connect(self.filter_control.textChanged, lambda *args: self.fill())
         self.connect(self.pair_list.currentRowChanged, self.select)
         for control in (self.left_control, self.right_control):
-            self.connect(control.textChanged, lambda *args: self.inspect())
+            self.connect(control.textChanged, lambda *args: self._typed())
         self.connect(self.apply_button.clicked, lambda *args: self.edit("apply"))
         self.connect(self.delete_button.clicked, lambda *args: self.edit("delete"))
         self.connect(self.reload_button.clicked, lambda *args: self.reload())
@@ -151,6 +162,11 @@ class KerningEditor(Owned):
                 f"Changed in FontLab; typed pair kept, Reload shows the font. {self.diagnostic.text}"
             )
 
+    def _typed(self) -> None:
+        """Inspect after the user types; ``_show`` inspects once itself, not once per field."""
+        if not self._showing:
+            self.inspect()
+
     def _pairs(self) -> Any:
         """The borrowed ``font.kerning``; raise ``ValueError`` without a font."""
         if self.font is None:
@@ -175,11 +191,11 @@ class KerningEditor(Owned):
         self.preview.canvas.update()
         self.diagnostic.setText(str(error))
 
-    def fill(self) -> None:
+    def fill(self, pairs: dict | None = None) -> None:
         if self.closed:
             return
         try:
-            pairs = dict(self._pairs())
+            pairs = _snapshot(self._pairs()) if pairs is None else pairs
         except Exception as exc:  # noqa: BLE001 - borrowed document boundary
             self._unavailable(exc)
             return
@@ -205,7 +221,8 @@ class KerningEditor(Owned):
         self.preview._invalidate_for_refresh()
         try:
             pairs = self._pairs()
-            values = dict(pairs)
+            values = _snapshot(pairs)
+            groups = _snapshot(self.font.groups)
             self.editable = callable(getattr(pairs, "apply", None))
         except Exception as exc:  # noqa: BLE001 - borrowed model may be closed
             self._unavailable(exc)
@@ -215,11 +232,11 @@ class KerningEditor(Owned):
             control.setEnabled(True)
             control.setReadOnly(not self.editable)
         self.apply_button.setEnabled(self.editable)
-        self.fill()
+        self.fill(values)
         if self.selected in values:
             self._show(self.selected, values[self.selected])
         independent_proof = not (self.left_control.text or self.right_control.text)
-        self.inspect()
+        self.inspect(values, groups)
         if independent_proof:
             self.preview.refresh()
         return True
@@ -227,21 +244,25 @@ class KerningEditor(Owned):
     def _show(self, pair: tuple[str, str], value: float) -> None:
         """Put ``pair`` and ``value`` in the edit fields and remember them."""
         self._shown = (pair[0], pair[1], number_text(value))
-        self.left_control.setText(pair[0])
-        self.right_control.setText(pair[1])
-        self.value_control.setText(self._shown[2])
+        self._showing = True
+        try:
+            self.left_control.setText(pair[0])
+            self.right_control.setText(pair[1])
+            self.value_control.setText(self._shown[2])
+        finally:
+            self._showing = False
 
     def select(self, row: int) -> None:
         if self.closed or not 0 <= row < len(self.rows):
             return
         self.selected = self.rows[row]
         try:
-            self._show(self.selected, self._pairs()[self.selected])
+            self._show(self.selected, _snapshot(self._pairs())[self.selected])
         except Exception as exc:  # noqa: BLE001 - selection can outlive a pair
             self.diagnostic.setText(str(exc))
         self.inspect()
 
-    def inspect(self) -> None:
+    def inspect(self, pairs: dict | None = None, groups: dict | None = None) -> None:
         if self.closed:
             return
         if not (self.left_control.text or self.right_control.text):
@@ -251,7 +272,8 @@ class KerningEditor(Owned):
             return
         try:
             pair = (self.left_control.text, self.right_control.text)
-            pairs, groups = dict(self._pairs()), dict(self.font.groups)
+            pairs = _snapshot(self._pairs()) if pairs is None else pairs
+            groups = _snapshot(self.font.groups) if groups is None else groups
             detail = inspect_kerning(pairs, groups, pair)
             status = (
                 f"Explicit value: {number_text(detail['value'])}"
@@ -281,7 +303,7 @@ class KerningEditor(Owned):
             return False
         try:
             pairs = self._pairs()
-            before = dict(pairs)
+            before = _snapshot(pairs)
         except Exception as exc:  # noqa: BLE001 - disable a closed document
             self._unavailable(exc)
             return False

@@ -2,6 +2,11 @@
 this_file: CHANGELOG.md
 ---
 
+## 2026-11-18 — v1.2.39: Kerning editor no longer hangs on large fonts
+
+- `KerningEditor` and `GroupsEditor` read `font.kerning` and `font.groups` in one pass (`dict(mapping.items())`) instead of `dict(mapping)`. On Fontport the second form calls `__getitem__` per key and each call builds a full native snapshot, so opening the Kerning editor on Lato (thousands of pairs) ran at 100% CPU for 15+ minutes. `refresh()` now takes one kerning and one groups snapshot and reuses them for the list, the selected pair and the inspector; typing into the pair fields while `_show` fills them no longer re-inspects per field. `apply_kerning` and the groups edit use the same one-pass copy for the before/after readback, and the UFO round-trip editor reads kerning the same way.
+- Tests (`tests/test_cov_ui_kerning.py`, `tests/test_cov_ui_groups.py`) use a non-dict mapping that counts `__getitem__` and `items()` calls; they failed before the fix. Not verified natively: FontLab was busy. The nested sequence preview still takes one linear kerning snapshot per layout inside Fontport.
+
 ## 2026-11-18 — v1.2.38: compact is the default for every fontlabapp window (Issue 253)
 
 - `Owned`, `create_panel`, `create_dialog` and `create_widget` now apply FontLab panel metrics (6 px margins, 4 px spacing) by default; pass `compact=False` to keep Qt's roomy 11/6. Tab pages inside compact windows are capped to the same margins. Redundant per-window `compact_layout` calls were removed. An `Owned` embedded in another `Owned` or in a tab/stack container keeps the host's inset (no double margin).

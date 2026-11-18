@@ -132,7 +132,7 @@ class GroupsEditor(Owned):
         if self.closed:
             return
         try:
-            values = dict(self._groups())
+            values = dict(self._groups().items())
             name = self.names[row] if 0 <= row < len(self.names) else None
             self.selected = name if name in values else None
             members = values.get(self.selected, ())
@@ -162,7 +162,7 @@ class GroupsEditor(Owned):
             return False
         try:
             groups = self._groups()
-            before = dict(groups)
+            before = dict(groups.items())
         except Exception as exc:  # noqa: BLE001 - closed models disable editing
             self._unavailable(exc)
             return False
@@ -187,7 +187,7 @@ class GroupsEditor(Owned):
                 self.diagnostic.setText("No changes to apply.")
                 return False
             groups.apply(values, undo_name="Edit font groups")
-            if dict(groups) != values:
+            if dict(groups.items()) != values:
                 raise RuntimeError(
                     "Backend groups readback differs from the requested edit"
                 )
