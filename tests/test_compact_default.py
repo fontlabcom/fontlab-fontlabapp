@@ -107,6 +107,22 @@ def test_create_dialog_when_tab_page_is_roomy_then_page_margin_capped(binding):
     owned.close()
 
 
+@pytest.fixture
+def restore_modules():
+    """Put back every fontlabapp module (and package attribute) the test imported or replaced."""
+    import sys
+
+    saved = {n: m for n, m in sys.modules.items() if n.startswith("fontlabapp")}
+    yield
+    for name in [n for n in sys.modules if n.startswith("fontlabapp") and n not in saved]:
+        del sys.modules[name]
+    for name, module in saved.items():
+        sys.modules[name] = module
+        parent, _, leaf = name.rpartition(".")
+        if parent in sys.modules:
+            setattr(sys.modules[parent], leaf, module)
+
+
 def _fresh(studio_qt, monkeypatch, *names):
     import importlib
     import sys
@@ -116,14 +132,14 @@ def _fresh(studio_qt, monkeypatch, *names):
     return [importlib.import_module(name) for name in names]
 
 
-def test_font_browser_when_created_then_compact_metrics(studio_qt, monkeypatch):
+def test_font_browser_when_created_then_compact_metrics(studio_qt, monkeypatch, restore_modules):
     (fonts,) = _fresh(studio_qt, monkeypatch, "fontlabapp.fontui.fonts")
     window = fonts.FontBrowser((), follow=False)
     studio_qt.owned.append(window)
     assert margins(window.layout) == (6, 6, 6, 6) and window.layout.spacing() == 4
 
 
-def test_designspace_panel_when_created_then_compact_metrics(studio_qt, monkeypatch):
+def test_designspace_panel_when_created_then_compact_metrics(studio_qt, monkeypatch, restore_modules):
     (mod,) = _fresh(studio_qt, monkeypatch, "fontlabapp.fontui.designspace")
     space = NS(axes=[], sources=[], instances=[], defaults=lambda: {}, location=lambda *a: None)
     window = mod.DesignspacePanel(space)
