@@ -707,7 +707,7 @@ def test_kerning_when_master_switched_then_active_masters_pairs_shown_and_switch
     package.master = "Bold"
     window.follow()
     bold_kerns = _kerns(window)
-    assert bold_kerns != default_kerns and bold_kerns[0] == -122 or -122 in bold_kerns, (default_kerns, bold_kerns)
+    assert bold_kerns != default_kerns and -122 in bold_kerns, (default_kerns, bold_kerns)
     assert window.model.settings.kerning
     package.master = "public.default"
     window.follow()
@@ -737,7 +737,7 @@ def test_kerning_write_when_master_is_not_default_then_refused_truthfully_and_de
     assert dict(font.kerning.items()) == before, "the default master's kerning is untouched"
 
 
-def test_kerning_when_native_master_read_fails_then_default_kerning_is_used(tm_mod, monkeypatch):
+def test_kerning_when_native_master_read_fails_then_no_kerning_and_status_names_the_master(tm_mod, monkeypatch):
     reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
 
     class Broken(_Package):
@@ -746,9 +746,14 @@ def test_kerning_when_native_master_read_fails_then_default_kerning_is_used(tm_m
 
     package = Broken("Bold")
     monkeypatch.setattr(reads_mod, "package_of", lambda font: package)
-    window, _, _ = make(tm_mod)
+    window, _, font = make(tm_mod)
+    default = dict(font.kerning.items())
+    assert default, "the default master has kerning that must not appear"
     window.set_text("AV")
-    assert window.model.settings.kerning and window.diagnostic.text
+    assert window.model.settings.kerning
+    assert _kerns(window) == [0, 0], "the active master shows no kerning, not the default master's"
+    assert "Kerning of master Bold could not be read, so no kerning is shown." in window.diagnostic.text, window.diagnostic.text
+    assert not any(str(v) in window.diagnostic.text for v in default.values())
 
 
 def _cell_widths(window, name):

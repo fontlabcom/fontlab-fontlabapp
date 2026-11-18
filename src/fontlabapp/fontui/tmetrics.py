@@ -303,6 +303,9 @@ class TMetrics(Owned):
                     f"; FontLab's current master {unresolved} has no layer of that name, "
                     f"so the default master ({getattr(self._reads, 'defaultLayerName', None)}) is shown."
                 )
+            unread = getattr(self._reads, "kerning_unread", None)
+            if unread:
+                status += f"; Kerning of master {unread} could not be read, so no kerning is shown."
             self.diagnostic.setText(status)
             self._relayout()
             self._refresh_generation += 1

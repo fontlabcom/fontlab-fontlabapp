@@ -126,7 +126,7 @@ class FontReads:
 
         Fontport reads only the default master's kerning; another master's comes from the native
         package's ``kerning(master)`` (FontLab keeps separate kerning per master). Any failure of
-        that read falls back to the default master's kerning, logged.
+        that read gives no kerning (never the default master's) and ``kerning_unread`` names the master.
         """
         name = self.kerning_master
         if name is not None and name != self._live_default_layer():
@@ -137,8 +137,14 @@ class FontReads:
         try:
             return dict(package_of(self.font).kerning(name).items())
         except (AttributeError, RuntimeError, TypeError, ValueError) as error:
-            LOG.debug("FontReads: no kerning for master %s (%s); using the default master", name, error)
-            return dict(self.font.kerning.items())
+            LOG.warning("FontReads: kerning of master %s could not be read: %s", name, error)
+            self._memo["kerning_unread"] = name
+            return {}
+
+    @property
+    def kerning_unread(self) -> str | None:
+        """Master whose kerning read failed in this snapshot, else None."""
+        return self._memo.get("kerning_unread")
 
     @property
     def groups(self) -> dict[str, tuple[str, ...]]:
