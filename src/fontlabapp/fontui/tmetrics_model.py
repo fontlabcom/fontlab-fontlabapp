@@ -488,6 +488,7 @@ class TMetricsModel:
                 script=settings.script.strip() or None,
                 language=settings.language.strip() or None,
                 kerning=settings.kerning,
+                other_master=getattr(self.font, "other_master", None),
             )
         except Exception as error:
             return None, f"Cannot shape: {error}"

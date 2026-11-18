@@ -365,13 +365,15 @@ def _missing(buf: Any, chars: list[str], names_run: bool) -> list[str]:
     ]
 
 
-def _shape_fallback(font: Any, text: str, *, direction: str, kerning: bool, names_run: bool) -> GlyphRunResult:
+def _shape_fallback(
+    font: Any, text: str, *, direction: str, kerning: bool, names_run: bool, note: str = FALLBACK_NOTE
+) -> GlyphRunResult:
     with require_fontport(__name__):
         from fontlab_fontport.glyphrun import layout_names, layout_text
     layout = layout_names if names_run else layout_text
     run = layout(font, text, kerning=kerning, direction=direction)
     glyphs = tuple(PlacedGlyph(g.name, g.index, g.x, 0.0, g.advance) for g in run.glyphs)
-    return GlyphRunResult(glyphs, run.advance, False, (FALLBACK_NOTE, *run.diagnostics))
+    return GlyphRunResult(glyphs, run.advance, False, (note, *run.diagnostics))
 
 
 def shape(
@@ -383,8 +385,13 @@ def shape(
     script: str | None = None,
     language: str | None = None,
     kerning: bool = True,
+    other_master: str | None = None,
 ) -> GlyphRunResult:
     """Shape ``text`` with ``font``.
+
+    ``other_master`` names an active master that is not the default one: the
+    compiled HarfBuzz font only knows the default master, so the run is laid out
+    unshaped (with ``font``'s own advances and kerning) and says why.
 
     ``features`` is a HarfBuzz feature list such as ``"liga,-kern,ss01"``.
     Text made only of whitespace-separated ``/glyphname`` tokens is treated
@@ -399,6 +406,9 @@ def shape(
     hb = _load_harfbuzz()
     if hb is None:
         return _shape_fallback(font, text, direction=direction, kerning=kerning, names_run=names_run)
+    if other_master:
+        note = f"unshaped: OpenType shaping uses the default master, and the active master is {other_master}"
+        return _shape_fallback(font, text, direction=direction, kerning=kerning, names_run=names_run, note=note)
     return _shape_harfbuzz(
         hb, font, text, features=features, direction=direction, script=script,
         language=language, kerning=kerning, names_run=names_run,

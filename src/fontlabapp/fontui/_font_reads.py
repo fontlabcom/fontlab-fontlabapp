@@ -121,6 +121,12 @@ class FontReads:
         return len(self.keys())
 
     @property
+    def other_master(self) -> str | None:
+        """The active master's name when it is not the default master, else None."""
+        name = self.kerning_master
+        return name if name is not None and name != self._live_default_layer() else None
+
+    @property
     def kerning(self) -> dict[Any, Any]:
         """Kerning of ``kerning_master`` (None or the default master: Fontport's), one snapshot per master.
 
@@ -128,8 +134,8 @@ class FontReads:
         package's ``kerning(master)`` (FontLab keeps separate kerning per master). Any failure of
         that read gives no kerning (never the default master's) and ``kerning_unread`` names the master.
         """
-        name = self.kerning_master
-        if name is not None and name != self._live_default_layer():
+        name = self.other_master
+        if name is not None:
             return self._read(f"kerning:{name}", lambda: self._master_kerning(name))
         return self._read("kerning", lambda: dict(self.font.kerning.items()))
 

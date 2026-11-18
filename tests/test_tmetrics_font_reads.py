@@ -749,6 +749,56 @@ def test_font_reads_when_master_unknown_then_empty_and_unread_names_it(tm_mod, m
     assert "Ghost" not in package.kerning_calls, "an unknown master never reaches the silent native fallback"
 
 
+def _count_compiles(monkeypatch):
+    from fontlabapp.fontui import shaping
+
+    calls = []
+    real = shaping._compile
+    monkeypatch.setattr(shaping, "_compile", lambda snap: calls.append(1) or real(snap))
+    shaping.clear_cache()
+    return calls
+
+
+@pytest.mark.skipif(not _HAS_HARFBUZZ, reason="needs uharfbuzz to tell the shaped path from the fallback")
+def test_shaping_when_master_not_default_then_unshaped_with_its_kerning_and_exact_status(tm_mod, monkeypatch):
+    window, package, masters, _ = _kern_setup(tm_mod, monkeypatch, master="Bold")
+    calls = _count_compiles(monkeypatch)
+    window.follow()
+    assert _kerns(window) == [-122.0, 0.0]
+    assert window.model.result.shaped is False
+    assert window.diagnostic.text.startswith(
+        "unshaped: OpenType shaping uses the default master, and the active master is Bold"
+    ), window.diagnostic.text
+    assert "uharfbuzz not available" not in window.diagnostic.text
+    assert calls == [], "no shaping font is compiled on a non-default master"
+
+
+@pytest.mark.skipif(not _HAS_HARFBUZZ, reason="needs uharfbuzz to tell the shaped path from the fallback")
+def test_shaping_when_switched_back_to_default_then_shaped_again_without_stale_result(tm_mod, monkeypatch):
+    window, package, masters, _ = _kern_setup(tm_mod, monkeypatch)
+    window.follow()
+    assert window.model.result.shaped is True
+    shaped_kerns = _kerns(window)
+    package.master = "Bold"
+    window.follow()
+    assert window.model.result.shaped is False
+    package.master = "public.default"
+    window.follow()
+    assert window.model.result.shaped is True
+    assert _kerns(window) == shaped_kerns
+    assert "active master is" not in window.diagnostic.text
+
+
+def test_shaping_when_uharfbuzz_missing_on_other_master_then_old_status_text(tm_mod, monkeypatch):
+    from fontlabapp.fontui import shaping
+
+    monkeypatch.setattr(shaping, "_load_harfbuzz", lambda: None)
+    window, package, masters, _ = _kern_setup(tm_mod, monkeypatch, master="Bold")
+    window.follow()
+    assert "unshaped: uharfbuzz not available" in window.diagnostic.text
+    assert "active master is" not in window.diagnostic.text
+
+
 def test_kerning_when_native_master_read_fails_then_no_kerning_and_status_names_the_master(tm_mod, monkeypatch):
     reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
 
