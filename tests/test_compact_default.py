@@ -85,3 +85,47 @@ def test_panel_and_widget_when_built_then_compact(binding, kind):
         owned = widgets.create_widget(None, build, show=False)
     assert margins(seen["layout"]) == (6, 6, 6, 6)
     owned.close()
+
+
+def test_create_dialog_when_tab_page_is_roomy_then_page_margin_capped(binding):
+    seen = {}
+
+    def build(content):
+        outer = GUI.QVBoxLayout(content)
+        tabs = GUI.QTabWidget(content)
+        page = GUI.QWidget()
+        seen["page"] = GUI.QVBoxLayout(page)
+        seen["page"].setContentsMargins(11, 11, 11, 11)
+        seen["page"].setSpacing(6)
+        tabs.addTab(page, "A")
+        outer.addWidget(tabs)
+        seen["tabs"] = tabs
+
+    main = GUI.QMainWindow()
+    owned = widgets.create_dialog(main, "T", build)
+    assert margins(seen["page"]) == (6, 6, 6, 6) and seen["page"].spacing() == 4
+    owned.close()
+
+
+def _fresh(studio_qt, monkeypatch, *names):
+    import importlib
+    import sys
+
+    for name in names:
+        monkeypatch.delitem(sys.modules, name, raising=False)
+    return [importlib.import_module(name) for name in names]
+
+
+def test_font_browser_when_created_then_compact_metrics(studio_qt, monkeypatch):
+    (fonts,) = _fresh(studio_qt, monkeypatch, "fontlabapp.fontui.fonts")
+    window = fonts.FontBrowser((), follow=False)
+    studio_qt.owned.append(window)
+    assert margins(window.layout) == (6, 6, 6, 6) and window.layout.spacing() == 4
+
+
+def test_designspace_panel_when_created_then_compact_metrics(studio_qt, monkeypatch):
+    (mod,) = _fresh(studio_qt, monkeypatch, "fontlabapp.fontui.designspace")
+    space = NS(axes=[], sources=[], instances=[], defaults=lambda: {}, location=lambda *a: None)
+    window = mod.DesignspacePanel(space)
+    studio_qt.owned.append(window)
+    assert margins(window.layout) == (6, 6, 6, 6) and window.layout.spacing() == 4
