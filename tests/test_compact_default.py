@@ -217,8 +217,6 @@ def test_editor_demo_when_built_in_real_qt_then_total_outer_inset_is_six(
     restore_modules, binding, studio_qt, monkeypatch, title, factory, model
 ):
     """Dialog layout 6 px + embedded panel root 0 px (it was 6 + 6 = 12) for each font-editor demo."""
-    if factory == "kerning_editor":
-        pytest.skip("KerningEditor reads PythonQt's `.text` property, a method in PySide6; see the shape test")
     import importlib
     import sys
     from types import ModuleType
@@ -230,6 +228,9 @@ def test_editor_demo_when_built_in_real_qt_then_total_outer_inset_is_six(
         monkeypatch.delitem(sys.modules, name)  # rebind the editors to this test's real Qt
     fly_fontui = ModuleType("fly.ap.fontui")
     real = importlib.import_module("fontlabapp.fontui")
+    if factory == "kerning_editor":  # its filter reads PythonQt's `.text` property (a method in PySide6)
+        kerning = importlib.import_module("fontlabapp.fontui.kerning")
+        monkeypatch.setattr(kerning.KerningEditor, "fill", lambda self, pairs=None: None)
     setattr(fly_fontui, factory, getattr(real, factory))
     monkeypatch.setitem(sys.modules, "fly.ap.fontui", fly_fontui)
     names = run_script(script_path("Font Editors", title), "imported")
@@ -304,3 +305,16 @@ def test_add_tab_when_owned_built_in_a_root_then_page_reads_tab_inset(studio_qt)
     assert (margins(pages["added"].layout), pages["added"].layout.spacing()) == ((6, 6, 6, 6), 4)
     assert margins(pages["never"].layout) == (0, 0, 0, 0) and pages["never"].layout.spacing() == 4
     assert margins(pages["roomy"].layout) != (6, 6, 6, 6), "compact=False stays at Qt defaults"
+
+
+def test_add_tab_when_page_hosts_an_inner_owned_then_inner_stays_zero_and_about_is_plain(studio_qt):
+    lifecycle, appshell = studio_qt.modules.lifecycle, studio_qt.modules.appshell
+    shell = appshell.AppShell("T", None, package=lambda: None)
+    studio_qt.owned.append(shell)
+    page = lifecycle.Owned(shell.widget)  # Hint Tools / Open Contours: Owned(shell.widget), then add_tab
+    inner = lifecycle.Owned(page.widget)
+    shell.add_tab(NS(build=lambda app: page, title="Page"))
+    assert margins(page.layout) == (6, 6, 6, 6) and page.layout.spacing() == 4
+    assert margins(inner.layout) == (0, 0, 0, 0), "an inner Owned adds no second inset"
+    about = shell.about
+    assert about.layout() is None, "About is a plain label: it has no layout of its own to inset"
