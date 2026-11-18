@@ -134,12 +134,27 @@ class FontReads:
         return self._read("kerning", lambda: dict(self.font.kerning.items()))
 
     def _master_kerning(self, name: str) -> dict[Any, Any]:
+        """One ``getPlainPairsDict()`` of master ``name``: (glyph, glyph) -> value, groups already expanded.
+
+        The native ``items()`` keys are ``fgKerningObjectPair`` objects, not name tuples, and an
+        unknown master name silently returns the default's kerning, so the name is checked first.
+        """
         try:
-            return dict(package_of(self.font).kerning(name).items())
+            package = package_of(self.font)
+            names = getattr(package, "masters", None)
+            if names is not None and name not in [getattr(m, "name", m) for m in names]:
+                raise ValueError(f"no master named {name}")
+            return dict(package.kerning(name).getPlainPairsDict())
         except (AttributeError, RuntimeError, TypeError, ValueError) as error:
             LOG.warning("FontReads: kerning of master %s could not be read: %s", name, error)
             self._memo["kerning_unread"] = name
             return {}
+
+    def kerning_digest(self) -> Any:
+        """Cheap change token of the kerning snapshot: one hash per snapshot, not per tick."""
+        return self._read(
+            "kerning_digest", lambda: (len(self.kerning), hash(frozenset(self.kerning.items())))
+        )
 
     @property
     def kerning_unread(self) -> str | None:

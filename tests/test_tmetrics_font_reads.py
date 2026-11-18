@@ -658,36 +658,51 @@ class _Package:
         return _Glyph(self.layers)
 
 
-class _CountingKerning:
-    """Non-dict mapping: only ``items()`` works, and each call is counted."""
+class _ObjectPair:
+    """Native fgKerningObjectPair stand-in: not a (str, str) tuple, so name lookups miss it."""
 
-    def __init__(self, pairs):
-        self._pairs = pairs
+    def __init__(self, left, right):
+        self.left, self.right = left, right
+
+
+class _NativeKerning:
+    """fgKerning double: ``items()`` yields object-pair keys, ``getPlainPairsDict()`` str pairs."""
+
+    def __init__(self, plain):
+        self._plain = plain
+        self.plain_calls = 0
         self.item_calls = 0
 
     def items(self):
         self.item_calls += 1
-        return list(self._pairs.items())
+        return [(_ObjectPair("_KERN_A", "_KERN_V"), v) for v in self._plain.values()]
+
+    def getPlainPairsDict(self):  # noqa: N802 - FontLab method name
+        self.plain_calls += 1
+        return dict(self._plain)
 
     def __getitem__(self, key):
         raise AssertionError("per-key kerning read")
-
-    def __iter__(self):
-        raise AssertionError("dict(mapping) style read")
 
 
 class _KernPackage(_Package):
     def __init__(self, master, masters):
         super().__init__(master)
-        self.masters = masters
+        self.masters = list(masters)
+        self._kerning = masters
+        self.kerning_calls = []
 
     def kerning(self, name):
-        return self.masters[name]
+        self.kerning_calls.append(name)
+        return self._kerning[name]
 
 
 def _kern_setup(tm_mod, monkeypatch, master="public.default"):
     reads_mod = sys.modules["fontlabapp.fontui._font_reads"]
-    masters = {"public.default": _CountingKerning({("A", "V"): -92}), "Bold": _CountingKerning({("A", "V"): -122})}
+    masters = {
+        "public.default": _NativeKerning({("A", "V"): -92.0, ("A", "W"): -65.0, ("W", "t"): -18.0}),
+        "Bold": _NativeKerning({("A", "V"): -122.0, ("A", "W"): -104.0, ("W", "t"): -68.0}),
+    }
     package = _KernPackage(master, masters)
     monkeypatch.setattr(reads_mod, "package_of", lambda font: package)
     window, _, font = make(tm_mod)
@@ -701,40 +716,37 @@ def _kerns(window):
 
 def test_kerning_when_master_switched_then_active_masters_pairs_shown_and_switch_back(tm_mod, monkeypatch):
     window, package, masters, _ = _kern_setup(tm_mod, monkeypatch)
-    package.masters["public.default"]._pairs = {("A", "V"): -92}
     window.follow()
     default_kerns = _kerns(window)
     package.master = "Bold"
     window.follow()
-    bold_kerns = _kerns(window)
-    assert bold_kerns != default_kerns and -122 in bold_kerns, (default_kerns, bold_kerns)
-    assert window.model.settings.kerning
+    assert _kerns(window) == [-122.0, 0.0], _kerns(window)
+    window.model.select(1)
+    assert window.model.pair_readout().value == -122.0
     package.master = "public.default"
     window.follow()
     assert _kerns(window) == default_kerns, "switching back shows the default master's kerning again"
+    assert -122.0 not in default_kerns
 
 
-def test_kerning_when_refreshed_repeatedly_then_one_snapshot_per_master(tm_mod, monkeypatch):
+def test_kerning_when_refreshed_then_one_plain_pairs_call_per_master_per_refresh(tm_mod, monkeypatch):
     window, package, masters, _ = _kern_setup(tm_mod, monkeypatch, master="Bold")
-    counter = masters["Bold"]
-    for text in ("AVA", "VAV"):
-        before = counter.item_calls
-        window.set_text(text)
-        window.follow()
-        assert counter.item_calls - before <= 2, "at most one snapshot per refresh (set_text and follow each refresh once)"
-    before = counter.item_calls
+    start = masters["Bold"].plain_calls
     window.follow()
-    assert counter.item_calls - before == 1, "one refresh reads the active master once"
+    assert masters["Bold"].plain_calls == start + 1
+    assert masters["Bold"].item_calls == 0, "object-pair keys are never walked"
+    window.set_text("AVA")
+    assert masters["Bold"].plain_calls == start + 1, "typing reuses the snapshot"
 
 
-def test_kerning_write_when_master_is_not_default_then_refused_truthfully_and_default_unchanged(tm_mod, monkeypatch):
-    window, package, masters, font = _kern_setup(tm_mod, monkeypatch, master="Bold")
-    window.follow()
-    window.model.select(1)
-    before = dict(font.kerning.items())
-    assert not window.commit("kerning", "-50")
-    assert "default master" in window.diagnostic.text and "FontLab keeps" not in window.diagnostic.text
-    assert dict(font.kerning.items()) == before, "the default master's kerning is untouched"
+def test_font_reads_when_master_unknown_then_empty_and_unread_names_it(tm_mod, monkeypatch):
+    window, package, masters, font = _kern_setup(tm_mod, monkeypatch)
+    reads = window._reads
+    reads.kerning_master = "Ghost"
+    reads.reset()
+    assert reads.kerning == {}
+    assert reads.kerning_unread == "Ghost"
+    assert "Ghost" not in package.kerning_calls, "an unknown master never reaches the silent native fallback"
 
 
 def test_kerning_when_native_master_read_fails_then_no_kerning_and_status_names_the_master(tm_mod, monkeypatch):
@@ -749,6 +761,7 @@ def test_kerning_when_native_master_read_fails_then_no_kerning_and_status_names_
     window, _, font = make(tm_mod)
     default = dict(font.kerning.items())
     assert default, "the default master has kerning that must not appear"
+    package.masters = ["public.default", "Bold"]
     window.set_text("AV")
     assert window.model.settings.kerning
     assert _kerns(window) == [0, 0], "the active master shows no kerning, not the default master's"

@@ -334,7 +334,7 @@ def fingerprint(font: Any, names: list[str] | tuple[str, ...], read: Any = None)
     for part in (
         lambda: sorted(font.keys()),
         lambda: read_metrics(font),
-        lambda: sorted(font.kerning.items()),
+        lambda: font.kerning_digest() if hasattr(font, "kerning_digest") else sorted(font.kerning.items()),
         lambda: sorted((k, tuple(v)) for k, v in font.groups.items()),
         lambda: font.features.text or "",
     ):
