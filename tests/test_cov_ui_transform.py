@@ -5,6 +5,7 @@ import json
 from typing import Any
 
 import pytest
+from _light_canvas import light_canvas
 
 import _cov_qt as fq
 
@@ -14,6 +15,7 @@ def tmod(monkeypatch):
     handle = fq.install(monkeypatch)
     editor = handle.load("fontlabapp.fontui.transform")
     view = handle.load("fontlabapp.fontui.transform_view")
+    light_canvas(monkeypatch, view)
     yield type("Mods", (), {"editor": editor, "view": view})
     fq.release()
 

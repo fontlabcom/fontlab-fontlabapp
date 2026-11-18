@@ -10,6 +10,7 @@ from types import SimpleNamespace as NS
 from unittest.mock import Mock
 
 import pytest
+from _light_canvas import light_canvas
 from ufoLib2 import Font
 
 
@@ -121,6 +122,7 @@ def browser_module(monkeypatch):
     monkeypatch.setitem(sys.modules, 'fontlabapp.fontui.preview', NS(Preview=Preview))
     module = importlib.import_module('fontlabapp.fontui.native')
     monkeypatch.setattr(module, 'follow_changes', Mock())
+    light_canvas(monkeypatch, module)
     yield module, gui
     for name in ['native','lifecycle','preview']:
         sys.modules.pop('fontlabapp.fontui.'+name, None)

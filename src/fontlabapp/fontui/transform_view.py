@@ -9,7 +9,10 @@ from fontTools.pens.qtPen import QtPen
 from fontTools.pens.recordingPen import DecomposingRecordingPen, replayRecording
 from PythonQt import QtCore, QtGui
 
+from ._canvas_palette import _canvas_colors
 from .model import Outline, partition_paths
+
+_LIGHT = {"background": "#ffffff", "glyph": "#303030"}
 
 MATRIX = (
     ("xx", "x scale (xx)"),
@@ -134,18 +137,19 @@ def paint(owner: Any, canvas: Any) -> None:
     QPainter crashes FontLab.
     """
     painter = QtGui.QPainter(canvas)
+    colors = _canvas_colors(canvas, _LIGHT)
     try:
-        painter.fillRect(canvas.rect, QtGui.QColor("white"))
+        painter.fillRect(canvas.rect, QtGui.QColor(colors["background"]))
         if owner.closed or owner.result is None:
             return
         painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
         scale, x, y = owner.view(canvas.width, canvas.height)
         painter.translate(x, y)
         painter.scale(scale, -scale)
-        pen = QtGui.QPen(QtGui.QColor("#303030"))
+        pen = QtGui.QPen(QtGui.QColor(colors["glyph"]))
         pen.setWidthF(1 / scale)
         painter.setPen(pen)
-        _draw(painter, owner.result.recording, "#303030", True)
+        _draw(painter, owner.result.recording, colors["glyph"], True)
         if owner.compare_control.checked:
             pen.setColor(QtGui.QColor("#d04040"))
             painter.setPen(pen)

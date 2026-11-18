@@ -9,6 +9,7 @@ from PythonQt import QtCore, QtGui
 from fontlabapp.qt.events.key import key_press_handler
 from fontlabapp.fontui.lifecycle import Owned, follow_changes
 from fontlabapp.fontui.model import BrowserState, outline, partition_paths, viewport
+from fontlabapp.fontui._canvas_palette import _canvas_colors
 from fontlabapp.fontui.preview import Preview
 from fontlabapp.qt.properties import value as qt_value
 
@@ -223,7 +224,8 @@ class Browser(Owned):
         from fontTools.pens.recordingPen import replayRecording
 
         pixmap = QtGui.QPixmap(80, 80)
-        pixmap.fill(QtGui.QColor("white"))
+        colors = _canvas_colors(self.glyph_list, {"background": "#ffffff", "glyph": "#303030"})
+        pixmap.fill(QtGui.QColor(colors["background"]))
         painter = QtGui.QPainter(pixmap)
         try:
             data = outline(self.state.font, name)
@@ -232,7 +234,7 @@ class Browser(Owned):
             painter.scale(scale, -scale)
             painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
             painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
-            painter.setBrush(QtGui.QBrush(QtGui.QColor("#303030")))
+            painter.setBrush(QtGui.QBrush(QtGui.QColor(colors["glyph"])))
             path = QtGui.QPainterPath()
             path.setFillRule(QtCore.Qt.WindingFill)
             closed, opened = partition_paths(data.recording)
@@ -241,7 +243,7 @@ class Browser(Owned):
             path = QtGui.QPainterPath()
             replayRecording(opened, QtPen(None, path=path))
             painter.setBrush(QtGui.QBrush(QtCore.Qt.NoBrush))
-            pen = QtGui.QPen(QtGui.QColor("#303030"))
+            pen = QtGui.QPen(QtGui.QColor(colors["glyph"]))
             pen.setWidthF(1 / scale)
             painter.setPen(pen)
             painter.drawPath(path)
